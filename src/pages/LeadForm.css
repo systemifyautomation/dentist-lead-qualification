@@ -1,34 +1,22 @@
 .lead-form-container {
   min-height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
   background: linear-gradient(135deg, var(--color-black) 0%, var(--color-dark-gray) 100%);
-}
-
-.lead-form-header {
-  background: linear-gradient(90deg, var(--color-black) 0%, var(--color-gold) 100%);
-  padding: 3rem 2rem;
-  text-align: center;
-  color: var(--color-white);
-  box-shadow: 0 4px 20px rgba(210, 172, 103, 0.3);
-}
-
-.header-content h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  font-weight: 700;
-  letter-spacing: -1px;
-}
-
-.subtitle {
-  font-size: 1.25rem;
-  opacity: 0.9;
-  font-weight: 300;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
 }
 
 .lead-form-content {
-  padding: 4rem 2rem;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
 }
 
 .form-wrapper {
@@ -36,13 +24,13 @@
   width: 100%;
   background: var(--color-white);
   border-radius: 16px;
-  padding: 3rem;
+  padding: 1.5rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 .lead-form h2 {
-  font-size: 2rem;
-  margin-bottom: 2rem;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
   color: var(--color-black);
   text-align: center;
 }
@@ -50,27 +38,27 @@
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   font-weight: 600;
   color: var(--color-black);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 0.875rem;
+  padding: 0.65rem;
   border: 2px solid var(--color-light-gray);
   border-radius: 8px;
   font-size: 1rem;
@@ -89,49 +77,171 @@
 
 .form-group textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 70px;
+}
+
+.form-hint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.form-info {
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--color-white);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.form-info p {
+  margin: 0;
+}
+
+.form-info strong {
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+.phone-link {
+  text-decoration: none;
+  color: var(--color-gold);
+  transition: opacity 0.3s ease;
+}
+
+.phone-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
 }
 
 .submit-button {
   width: 100%;
-  padding: 1rem 2rem;
-  background: linear-gradient(90deg, var(--color-black) 0%, var(--color-gold) 100%);
+  padding: 0.75rem 1.5rem;
+  background: #d2ac67;
   color: var(--color-white);
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
 }
 
 .submit-button:hover {
+  background: #c9a05a;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(210, 172, 103, 0.4);
 }
 
+/* Progress Indicator */
+.progress-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  gap: 0.75rem;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .step-number {
+  background: var(--color-gold);
+  color: var(--color-white);
+  box-shadow: 0 4px 12px rgba(210, 172, 103, 0.4);
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+  transition: color 0.3s ease;
+}
+
+.progress-step.active .step-label {
+  color: var(--color-gold);
+}
+
+.progress-line {
+  width: 80px;
+  height: 2px;
+  background: #e0e0e0;
+  margin-bottom: 1rem;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.back-button {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--color-black);
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid var(--color-light-gray);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: var(--color-light-gray);
+  transform: translateY(-2px);
+}
+
+.form-actions .submit-button {
+  flex: 2;
+  margin-top: 0;
+}
+
 .success-message {
   text-align: center;
-  padding: 3rem 2rem;
+  padding: 2rem 1rem;
 }
 
 .success-icon {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   background: var(--color-gold);
   color: var(--color-white);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
-  margin: 0 auto 2rem;
+  font-size: 2rem;
+  margin: 0 auto 1rem;
   animation: scaleIn 0.5s ease;
 }
 
 .success-message h2 {
   color: var(--color-black);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
 }
 
 .success-message p {
@@ -162,6 +272,14 @@
   box-shadow: 0 6px 24px rgba(210, 172, 103, 0.6);
 }
 
+.chatgpt-logo {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @keyframes scaleIn {
   from {
     transform: scale(0);
@@ -173,25 +291,199 @@
   }
 }
 
+/* Tablet and smaller screens */
 @media (max-width: 768px) {
-  .header-content h1 {
-    font-size: 2rem;
+  .lead-form-container {
+    padding: 1.5rem;
   }
 
-  .subtitle {
-    font-size: 1rem;
+  .lead-form-content {
+    width: 100%;
   }
 
   .form-wrapper {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .lead-form h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
   }
 
   .form-row {
     grid-template-columns: 1fr;
     gap: 0;
+    margin-bottom: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .progress-indicator {
+    margin-bottom: 2rem;
+  }
+
+  .step-number {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .step-label {
+    font-size: 0.75rem;
+  }
+
+  .progress-line {
+    width: 60px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .back-button,
+  .form-actions .submit-button {
+    flex: auto;
+  }
+
+  .form-group label {
+    margin-bottom: 0.35rem;
+    font-size: 0.9rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.7rem;
+    font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .form-group textarea {
+    min-height: 80px;
+  }
+
+  .submit-button {
+    padding: 0.85rem 1.5rem;
+    font-size: 1rem;
+    margin-top: 0.75rem;
+  }
+
+  .form-info {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .success-message {
+    padding: 2rem 1rem;
+  }
+
+  .success-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .success-message h2 {
+    font-size: 1.5rem;
+  }
+
+  .success-message p {
+    font-size: 1rem;
+  }
+
+  .chatbot-toggle {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+    bottom: 1.5rem;
+    right: 1.5rem;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .lead-form-container {
+    padding: 1rem 0.5rem;
+    min-height: auto;
   }
 
   .lead-form-content {
-    padding: 2rem 1rem;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .form-wrapper {
+    padding: 1.25rem 0.75rem;
+    border-radius: 10px;
+  }
+
+  .lead-form h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.85rem;
+  }
+
+  .form-group label {
+    margin-bottom: 0.3rem;
+    font-size: 0.85rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.6rem;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+
+  .form-group textarea {
+    min-height: 70px;
+  }
+
+  .submit-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+  }
+
+  .form-info {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+  }
+
+  .success-message {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .success-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .success-message h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .success-message p {
+    font-size: 0.9rem;
+  }
+
+  .chatbot-toggle {
+    width: 45px;
+    height: 45px;
+    font-size: 1rem;
+    bottom: 1rem;
+    right: 1rem;
   }
 }
