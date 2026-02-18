@@ -1,73 +1,171 @@
-# React + TypeScript + Vite
+# Dentist Lead Qualification App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A premium, elegant React application for dental practice lead qualification featuring a public-facing application form with an intelligent chatbot and a comprehensive admin dashboard for lead management.
 
-Currently, two official plugins are available:
+## 🎨 Design
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Built with a premium SaaS aesthetic using:
+- **Black** (#000000) - Primary brand color
+- **White** (#ffffff) - Clean, professional backgrounds
+- **Gold** (#d2ac67) - Premium accent color
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Public Application Form (`/apply`)
+- Elegant, responsive lead qualification form
+- Required fields for contact and practice information
+- Budget range and timeline selection
+- Success confirmation with animation
+- Intelligent chatbot assistant
 
-## Expanding the ESLint configuration
+### Interactive Chatbot
+- Floating chat button for easy access
+- Answers common questions about:
+  - Pricing and plans
+  - Features and capabilities
+  - Support options
+  - Implementation timeline
+  - System integration
+- Smooth animations and typing indicators
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Admin Dashboard (`/admin`)
+- Real-time lead overview with statistics
+- Visual lead cards with status badges
+- Filter leads by status (New, Contacted, Qualified, Unqualified)
+- Detailed lead information panel
+- Status management system
+- Lead deletion capability
+- Responsive design for all screen sizes
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🚀 Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Prerequisites
+- Node.js 18+ installed
+- npm or yarn package manager
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/systemifyautomation/dentist-lead-qualification.git
+cd dentist-lead-qualification
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Install dependencies:
+```bash
+npm install
 ```
+
+3. Start the development server:
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173`
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+The production-ready files will be in the `dist` directory.
+
+### Preview Production Build
+
+```bash
+npm run preview
+```
+
+## 📁 Project Structure
+
+```
+src/
+├── components/          # Reusable components
+│   ├── Chatbot.tsx     # Intelligent chatbot component
+│   └── Chatbot.css     # Chatbot styles
+├── pages/              # Page components
+│   ├── LeadForm.tsx    # Public application form
+│   ├── LeadForm.css    # Form styles
+│   ├── AdminDashboard.tsx  # Admin lead management
+│   └── AdminDashboard.css  # Dashboard styles
+├── types.ts            # TypeScript type definitions
+├── App.tsx             # Main app with routing
+├── App.css             # App-level styles
+├── index.css           # Global styles and theme
+└── main.tsx            # App entry point
+```
+
+## 🛣️ Routes
+
+- `/` - Redirects to `/apply`
+- `/apply` - Public lead qualification form with chatbot
+- `/admin` - Admin dashboard for lead management
+
+## 💾 Data Storage
+
+Currently uses localStorage for data persistence. In production, this should be replaced with a proper backend API and database.
+
+## 🎯 Key Components
+
+### LeadForm
+- Comprehensive form validation
+- Real-time data capture
+- Success state with auto-reset
+- Mobile-responsive layout
+
+### Chatbot
+- Context-aware responses
+- Keyword-based intelligent routing
+- Smooth animations
+- Persistent across page (until closed)
+
+### AdminDashboard
+- Lead list with cards
+- Status-based filtering
+- Detailed lead view
+- Status update functionality
+- Delete lead capability
+
+## 🔧 Technologies Used
+
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **React Router DOM** - Client-side routing
+- **CSS3** - Styling with CSS variables
+
+## 📱 Responsive Design
+
+The application is fully responsive and works seamlessly on:
+- Desktop (1200px+)
+- Tablet (768px - 1199px)
+- Mobile (< 768px)
+
+## 🎨 Customization
+
+### Theme Colors
+Edit `src/index.css` to customize the color scheme:
+
+```css
+:root {
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-gold: #d2ac67;
+  --color-dark-gray: #1a1a1a;
+  --color-light-gray: #f5f5f5;
+  --color-medium-gray: #666666;
+}
+```
+
+## 📝 License
+
+This project is private and proprietary.
+
+## 🤝 Contributing
+
+This is a private repository. Contact the repository owner for contribution guidelines.
+
+## 📧 Support
+
+For questions or support, please contact the development team.
