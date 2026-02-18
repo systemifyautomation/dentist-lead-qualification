@@ -3,13 +3,13 @@ export interface Lead {
   name: string;
   email: string;
   phone: string;
-  practiceName: string;
-  practiceSize: string;
-  currentChallenges: string;
-  budget: string;
-  timeline: string;
-  notes: string;
-  status: 'new' | 'contacted' | 'qualified' | 'unqualified';
+  leadType: 'appointment' | 'emergency' | 'question'; // Type de demande
+  status: 'new' | 'contacted' | 'qualified' | 'scheduled' | 'no-show' | 'completed';
+  description?: string;
+  reminderSent?: boolean;
+  reminderDate?: string;
+  dateVisite?: string;
+  updatedAt?: string;
   createdAt: string;
 }
 
