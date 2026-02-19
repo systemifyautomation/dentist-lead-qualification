@@ -149,6 +149,13 @@ const LeadForm = () => {
         ...formData,
         phone: formatted
       });
+      
+      // Check if phone is valid
+      if (formatted === '+1 ' || !isPhoneValid(formatted)) {
+        setPhoneError('Veuillez entrer un numéro de téléphone valide (10 chiffres)');
+      } else {
+        setPhoneError(null);
+      }
     } else {
       setFormData({
         ...formData,
@@ -159,6 +166,14 @@ const LeadForm = () => {
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate phone number before proceeding
+    if (!isPhoneValid(formData.phone)) {
+      setPhoneError('Veuillez entrer un numéro de téléphone valide (10 chiffres)');
+      return;
+    }
+    
+    setPhoneError(null);
     setCurrentStep(2);
   };
 
@@ -292,8 +307,10 @@ const LeadForm = () => {
                     onChange={handleChange}
                     required
                     placeholder="+1 (___) ___-____"
+                    className={phoneError ? 'input-error' : ''}
                   />
-                  <small className="form-hint">Vous recevrez un message WhatsApp pour confirmer vos informations</small>
+                  {phoneError && <small className="form-error">{phoneError}</small>}
+                  {!phoneError && <small className="form-hint">Vous recevrez un message WhatsApp pour confirmer vos informations</small>}
                 </div>
               </div>
 
