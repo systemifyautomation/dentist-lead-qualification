@@ -135,14 +135,20 @@ Livrables Attendus :
               <p className="json-label">Webhook POST → https://n8n.systemifyautomation.com/webhook/dentist-leads</p>
               <pre className="json-code">{`{
   "nom": "Jean Dupont",
-  "telephone": "+1 (514) 123-4567",
   "email": "jean@email.com",
+  "téléphone": "+1 (514) 123-4567",
   "typeDemande": "appointment",
+  "statut": "phone-unconfirmed",
   "description": "Nettoyage dentaire",
   "dateVisite": "2025-02-25T14:30:00.000Z",
-  "statut": "verification-pending",
+  "url_calendrier": "https://calendar.google.com/calendar/event?eid=evt-001",
+  "id_calendrier": "cal_001",
+  "url_reprogrammation": "https://calendar.google.com/calendar/event?eid=evt-001-resched",
+  "url_annulation": "https://calendar.google.com/calendar/event?eid=evt-001-cancel",
   "rappelEnvoye": false,
-  "creeA": "2025-02-18T17:22:45.123Z"
+  "dateRappel": null,
+  "updatedAt": "2025-02-18T17:22:45.123Z",
+  "createdAt": "2025-02-18T17:22:45.123Z"
 }`}</pre>
             </div>
 

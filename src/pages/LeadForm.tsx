@@ -1,8 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Lead } from '../types';
 import Chatbot from '../components/Chatbot';
 import DateTimePicker from '../components/DateTimePicker';
 import './LeadForm.css';
+
+type BookedSlot = {
+  start: string;
+  end: string;
+};
 
 const LeadForm = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +23,54 @@ const LeadForm = () => {
   const [showChatbot, setShowChatbot] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [bookedSlots, setBookedSlots] = useState<BookedSlot[]>([]);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (currentStep !== 2) return;
+
+    let isMounted = true;
+    const fetchAvailability = async () => {
+      setAvailabilityLoading(true);
+      setAvailabilityError(null);
+      try {
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        const availabilityUrl = new URL('https://n8n.systemifyautomation.com/webhook/scalint-check-availability');
+        availabilityUrl.searchParams.set('month_start', formatMontrealDateTime(monthStart));
+        availabilityUrl.searchParams.set('month_end', formatMontrealDateTime(monthEnd));
+
+        const response = await fetch(availabilityUrl.toString());
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement des disponibilites');
+        }
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          throw new Error('Format de disponibilites invalide');
+        }
+        if (isMounted) {
+          setBookedSlots(data);
+        }
+      } catch (error) {
+        if (isMounted) {
+          const message = error instanceof Error ? error.message : 'Erreur inconnue';
+          setAvailabilityError(message);
+        }
+      } finally {
+        if (isMounted) {
+          setAvailabilityLoading(false);
+        }
+      }
+    };
+
+    fetchAvailability();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentStep]);
 
   const formatPhoneNumber = (value: string) => {
     // Remove all non-digit characters
@@ -36,6 +89,37 @@ const LeadForm = () => {
     } else {
       return `+1 (${phoneDigits.slice(0, 3)}) ${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
     }
+  };
+
+  const formatMontrealDateTime = (date: Date) => {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).formatToParts(date);
+
+    const getPart = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
+    const year = getPart('year');
+    const month = getPart('month');
+    const day = getPart('day');
+    const hour = getPart('hour');
+    const minute = getPart('minute');
+    const second = getPart('second');
+
+    const localIso = `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+    const utcFromLocal = Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
+    const offsetMinutes = Math.round((utcFromLocal - date.getTime()) / 60000);
+    const sign = offsetMinutes <= 0 ? '-' : '+';
+    const absMinutes = Math.abs(offsetMinutes);
+    const offsetHours = String(Math.floor(absMinutes / 60)).padStart(2, '0');
+    const offsetMins = String(absMinutes % 60).padStart(2, '0');
+
+    return `${localIso}${sign}${offsetHours}:${offsetMins}`;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -70,7 +154,7 @@ const LeadForm = () => {
     if (date) {
       setFormData({
         ...formData,
-        dateVisite: date.toISOString()
+        dateVisite: formatMontrealDateTime(date)
       });
     }
   };
@@ -78,12 +162,13 @@ const LeadForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const createdAt = formatMontrealDateTime(new Date());
     const lead: Lead = {
       id: Date.now().toString(),
       ...formData,
-      status: 'verification-pending',
+      status: 'phone-unconfirmed',
       reminderSent: false,
-      createdAt: new Date().toISOString()
+      createdAt
     };
 
     // Send to webhook
@@ -95,9 +180,9 @@ const LeadForm = () => {
         typeDemande: formData.leadType,
         description: formData.description,
         dateVisite: formData.dateVisite,
-        statut: 'verification-pending',
+        statut: 'phone-unconfirmed',
         rappelEnvoye: false,
-        creeA: new Date().toISOString()
+        creeA: createdAt
       };
 
       await fetch(import.meta.env.VITE_WEBHOOK_LEADS, {
@@ -253,6 +338,9 @@ const LeadForm = () => {
                       selected={selectedDate}
                       onChange={handleDateChange}
                       placeholder="Cliquez pour sélectionner une date"
+                      bookedSlots={bookedSlots}
+                      availabilityLoading={availabilityLoading}
+                      availabilityError={availabilityError}
                     />
                     <small className="form-hint">Disponibilités: Lundi au Vendredi, 8h00 à 18h00</small>
                   </div>

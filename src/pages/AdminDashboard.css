@@ -296,21 +296,21 @@
 }
 
 /* Status badge colors in dropdown */
-.status-filter option[value="verification-pending"] {
-  background-color: #fff4db;
-  color: #8a5a00;
+.status-filter option[value="phone-unconfirmed"] {
+  background-color: #fff5e1;
+  color: #8a6d3b;
   font-weight: 500;
 }
 
-.status-filter option[value="whatsapp-confirmed"] {
-  background-color: #e6f0ff;
-  color: #1e3a8a;
+.status-filter option[value="phone-confirmed"] {
+  background-color: #e8f4ff;
+  color: #1f4e79;
   font-weight: 500;
 }
 
 .status-filter option[value="canceled"] {
   background-color: #f3f4f6;
-  color: #374151;
+  color: #6b7280;
   font-weight: 500;
 }
 
@@ -662,6 +662,38 @@
   background: var(--color-gold);
   border-color: var(--color-gold);
   transform: translateY(-1px);
+}
+
+.save-button {
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  background: linear-gradient(135deg, #1f2937 0%, #0f172a 100%);
+  color: var(--color-white);
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.3);
+  filter: brightness(1.05);
+}
+
+.save-button:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.2);
+}
+
+.save-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .icon-button.cancel-button {
