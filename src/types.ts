@@ -4,7 +4,7 @@ export interface Lead {
   email: string;
   phone: string;
   leadType: 'appointment' | 'emergency' | 'question'; // Type de demande
-  status: 'new' | 'contacted' | 'qualified' | 'scheduled' | 'no-show' | 'completed';
+  status: 'verification-pending' | 'whatsapp-confirmed' | 'canceled' | 'no-show' | 'completed';
   description?: string;
   reminderSent?: boolean;
   reminderDate?: string;

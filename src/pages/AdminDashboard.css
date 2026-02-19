@@ -296,27 +296,21 @@
 }
 
 /* Status badge colors in dropdown */
-.status-filter option[value="new"] {
-  background-color: #dbeafe;
-  color: #1e40af;
+.status-filter option[value="verification-pending"] {
+  background-color: #fff4db;
+  color: #8a5a00;
   font-weight: 500;
 }
 
-.status-filter option[value="contacted"] {
-  background-color: #fef3c7;
-  color: #92400e;
+.status-filter option[value="whatsapp-confirmed"] {
+  background-color: #e6f0ff;
+  color: #1e3a8a;
   font-weight: 500;
 }
 
-.status-filter option[value="qualified"] {
-  background-color: #d1fae5;
-  color: #065f46;
-  font-weight: 500;
-}
-
-.status-filter option[value="scheduled"] {
-  background-color: #e0e7ff;
-  color: #3730a3;
+.status-filter option[value="canceled"] {
+  background-color: #f3f4f6;
+  color: #374151;
   font-weight: 500;
 }
 

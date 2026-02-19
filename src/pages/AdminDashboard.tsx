@@ -43,7 +43,7 @@ const AdminDashboard = () => {
     email: '',
     phone: '+1 ',
     leadType: 'appointment' as Lead['leadType'],
-    status: 'new' as Lead['status'],
+    status: 'verification-pending' as Lead['status'],
     description: '',
     dateVisite: '',
     reminderSent: false
@@ -61,30 +61,46 @@ const AdminDashboard = () => {
 
   const mapStatus = (statut?: string): Lead['status'] => {
     switch ((statut || '').toLowerCase()) {
+      case 'verification-pending':
+      case 'whatsapp-pending':
+      case 'en attente':
+      case 'attente':
+      case 'attente confirmation':
+      case 'verification en attente':
+      case 'verification':
       case 'nouveau':
       case 'new':
-        return 'new';
+        return 'verification-pending';
+      case 'whatsapp-confirmed':
+      case 'whatsapp confirmé':
+      case 'whatsapp confirme':
+      case 'confirmé':
+      case 'confirme':
       case 'contacte':
       case 'contacté':
       case 'contacted':
-        return 'contacted';
       case 'qualifie':
       case 'qualifié':
       case 'qualified':
-        return 'qualified';
       case 'planifie':
       case 'planifié':
       case 'scheduled':
-        return 'scheduled';
+        return 'whatsapp-confirmed';
+      case 'annule':
+      case 'annulé':
+      case 'canceled':
+      case 'cancelled':
+        return 'canceled';
       case 'absent':
       case 'no-show':
+      case 'no show':
         return 'no-show';
       case 'complete':
       case 'complété':
       case 'completed':
         return 'completed';
       default:
-        return 'new';
+        return 'verification-pending';
     }
   };
 
@@ -169,17 +185,15 @@ const AdminDashboard = () => {
           : lead.leadType === 'emergency'
             ? 'urgence'
             : 'question';
-        const statusLabel = lead.status === 'new'
-          ? 'nouveau'
-          : lead.status === 'contacted'
-            ? 'contacte'
-            : lead.status === 'qualified'
-              ? 'qualifie'
-              : lead.status === 'scheduled'
-                ? 'planifie'
-                : lead.status === 'no-show'
-                  ? 'absent'
-                  : 'complete';
+        const statusLabel = lead.status === 'verification-pending'
+          ? 'attente whatsapp'
+          : lead.status === 'whatsapp-confirmed'
+            ? 'whatsapp confirme'
+            : lead.status === 'canceled'
+              ? 'annule'
+              : lead.status === 'no-show'
+                ? 'absent'
+                : 'complete';
         const haystack = [
           lead.name,
           lead.email,
@@ -235,10 +249,9 @@ const AdminDashboard = () => {
 
   const getStatusColor = (status: Lead['status']) => {
     switch (status) {
-      case 'new': return '#d2ac67';
-      case 'contacted': return '#4a90e2';
-      case 'qualified': return '#50c878';
-      case 'scheduled': return '#9b59b6';
+      case 'verification-pending': return '#d2ac67';
+      case 'whatsapp-confirmed': return '#4a90e2';
+      case 'canceled': return '#9b9b9b';
       case 'no-show': return '#e74c3c';
       case 'completed': return '#27ae60';
       default: return '#666';
@@ -268,13 +281,12 @@ const AdminDashboard = () => {
 
   const getStatusLabel = (status: Lead['status']) => {
     switch (status) {
-      case 'new': return 'nouveau';
-      case 'contacted': return 'contacté';
-      case 'qualified': return 'qualifié';
-      case 'scheduled': return 'planifié';
+      case 'verification-pending': return 'en attente WhatsApp';
+      case 'whatsapp-confirmed': return 'WhatsApp confirmé';
+      case 'canceled': return 'annulé';
       case 'no-show': return 'absent';
       case 'completed': return 'complété';
-      default: return 'nouveau';
+      default: return 'en attente WhatsApp';
     }
   };
 
@@ -319,7 +331,7 @@ const AdminDashboard = () => {
       email: '',
       phone: '+1 ',
       leadType: 'appointment',
-      status: 'new',
+      status: 'verification-pending',
       description: '',
       dateVisite: '',
       reminderSent: false
@@ -551,35 +563,27 @@ const AdminDashboard = () => {
             </button>
             <button
               type="button"
-              className={`stat-card ${filterStatus === 'new' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('new')}
+              className={`stat-card ${filterStatus === 'verification-pending' ? 'active' : ''}`}
+              onClick={() => setFilterStatus('verification-pending')}
             >
-              <div className="stat-number">{leads.filter(l => l.status === 'new').length}</div>
-              <div className="stat-label">Nouveau</div>
+              <div className="stat-number">{leads.filter(l => l.status === 'verification-pending').length}</div>
+              <div className="stat-label">En attente WhatsApp</div>
             </button>
             <button
               type="button"
-              className={`stat-card ${filterStatus === 'scheduled' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('scheduled')}
+              className={`stat-card ${filterStatus === 'whatsapp-confirmed' ? 'active' : ''}`}
+              onClick={() => setFilterStatus('whatsapp-confirmed')}
             >
-              <div className="stat-number">{leads.filter(l => l.status === 'scheduled').length}</div>
-              <div className="stat-label">Planifiés</div>
+              <div className="stat-number">{leads.filter(l => l.status === 'whatsapp-confirmed').length}</div>
+              <div className="stat-label">WhatsApp confirmé</div>
             </button>
             <button
               type="button"
-              className={`stat-card ${filterStatus === 'contacted' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('contacted')}
+              className={`stat-card ${filterStatus === 'canceled' ? 'active' : ''}`}
+              onClick={() => setFilterStatus('canceled')}
             >
-              <div className="stat-number">{leads.filter(l => l.status === 'contacted').length}</div>
-              <div className="stat-label">Contactés</div>
-            </button>
-            <button
-              type="button"
-              className={`stat-card ${filterStatus === 'qualified' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('qualified')}
-            >
-              <div className="stat-number">{leads.filter(l => l.status === 'qualified').length}</div>
-              <div className="stat-label">Qualifiés</div>
+              <div className="stat-number">{leads.filter(l => l.status === 'canceled').length}</div>
+              <div className="stat-label">Annulés</div>
             </button>
             <button
               type="button"
@@ -613,10 +617,9 @@ const AdminDashboard = () => {
                   className="filter-select status-filter"
                 >
                   <option value="all">Toutes les demandes</option>
-                  <option value="new" className="status-new">Nouveau</option>
-                  <option value="contacted" className="status-contacted">Contacté</option>
-                  <option value="qualified" className="status-qualified">Qualifié</option>
-                  <option value="scheduled" className="status-scheduled">Planifié</option>
+                  <option value="verification-pending" className="status-new">En attente WhatsApp</option>
+                  <option value="whatsapp-confirmed" className="status-contacted">WhatsApp confirmé</option>
+                  <option value="canceled" className="status-qualified">Annulé</option>
                   <option value="no-show" className="status-no-show">Absent</option>
                   <option value="completed" className="status-completed">Complété</option>
                 </select>
@@ -679,7 +682,7 @@ const AdminDashboard = () => {
                         className="status-badge"
                         style={{ backgroundColor: getStatusColor(lead.status) }}
                       >
-                        {lead.status === 'new' ? 'Nouveau' : lead.status === 'contacted' ? 'Contacté' : lead.status === 'qualified' ? 'Qualifié' : lead.status === 'scheduled' ? 'Planifié' : lead.status === 'no-show' ? 'Absent' : 'Complété'}
+                        {getStatusLabel(lead.status)}
                       </span>
                     </div>
                     <div className="lead-card-info">
@@ -925,10 +928,9 @@ const AdminDashboard = () => {
                           value={editForm.status}
                           onChange={(e) => handleEditChange('status', e.target.value as Lead['status'])}
                         >
-                          <option value="new" className="status-new">Nouveau</option>
-                          <option value="contacted" className="status-contacted">Contacté</option>
-                          <option value="qualified" className="status-qualified">Qualifié</option>
-                          <option value="scheduled" className="status-scheduled">Planifié</option>
+                          <option value="verification-pending" className="status-new">En attente WhatsApp</option>
+                          <option value="whatsapp-confirmed" className="status-contacted">WhatsApp confirmé</option>
+                          <option value="canceled" className="status-qualified">Annulé</option>
                           <option value="no-show" className="status-no-show">Absent</option>
                           <option value="completed" className="status-completed">Complété</option>
                         </select>
@@ -1045,10 +1047,9 @@ const AdminDashboard = () => {
                       value={addLeadForm.status}
                       onChange={(e) => handleAddLeadChange('status', e.target.value)}
                     >
-                      <option value="new">nouveau</option>
-                      <option value="contacted">contacté</option>
-                      <option value="qualified">qualifié</option>
-                      <option value="scheduled">planifié</option>
+                      <option value="verification-pending">en attente WhatsApp</option>
+                      <option value="whatsapp-confirmed">WhatsApp confirmé</option>
+                      <option value="canceled">annulé</option>
                       <option value="no-show">absent</option>
                       <option value="completed">complété</option>
                     </select>
