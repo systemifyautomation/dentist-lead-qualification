@@ -219,7 +219,256 @@ Livrables Attendus :
           </div>
         </section>
 
-        {/* Section 5: Voice AI Fallback */}
+        {/* Section 5: Availability Workflow */}
+        <section className="strategy-section">
+          <h2>Workflow n8n - Disponibilites Mensuelles</h2>
+          <div className="content-block">
+            <h3>Objectif</h3>
+            <p>
+              Ce workflow sert a recuperer les disponibilites du mois depuis Google Calendar afin de
+              desactiver les plages deja reservees dans le selecteur de date/heure.
+            </p>
+
+            <h3>Fonctionnement</h3>
+            <ul>
+              <li><strong>Webhook GET:</strong> accepte les parametres <em>month_start</em> et <em>month_end</em></li>
+              <li><strong>Google Calendar:</strong> liste les evenements confirmes dans cette plage</li>
+              <li><strong>Response:</strong> renvoie un tableau <em>booked_slots</em> avec {`{ start, end }`}</li>
+              <li><strong>Frontend:</strong> bloque les creneaux correspondants dans le calendrier</li>
+            </ul>
+
+            <div className="n8n-diagram">
+              <p className="diagram-label">Workflow disponibilites mensuelles</p>
+              <img
+                src="/Scalint - Get Booked Slots.png"
+                alt="Workflow n8n pour recuperer les creneaux reserves"
+                className="workflow-diagram-image"
+                style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}
+              />
+              <p className="diagram-note">✅ Workflow publie pour l'API de disponibilites</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 6: Reminder Workflow */}
+        <section className="strategy-section">
+          <h2>Workflow n8n - Rappel WhatsApp 24h</h2>
+          <div className="content-block">
+            <h3>Objectif</h3>
+            <p>
+              Ce workflow envoie un message WhatsApp automatique quand il reste moins de 24h avant la
+              date de visite.
+            </p>
+
+            <h3>Fonctionnement</h3>
+            <ul>
+              <li><strong>Schedule Trigger:</strong> lance le workflow a intervalle regulier</li>
+              <li><strong>Get row(s):</strong> recupere les leads planifies</li>
+              <li><strong>Date & Time:</strong> calcule la difference avec la date de visite</li>
+              <li><strong>Filter:</strong> garde uniquement les RDV a moins de 24h</li>
+              <li><strong>Send WhatsApp DM:</strong> envoie le rappel au patient</li>
+            </ul>
+
+            <h3>Message WhatsApp</h3>
+            <div className="json-example">
+              <pre className="json-code">{`Salut {prenom},
+Petit rappel: ton rendez-vous est dans 24h.
+Si tu dois annuler ou reprogrammer, réponds à ce message.
+
+À bientôt! 😊`}</pre>
+            </div>
+
+            <h3>Diagramme de flux</h3>
+            <div className="workflow-centered">
+              <div className="n8n-workflow">
+                <div className="workflow-step step-1">
+                  <div className="step-title">1. Schedule Trigger</div>
+                  <p>Declencheur planifie</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-2">
+                  <div className="step-title">2. Get Uninformed Leads</div>
+                  <p>Recuperer les leads non informes</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-3">
+                  <div className="step-title">3. Calculate Time Left</div>
+                  <p>Comparer la date de visite</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-4">
+                  <div className="step-title">4. Filtre &lt; 24h</div>
+                  <p>Garder les RDV imminents</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-5">
+                  <div className="step-title">5. Send WhatsApp DM</div>
+                  <p>Envoi du rappel</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-6">
+                  <div className="step-title">6. Update Lead</div>
+                  <p>reminderSent = true</p>
+                  <small>reminderDate = now()</small>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-7">
+                  <div className="step-title">7. Loop Informed Leads</div>
+                  <p>Traiter chaque lead</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-8">
+                  <div className="step-title">8. Get Conversation</div>
+                  <p>Recuperer la discussion WhatsApp</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-9">
+                  <div className="step-title">9. Update Conversation</div>
+                  <p>Archiver la reponse</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="n8n-diagram">
+              <p className="diagram-label">Workflow rappel WhatsApp 24h</p>
+              <img
+                src="/Scalint - Reminder workflow.png"
+                alt="Workflow n8n pour envoyer les rappels WhatsApp 24h"
+                className="workflow-diagram-image"
+                style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}
+              />
+              <p className="diagram-note">✅ Workflow publie pour les rappels automatiques</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 7: No-Show Workflow */}
+        <section className="strategy-section">
+          <h2>Workflow n8n - Gestion No-Show</h2>
+          <div className="content-block">
+            <h3>Objectif</h3>
+            <p>
+              Ce workflow detecte les rendez-vous manques, notifie le patient et met a jour les
+              enregistrements pour relancer ou reprogrammer.
+            </p>
+
+            <h3>Fonctionnement</h3>
+            <ul>
+              <li><strong>Schedule Trigger:</strong> lance la verification des no-shows</li>
+              <li><strong>Get no-shows:</strong> recupere les RDV rates</li>
+              <li><strong>Send WhatsApp DM:</strong> envoie le message de relance</li>
+              <li><strong>Edit Fields:</strong> met a jour le statut du lead</li>
+              <li><strong>Move records:</strong> ajoute aux no-shows et retire des leads actifs</li>
+              <li><strong>Loop:</strong> met a jour la conversation WhatsApp</li>
+            </ul>
+
+            <h3>Message WhatsApp No-Show</h3>
+            <div className="json-example">
+              <pre className="json-code">{`Salut {prenom},
+Nous avons remarque que tu n'as pas pu venir a ton rendez-vous aujourd'hui.
+Tu peux reprogrammer ici: {reschedule_url}
+
+Si tu as besoin d'aide, reponds a ce message.
+
+A bientot! 😊`}</pre>
+            </div>
+
+            <h3>Diagramme de flux</h3>
+            <div className="workflow-centered">
+              <div className="n8n-workflow">
+                <div className="workflow-step step-1">
+                  <div className="step-title">1. Schedule Trigger</div>
+                  <p>Declencheur planifie</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-2">
+                  <div className="step-title">2. Get No-Shows</div>
+                  <p>Recuperer les RDV rates</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-3">
+                  <div className="step-title">3. Send WhatsApp DM</div>
+                  <p>Message de relance</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-4">
+                  <div className="step-title">4. Edit Fields</div>
+                  <p>Statut = no-show</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-5">
+                  <div className="step-title">5. Add to No-Shows</div>
+                  <p>Ajout base no-show</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-6">
+                  <div className="step-title">6. Remove from Active</div>
+                  <p>Retrait base principale</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-7">
+                  <div className="step-title">7. Loop No-Shows</div>
+                  <p>Traiter chaque no-show</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-8">
+                  <div className="step-title">8. Get Conversation</div>
+                  <p>Recuperer discussion</p>
+                </div>
+
+                <div className="workflow-arrow">↓</div>
+
+                <div className="workflow-step step-9">
+                  <div className="step-title">9. Update Conversation</div>
+                  <p>Archiver la reponse</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="n8n-diagram">
+              <p className="diagram-label">Workflow no-shows</p>
+              <img
+                src="/Scalint - No-shows workflow.png"
+                alt="Workflow n8n pour gerer les no-shows"
+                className="workflow-diagram-image"
+                style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}
+              />
+              <p className="diagram-note">✅ Workflow publie pour la relance no-show</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 8: Voice AI Fallback */}
         <section className="strategy-section">
           <h2>Alternative: Retell AI Voice Service</h2>
           <div className="content-block">

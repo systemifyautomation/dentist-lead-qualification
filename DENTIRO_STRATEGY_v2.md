@@ -284,6 +284,12 @@ interface Lead {
 }
 ```
 
+**Message WhatsApp de verification:**
+```
+Salut {{ prénom}}! 👋  
+Nous avons reçu ta demande pour un rendez-vous chez Dentiro.
+```
+
 #### Workflow 2: Rappel WhatsApp 24h Avant RDV
 
 **Déclencheur:** Cron - Tous les jours à 10:00 AM
@@ -312,16 +318,15 @@ interface Lead {
 
 **Message WhatsApp Template:**
 ```
-🦷 Rappel DENTIRO
+⏰ Rappel Dentiro
 
-Bonjour {{name}}!
+Salut {{name}}! 👋
 
-Votre rendez-vous dentaire est DEMAIN:
+Petit rappel: ton rendez-vous est dans 24h.
 📅 {{visitDate}}
 📍 Clinique DENTIRO
 
-Répondez OUI pour confirmer.
-Besoin d'annuler? Répondez CANCEL
+Si tu dois annuler ou reprogrammer, réponds à ce message.
 
 À bientôt! 😊
 ```

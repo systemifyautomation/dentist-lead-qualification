@@ -26,6 +26,7 @@ const LeadForm = () => {
   const [bookedSlots, setBookedSlots] = useState<BookedSlot[]>([]);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   useEffect(() => {
     if (currentStep !== 2) return;
@@ -89,6 +90,22 @@ const LeadForm = () => {
     } else {
       return `+1 (${phoneDigits.slice(0, 3)}) ${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
     }
+  };
+
+  const isPhoneValid = (phone: string) => {
+    // Extract only digits
+    const digits = phone.replace(/\D/g, '');
+    
+    // Must have exactly 10 digits (for North America)
+    // or 11 digits if it starts with 1
+    if (digits.length === 11 && digits.startsWith('1')) {
+      return true;
+    }
+    if (digits.length === 10) {
+      return true;
+    }
+    
+    return false;
   };
 
   const formatMontrealDateTime = (date: Date) => {
