@@ -148,9 +148,9 @@ const Reschedule = () => {
         throw new Error('Erreur lors de l\'annulation du rendez-vous existant');
       }
 
-      // Then, create the new rescheduled meeting
+      // Then, notify reschedule with the old visit_id
       const rescheduleResponse = await fetch(
-        'https://n8n.systemifyautomation.com/webhook/scalint-lead-rescheduled',
+        'https://n8n.systemifyautomation.com/webhook/scalint-lead-reschedule',
         {
           method: 'POST',
           headers: {
@@ -165,7 +165,7 @@ const Reschedule = () => {
       );
 
       if (!rescheduleResponse.ok) {
-        throw new Error('Erreur lors de la création du nouveau rendez-vous');
+        throw new Error('Erreur lors de la reprogrammation du rendez-vous');
       }
 
       setSubmitted(true);
