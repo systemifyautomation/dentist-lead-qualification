@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { DayPicker } from 'react-day-picker';
-import { format, setHours, setMinutes, startOfDay, isBefore, addDays, addMonths, subMonths } from 'date-fns';
+import { format, setHours, setMinutes, startOfDay, isBefore, addDays, addMonths, subMonths, addMinutes } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar, Clock, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import 'react-day-picker/dist/style.css';
@@ -13,6 +13,9 @@ interface DateTimePickerProps {
   isClearable?: boolean;
   minDate?: Date;
   locale?: string;
+  bookedSlots?: Array<{ start: string; end: string }>;
+  availabilityLoading?: boolean;
+  availabilityError?: string | null;
 }
 
 const DateTimePicker = ({
@@ -21,6 +24,9 @@ const DateTimePicker = ({
   placeholder = 'Sélectionner une date et heure',
   isClearable = false,
   minDate = new Date(),
+  bookedSlots = [],
+  availabilityLoading = false,
+  availabilityError = null,
 }: DateTimePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(selected || undefined);
@@ -41,6 +47,38 @@ const DateTimePicker = ({
     }
     return slots;
   }, []);
+
+  const bookedRanges = useMemo(() => {
+    return bookedSlots
+      .map((slot) => ({
+        start: new Date(slot.start),
+        end: new Date(slot.end)
+      }))
+      .filter((slot) => !Number.isNaN(slot.start.getTime()) && !Number.isNaN(slot.end.getTime()))
+      .map((slot) => ({
+        startMs: slot.start.getTime(),
+        endMs: slot.end.getTime()
+      }));
+  }, [bookedSlots]);
+
+  const isSlotBlockedForDay = (day: Date, time: string) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const slotStart = setMinutes(setHours(day, hours), minutes);
+    const slotEnd = addMinutes(slotStart, 30);
+    const startMs = slotStart.getTime();
+    const endMs = slotEnd.getTime();
+    return bookedRanges.some((range) => startMs < range.endMs && endMs > range.startMs);
+  };
+
+  const isSlotBlocked = (time: string) => {
+    if (!selectedDate) return false;
+    return isSlotBlockedForDay(selectedDate, time);
+  };
+
+  const isDayFullyBooked = (day: Date) => {
+    if (availabilityLoading || bookedRanges.length === 0) return false;
+    return timeSlots.every((time) => isSlotBlockedForDay(day, time));
+  };
 
   useEffect(() => {
     // Lock body scroll when modal is open
@@ -171,7 +209,7 @@ const DateTimePicker = ({
                   mode="single"
                   selected={selectedDate}
                   onSelect={handleDaySelect}
-                  disabled={{ before: minDay }}
+                  disabled={(day) => isBefore(day, minDay) || isDayFullyBooked(day)}
                   month={displayMonth}
                   onMonthChange={setDisplayMonth}
                   modifiers={{
@@ -194,18 +232,30 @@ const DateTimePicker = ({
                   <Clock size={16} />
                   <span>Heure</span>
                 </div>
+                {(availabilityLoading || availabilityError) && (
+                  <div className={`availability-status ${availabilityError ? 'error' : ''}`}>
+                    {availabilityLoading ? 'Chargement des disponibilites...' : availabilityError}
+                  </div>
+                )}
                 <div className="time-list">
-                  {timeSlots.map((time) => (
-                    <button
-                      key={time}
-                      type="button"
-                      className={`time-slot ${selectedTime === time ? 'selected' : ''}`}
-                      onClick={() => handleTimeSelect(time)}
-                      disabled={!selectedDate}
-                    >
-                      {time}
-                    </button>
-                  ))}
+                  {timeSlots.map((time) => {
+                    const blocked = isSlotBlocked(time);
+                    return (
+                      <button
+                        key={time}
+                        type="button"
+                        className={`time-slot ${selectedTime === time ? 'selected' : ''} ${blocked ? 'blocked' : ''}`}
+                        onClick={() => {
+                          if (!blocked) {
+                            handleTimeSelect(time);
+                          }
+                        }}
+                        disabled={!selectedDate || availabilityLoading || blocked}
+                      >
+                        {time}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>

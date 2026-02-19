@@ -12,6 +12,10 @@ type ApiLead = {
   typeDemande?: string;
   statut?: string;
   description?: string;
+  calendar_url?: string;
+  calendar_id?: string;
+  reschedule_url?: string;
+  cancel_url?: string;
   rappelEnvoye?: boolean;
   dateRappel?: string;
   dateVisite?: string;
@@ -21,6 +25,10 @@ type ApiLead = {
   phone?: string;
   leadType?: string;
   status?: string;
+  calendarUrl?: string;
+  calendarId?: string;
+  rescheduleUrl?: string;
+  cancelUrl?: string;
   reminderSent?: boolean;
   reminderDate?: string;
 };
@@ -43,12 +51,19 @@ const AdminDashboard = () => {
     email: '',
     phone: '+1 ',
     leadType: 'appointment' as Lead['leadType'],
-    status: 'verification-pending' as Lead['status'],
+    status: 'phone-unconfirmed' as Lead['status'],
     description: '',
+    calendarUrl: '',
+    calendarId: '',
+    rescheduleUrl: '',
+    cancelUrl: '',
     dateVisite: '',
     reminderSent: false
   });
   const [addLeadSelectedDate, setAddLeadSelectedDate] = useState<Date | null>(null);
+  const [addLeadBookedSlots, setAddLeadBookedSlots] = useState<Array<{ start: string; end: string }>>([]);
+  const [addLeadAvailabilityLoading, setAddLeadAvailabilityLoading] = useState(false);
+  const [addLeadAvailabilityError, setAddLeadAvailabilityError] = useState<string | null>(null);
   const pageSize = 25;
 
   useEffect(() => {
@@ -59,23 +74,75 @@ const AdminDashboard = () => {
     setCurrentPage(1);
   }, [filterStatus, searchQuery, sortOrder]);
 
+  useEffect(() => {
+    if (!showAddLeadModal) return;
+
+    let isMounted = true;
+    const fetchAvailability = async () => {
+      setAddLeadAvailabilityLoading(true);
+      setAddLeadAvailabilityError(null);
+      try {
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        const availabilityUrl = new URL('https://n8n.systemifyautomation.com/webhook/scalint-check-availability');
+        availabilityUrl.searchParams.set('month_start', formatMontrealDateTime(monthStart));
+        availabilityUrl.searchParams.set('month_end', formatMontrealDateTime(monthEnd));
+
+        const response = await fetch(availabilityUrl.toString());
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement des disponibilites');
+        }
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          throw new Error('Format de disponibilites invalide');
+        }
+        if (isMounted) {
+          setAddLeadBookedSlots(data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          const message = err instanceof Error ? err.message : 'Erreur inconnue';
+          setAddLeadAvailabilityError(message);
+        }
+      } finally {
+        if (isMounted) {
+          setAddLeadAvailabilityLoading(false);
+        }
+      }
+    };
+
+    fetchAvailability();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [showAddLeadModal]);
+
   const mapStatus = (statut?: string): Lead['status'] => {
     switch ((statut || '').toLowerCase()) {
-      case 'verification-pending':
+      case 'phone-unconfirmed':
+      case 'phone_unconfirmed':
       case 'whatsapp-pending':
-      case 'en attente':
-      case 'attente':
-      case 'attente confirmation':
+      case 'pending':
+      case 'non confirme':
+      case 'non confirmé':
+      case 'non-confirme':
+      case 'non-confirmé':
+      case 'attente whatsapp':
+      case 'en attente whatsapp':
       case 'verification en attente':
-      case 'verification':
       case 'nouveau':
       case 'new':
-        return 'verification-pending';
+        return 'phone-unconfirmed';
+      case 'phone-confirmed':
+      case 'phone_confirmed':
       case 'whatsapp-confirmed':
-      case 'whatsapp confirmé':
-      case 'whatsapp confirme':
-      case 'confirmé':
+      case 'confirme whatsapp':
+      case 'confirmé whatsapp':
       case 'confirme':
+      case 'confirmé':
+      case 'confirmed':
       case 'contacte':
       case 'contacté':
       case 'contacted':
@@ -85,7 +152,7 @@ const AdminDashboard = () => {
       case 'planifie':
       case 'planifié':
       case 'scheduled':
-        return 'whatsapp-confirmed';
+        return 'phone-confirmed';
       case 'annule':
       case 'annulé':
       case 'canceled':
@@ -93,14 +160,13 @@ const AdminDashboard = () => {
         return 'canceled';
       case 'absent':
       case 'no-show':
-      case 'no show':
         return 'no-show';
       case 'complete':
       case 'complété':
       case 'completed':
         return 'completed';
       default:
-        return 'verification-pending';
+        return 'phone-unconfirmed';
     }
   };
 
@@ -129,11 +195,15 @@ const AdminDashboard = () => {
       leadType: mapLeadType(lead.typeDemande ?? lead.leadType),
       status: mapStatus(lead.statut ?? lead.status),
       description: lead.description,
+      calendarUrl: lead.calendar_url ?? lead.calendarUrl,
+      calendarId: lead.calendar_id ?? lead.calendarId,
+      rescheduleUrl: lead.reschedule_url ?? lead.rescheduleUrl,
+      cancelUrl: lead.cancel_url ?? lead.cancelUrl,
       reminderSent: Boolean(lead.rappelEnvoye ?? lead.reminderSent),
       reminderDate: lead.dateRappel ?? lead.reminderDate,
       dateVisite: lead.dateVisite,
       updatedAt: lead.updatedAt,
-      createdAt: lead.createdAt ?? new Date().toISOString()
+      createdAt: lead.createdAt ?? formatMontrealDateTime(new Date())
     }));
   };
 
@@ -185,15 +255,7 @@ const AdminDashboard = () => {
           : lead.leadType === 'emergency'
             ? 'urgence'
             : 'question';
-        const statusLabel = lead.status === 'verification-pending'
-          ? 'attente whatsapp'
-          : lead.status === 'whatsapp-confirmed'
-            ? 'whatsapp confirme'
-            : lead.status === 'canceled'
-              ? 'annule'
-              : lead.status === 'no-show'
-                ? 'absent'
-                : 'complete';
+        const statusLabel = getStatusLabel(lead.status).toLowerCase();
         const haystack = [
           lead.name,
           lead.email,
@@ -201,7 +263,11 @@ const AdminDashboard = () => {
           lead.leadType,
           typeLabel,
           lead.status,
-          statusLabel
+          statusLabel,
+          lead.calendarUrl,
+          lead.calendarId,
+          lead.rescheduleUrl,
+          lead.cancelUrl
         ].join(' ').toLowerCase();
         return haystack.includes(normalizedQuery);
       })
@@ -249,8 +315,8 @@ const AdminDashboard = () => {
 
   const getStatusColor = (status: Lead['status']) => {
     switch (status) {
-      case 'verification-pending': return '#d2ac67';
-      case 'whatsapp-confirmed': return '#4a90e2';
+      case 'phone-unconfirmed': return '#d2ac67';
+      case 'phone-confirmed': return '#2d9cdb';
       case 'canceled': return '#9b9b9b';
       case 'no-show': return '#e74c3c';
       case 'completed': return '#27ae60';
@@ -281,12 +347,12 @@ const AdminDashboard = () => {
 
   const getStatusLabel = (status: Lead['status']) => {
     switch (status) {
-      case 'verification-pending': return 'en attente WhatsApp';
-      case 'whatsapp-confirmed': return 'WhatsApp confirmé';
-      case 'canceled': return 'annulé';
+      case 'phone-unconfirmed': return 'Non confirmé (WhatsApp)';
+      case 'phone-confirmed': return 'Confirmé WhatsApp';
+      case 'canceled': return 'Annulé';
       case 'no-show': return 'absent';
-      case 'completed': return 'complété';
-      default: return 'en attente WhatsApp';
+      case 'completed': return 'Visite complétée';
+      default: return 'Non confirmé (WhatsApp)';
     }
   };
 
@@ -307,6 +373,37 @@ const AdminDashboard = () => {
     }
   };
 
+  const formatMontrealDateTime = (date: Date) => {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).formatToParts(date);
+
+    const getPart = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
+    const year = getPart('year');
+    const month = getPart('month');
+    const day = getPart('day');
+    const hour = getPart('hour');
+    const minute = getPart('minute');
+    const second = getPart('second');
+
+    const localIso = `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+    const utcFromLocal = Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
+    const offsetMinutes = Math.round((utcFromLocal - date.getTime()) / 60000);
+    const sign = offsetMinutes <= 0 ? '-' : '+';
+    const absMinutes = Math.abs(offsetMinutes);
+    const offsetHours = String(Math.floor(absMinutes / 60)).padStart(2, '0');
+    const offsetMins = String(absMinutes % 60).padStart(2, '0');
+
+    return `${localIso}${sign}${offsetHours}:${offsetMins}`;
+  };
+
   const handleAddLeadChange = (field: string, value: string | boolean) => {
     if (field === 'phone' && typeof value === 'string') {
       setAddLeadForm(prev => ({ ...prev, [field]: formatPhoneNumber(value) }));
@@ -318,7 +415,7 @@ const AdminDashboard = () => {
   const handleAddLeadDateChange = (date: Date | null) => {
     setAddLeadSelectedDate(date);
     if (date) {
-      setAddLeadForm(prev => ({ ...prev, dateVisite: date.toISOString() }));
+      setAddLeadForm(prev => ({ ...prev, dateVisite: formatMontrealDateTime(date) }));
     } else {
       setAddLeadForm(prev => ({ ...prev, dateVisite: '' }));
     }
@@ -331,8 +428,12 @@ const AdminDashboard = () => {
       email: '',
       phone: '+1 ',
       leadType: 'appointment',
-      status: 'verification-pending',
+      status: 'phone-unconfirmed',
       description: '',
+      calendarUrl: '',
+      calendarId: '',
+      rescheduleUrl: '',
+      cancelUrl: '',
       dateVisite: '',
       reminderSent: false
     });
@@ -345,6 +446,7 @@ const AdminDashboard = () => {
       return;
     }
 
+    const createdAt = formatMontrealDateTime(new Date());
     const newLead: Lead = {
       id: Date.now().toString(),
       name: addLeadForm.name,
@@ -353,9 +455,13 @@ const AdminDashboard = () => {
       leadType: addLeadForm.leadType,
       status: addLeadForm.status,
       description: addLeadForm.description || undefined,
+      calendarUrl: addLeadForm.calendarUrl || undefined,
+      calendarId: addLeadForm.calendarId || undefined,
+      rescheduleUrl: addLeadForm.rescheduleUrl || undefined,
+      cancelUrl: addLeadForm.cancelUrl || undefined,
       reminderSent: addLeadForm.reminderSent,
       dateVisite: addLeadForm.dateVisite || undefined,
-      createdAt: new Date().toISOString()
+      createdAt
     };
 
     try {
@@ -366,9 +472,13 @@ const AdminDashboard = () => {
         typeDemande: newLead.leadType,
         statut: newLead.status,
         description: newLead.description,
+        calendar_url: newLead.calendarUrl,
+        calendar_id: newLead.calendarId,
+        reschedule_url: newLead.rescheduleUrl,
+        cancel_url: newLead.cancelUrl,
         rappelEnvoye: newLead.reminderSent,
         dateVisite: newLead.dateVisite,
-        creeA: newLead.createdAt
+        creeA: createdAt
       };
 
       await fetch(`${import.meta.env.VITE_WEBHOOK_LEADS}?type=manual`, {
@@ -403,7 +513,7 @@ const AdminDashboard = () => {
     // Update timestamp
     const updatedForm = {
       ...editForm,
-      updatedAt: new Date().toISOString()
+      updatedAt: formatMontrealDateTime(new Date())
     };
     
     // Send PUT request to webhook
@@ -418,6 +528,10 @@ const AdminDashboard = () => {
         rappelEnvoye: updatedForm.reminderSent,
         dateRappel: updatedForm.reminderDate,
         dateVisite: updatedForm.dateVisite,
+        calendar_url: updatedForm.calendarUrl,
+        calendar_id: updatedForm.calendarId,
+        reschedule_url: updatedForm.rescheduleUrl,
+        cancel_url: updatedForm.cancelUrl,
         creeA: updatedForm.createdAt,
         modifieA: updatedForm.updatedAt
       };
@@ -563,19 +677,19 @@ const AdminDashboard = () => {
             </button>
             <button
               type="button"
-              className={`stat-card ${filterStatus === 'verification-pending' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('verification-pending')}
+              className={`stat-card ${filterStatus === 'phone-unconfirmed' ? 'active' : ''}`}
+              onClick={() => setFilterStatus('phone-unconfirmed')}
             >
-              <div className="stat-number">{leads.filter(l => l.status === 'verification-pending').length}</div>
-              <div className="stat-label">En attente WhatsApp</div>
+              <div className="stat-number">{leads.filter(l => l.status === 'phone-unconfirmed').length}</div>
+              <div className="stat-label">Non confirmé WhatsApp</div>
             </button>
             <button
               type="button"
-              className={`stat-card ${filterStatus === 'whatsapp-confirmed' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('whatsapp-confirmed')}
+              className={`stat-card ${filterStatus === 'phone-confirmed' ? 'active' : ''}`}
+              onClick={() => setFilterStatus('phone-confirmed')}
             >
-              <div className="stat-number">{leads.filter(l => l.status === 'whatsapp-confirmed').length}</div>
-              <div className="stat-label">WhatsApp confirmé</div>
+              <div className="stat-number">{leads.filter(l => l.status === 'phone-confirmed').length}</div>
+              <div className="stat-label">Confirmé WhatsApp</div>
             </button>
             <button
               type="button"
@@ -591,7 +705,7 @@ const AdminDashboard = () => {
               onClick={() => setFilterStatus('no-show')}
             >
               <div className="stat-number">{leads.filter(l => l.status === 'no-show').length}</div>
-              <div className="stat-label">Absents</div>
+              <div className="stat-label">No-shows</div>
             </button>
             <button
               type="button"
@@ -599,7 +713,7 @@ const AdminDashboard = () => {
               onClick={() => setFilterStatus('completed')}
             >
               <div className="stat-number">{leads.filter(l => l.status === 'completed').length}</div>
-              <div className="stat-label">Complétés</div>
+              <div className="stat-label">Visites complétées</div>
             </button>
           </div>
 
@@ -617,11 +731,11 @@ const AdminDashboard = () => {
                   className="filter-select status-filter"
                 >
                   <option value="all">Toutes les demandes</option>
-                  <option value="verification-pending" className="status-new">En attente WhatsApp</option>
-                  <option value="whatsapp-confirmed" className="status-contacted">WhatsApp confirmé</option>
-                  <option value="canceled" className="status-qualified">Annulé</option>
+                  <option value="phone-unconfirmed" className="status-phone-unconfirmed">Non confirmé WhatsApp</option>
+                  <option value="phone-confirmed" className="status-phone-confirmed">Confirmé WhatsApp</option>
+                  <option value="canceled" className="status-canceled">Annulé</option>
                   <option value="no-show" className="status-no-show">Absent</option>
-                  <option value="completed" className="status-completed">Complété</option>
+                  <option value="completed" className="status-completed">Visite complétée</option>
                 </select>
               </div>
               <div className="filter-group">
@@ -860,6 +974,52 @@ const AdminDashboard = () => {
                       <label>Date de visite:</label>
                       <span>{formatMaybeDate(selectedLead.dateVisite)}</span>
                     </div>
+                    <div className="detail-item">
+                      <label>Calendar ID:</label>
+                      <span>{selectedLead.calendarId || '—'}</span>
+                    </div>
+                    <div className="detail-item">
+                      <label>Calendar URL:</label>
+                      {selectedLead.calendarUrl ? (
+                        <a
+                          href={selectedLead.calendarUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Ouvrir l'evenement
+                        </a>
+                      ) : (
+                        <span>—</span>
+                      )}
+                    </div>
+                    <div className="detail-item">
+                      <label>Lien de report:</label>
+                      {selectedLead.rescheduleUrl ? (
+                        <a
+                          href={selectedLead.rescheduleUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Replanifier
+                        </a>
+                      ) : (
+                        <span>—</span>
+                      )}
+                    </div>
+                    <div className="detail-item">
+                      <label>Lien d'annulation:</label>
+                      {selectedLead.cancelUrl ? (
+                        <a
+                          href={selectedLead.cancelUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Annuler
+                        </a>
+                      ) : (
+                        <span>—</span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="detail-section">
@@ -928,11 +1088,11 @@ const AdminDashboard = () => {
                           value={editForm.status}
                           onChange={(e) => handleEditChange('status', e.target.value as Lead['status'])}
                         >
-                          <option value="verification-pending" className="status-new">En attente WhatsApp</option>
-                          <option value="whatsapp-confirmed" className="status-contacted">WhatsApp confirmé</option>
-                          <option value="canceled" className="status-qualified">Annulé</option>
+                          <option value="phone-unconfirmed" className="status-phone-unconfirmed">Non confirmé WhatsApp</option>
+                          <option value="phone-confirmed" className="status-phone-confirmed">Confirmé WhatsApp</option>
+                          <option value="canceled" className="status-canceled">Annulé</option>
                           <option value="no-show" className="status-no-show">Absent</option>
-                          <option value="completed" className="status-completed">Complété</option>
+                          <option value="completed" className="status-completed">Visite complétée</option>
                         </select>
                       </div>
                       <div className="edit-field">
@@ -1047,11 +1207,11 @@ const AdminDashboard = () => {
                       value={addLeadForm.status}
                       onChange={(e) => handleAddLeadChange('status', e.target.value)}
                     >
-                      <option value="verification-pending">en attente WhatsApp</option>
-                      <option value="whatsapp-confirmed">WhatsApp confirmé</option>
+                      <option value="phone-unconfirmed">non confirmé WhatsApp</option>
+                      <option value="phone-confirmed">confirmé WhatsApp</option>
                       <option value="canceled">annulé</option>
                       <option value="no-show">absent</option>
-                      <option value="completed">complété</option>
+                      <option value="completed">visite complétée</option>
                     </select>
                   </div>
                   <div className="edit-field">
@@ -1061,6 +1221,9 @@ const AdminDashboard = () => {
                       onChange={handleAddLeadDateChange}
                       placeholder="Cliquez pour sélectionner une date"
                       isClearable
+                      bookedSlots={addLeadBookedSlots}
+                      availabilityLoading={addLeadAvailabilityLoading}
+                      availabilityError={addLeadAvailabilityError}
                     />
                     <small className="form-hint">Disponibilités: Lundi au Vendredi, 8h00 à 18h00</small>
                   </div>

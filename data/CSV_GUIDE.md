@@ -12,9 +12,16 @@
 | **email** | String | Valid email format | Patient's email address | `jean.dupont@email.com` |
 | **phone** | String | Phone format: +1-XXX-XXX-XXXX | Patient's phone number (Montreal area codes: 514, 438, 450, 579) | `+1-514-234-5678` |
 | **leadType** | String | `appointment`, `emergency`, `question` | Type of patient inquiry | `appointment` |
-| **status** | String | `new`, `contacted`, `qualified`, `scheduled`, `no-show`, `completed` | Current status in lead pipeline | `scheduled` |
-| **reminderSent** | Boolean | `true`, `false` | Whether appointment reminder SMS was sent | `true` |
+| **status** | String | `phone-unconfirmed`, `phone-confirmed`, `canceled`, `no-show`, `completed` | Current status in lead pipeline | `phone-confirmed` |
+| **description** | String | Free text | Optional visit details | `Nettoyage dentaire` |
+| **reminderSent** | Boolean | `true`, `false` | Whether appointment reminder was sent | `true` |
 | **reminderDate** | DateTime (ISO 8601) | YYYY-MM-DDTHH:MM:SSZ | Date/time when reminder will be sent or was sent | `2026-02-19T14:00:00Z` |
+| **dateVisite** | DateTime (ISO 8601) | YYYY-MM-DDTHH:MM:SSZ | Appointment date/time | `2026-02-21T14:00:00Z` |
+| **calendar_url** | String | URL | Google Calendar event URL | `https://calendar.google.com/calendar/event?eid=evt-001` |
+| **calendar_id** | String | Any string | Calendar event ID | `cal_001` |
+| **reschedule_url** | String | URL | Patient reschedule link | `https://calendar.google.com/calendar/event?eid=evt-001-resched` |
+| **cancel_url** | String | URL | Patient cancellation link | `https://calendar.google.com/calendar/event?eid=evt-001-cancel` |
+| **updatedAt** | DateTime (ISO 8601) | YYYY-MM-DDTHH:MM:SSZ | Timestamp when lead was last updated | `2026-02-19T10:05:00Z` |
 | **createdAt** | DateTime (ISO 8601) | YYYY-MM-DDTHH:MM:SSZ | Timestamp when lead was created | `2026-02-18T08:15:00Z` |
 
 ## Data Guidelines
@@ -25,12 +32,11 @@
 - **question**: Patient with general questions about services or pricing
 
 ### Status Values (Pipeline Order)
-1. **new** - Just submitted via form, not contacted yet
-2. **contacted** - Admin has reached out to patient
-3. **qualified** - Confirmed patient is genuine and needs service
-4. **scheduled** - Appointment confirmed and scheduled
-5. **no-show** - Patient missed their appointment
-6. **completed** - Appointment was completed or issue resolved
+1. **phone-unconfirmed** - Lead submitted, awaiting WhatsApp "Oui" confirmation
+2. **phone-confirmed** - Phone number confirmed via WhatsApp
+3. **canceled** - Patient canceled before the visit
+4. **no-show** - Patient missed their appointment
+5. **completed** - Appointment completed
 
 ### Phone Number Format
 - Must include country code: `+1` (Canada)
@@ -47,7 +53,7 @@
 ### Empty Fields
 - Use empty string `""` for optional fields
 - `reminderDate` is empty when `reminderSent = false`
-- Other fields should never be empty
+- `dateVisite` and `updatedAt` can be empty for unconfirmed leads
 
 ## Sample Data Included
 
@@ -58,12 +64,11 @@ The `leads_sample.csv` includes 25 diverse leads representing:
 - 📊 Various statuses showing complete lead lifecycle
 
 ### Status Distribution in Sample Data
-- **new**: 7 leads - Ready for contact
-- **contacted**: 5 leads - Following up
-- **qualified**: 5 leads - Pre-appointment
-- **scheduled**: 5 leads - Confirmed appointments
-- **completed**: 2 leads - Finished
-- **no-show**: 1 lead - Missed appointment
+- **phone-unconfirmed**: 7 leads - Awaiting WhatsApp confirmation
+- **phone-confirmed**: 7 leads - Confirmed by WhatsApp
+- **canceled**: 3 leads - Canceled before visit
+- **completed**: 4 leads - Finished visits
+- **no-show**: 4 leads - Missed appointments
 
 ## Using This Data
 
@@ -80,9 +85,16 @@ The `leads_sample.csv` includes 25 diverse leads representing:
   "email": "jean.dupont@email.com",
   "phone": "+1-514-234-5678",
   "leadType": "appointment",
-  "status": "new",
+  "status": "phone-unconfirmed",
+  "description": "Nettoyage dentaire",
   "reminderSent": false,
-  "reminderDate": undefined,
+  "reminderDate": "",
+  "dateVisite": "",
+  "calendar_url": "https://calendar.google.com/calendar/event?eid=evt-001",
+  "calendar_id": "cal_001",
+  "reschedule_url": "https://calendar.google.com/calendar/event?eid=evt-001-resched",
+  "cancel_url": "https://calendar.google.com/calendar/event?eid=evt-001-cancel",
+  "updatedAt": "",
   "createdAt": "2026-02-18T08:15:00Z"
 }
 ```
@@ -118,9 +130,15 @@ interface Lead {
   email: string;
   phone: string;
   leadType: 'appointment' | 'emergency' | 'question';
-  status: 'new' | 'contacted' | 'qualified' | 'scheduled' | 'no-show' | 'completed';
+  status: 'phone-unconfirmed' | 'phone-confirmed' | 'canceled' | 'no-show' | 'completed';
   reminderSent?: boolean;
   reminderDate?: string;
+  dateVisite?: string;
+  calendarUrl?: string;
+  calendarId?: string;
+  rescheduleUrl?: string;
+  cancelUrl?: string;
+  updatedAt?: string;
   createdAt: string;
 }
 ```

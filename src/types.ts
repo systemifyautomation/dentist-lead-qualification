@@ -4,8 +4,12 @@ export interface Lead {
   email: string;
   phone: string;
   leadType: 'appointment' | 'emergency' | 'question'; // Type de demande
-  status: 'verification-pending' | 'whatsapp-confirmed' | 'canceled' | 'no-show' | 'completed';
+  status: 'phone-unconfirmed' | 'phone-confirmed' | 'canceled' | 'no-show' | 'completed';
   description?: string;
+  calendarUrl?: string;
+  calendarId?: string;
+  rescheduleUrl?: string;
+  cancelUrl?: string;
   reminderSent?: boolean;
   reminderDate?: string;
   dateVisite?: string;
