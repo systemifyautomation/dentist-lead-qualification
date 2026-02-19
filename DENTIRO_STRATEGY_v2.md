@@ -384,7 +384,7 @@ Répondez avec le numéro de votre choix.
 
 2. **OpenAI Node** (ou autre LLM)
    - Model: GPT-4
-   - System Prompt: [See SCALINT_CHATBOT_PROMPT.md for complete details]
+   - System Prompt: [See SCALINT_SYSTEM_PROMPT.md - ready to copy-paste]
    - User Message: `{{message}}`
    - Max Tokens: 150
 
@@ -706,8 +706,9 @@ font-weight: 600;
 2. **DEPLOYMENT.md** - Guide déploiement Vercel complet
 3. **DENTIRO_Blueprint_Workflow.md** - Stratégie initiale (v1.0)
 4. **DENTIRO_STRATEGY_v2.md** - Ce document (v2.0)
-5. **SCALINT_CHATBOT_PROMPT.md** - Système prompt ChatBot WhatsApp (NEW!)
-6. **data/CSV_GUIDE.md** - Format import/export CSV
+5. **SCALINT_SYSTEM_PROMPT.md** - OpenAI GPT-4 prompt (copy-paste à n8n)
+6. **SCALINT_CHATBOT_PROMPT.md** - Configuration complète chatbot WhatsApp
+7. **data/CSV_GUIDE.md** - Format import/export CSV
 
 ### 10.2 Ressources Externes
 

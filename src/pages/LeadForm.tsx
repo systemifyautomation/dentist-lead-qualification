@@ -81,7 +81,7 @@ const LeadForm = () => {
     const lead: Lead = {
       id: Date.now().toString(),
       ...formData,
-      status: 'new',
+      status: 'verification-pending',
       reminderSent: false,
       createdAt: new Date().toISOString()
     };
@@ -95,7 +95,7 @@ const LeadForm = () => {
         typeDemande: formData.leadType,
         description: formData.description,
         dateVisite: formData.dateVisite,
-        statut: 'nouveau',
+        statut: 'verification-pending',
         rappelEnvoye: false,
         creeA: new Date().toISOString()
       };
@@ -197,16 +197,17 @@ const LeadForm = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="email">Adresse Email</label>
+                  <label htmlFor="email">Adresse Email *</label>
                   <input
                     type="email"
                     id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    required
                     placeholder="jean@email.com"
                   />
-                  <small className="form-hint">Optionnel - pour recevoir une confirmation par email</small>
+                  <small className="form-hint">Requis - utilise pour planifier via Google Calendar</small>
                 </div>
 
                 <div className="form-group">

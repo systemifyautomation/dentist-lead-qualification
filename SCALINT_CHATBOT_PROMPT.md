@@ -1,5 +1,7 @@
 # Scalint WhatsApp Chatbot - System Prompt & Configuration
 
+**⚡ Quick Start:** For just the OpenAI system prompt (copy-paste ready), see [SCALINT_SYSTEM_PROMPT.md](SCALINT_SYSTEM_PROMPT.md)
+
 ## Overview
 
 This document defines the system prompt, behavior rules, and integration guidelines for the Scalint AI chatbot operating over WhatsApp for DENTIRO's dental lead qualification system.
@@ -384,7 +386,7 @@ Nodes:
     
   - AI: OpenAI
     Model: gpt-4
-    System Prompt: [See Section 5 below]
+    System Prompt: [See SCALINT_SYSTEM_PROMPT.md - ready to copy-paste]
     Max Tokens: 150
     Temperature: 0.7
     
