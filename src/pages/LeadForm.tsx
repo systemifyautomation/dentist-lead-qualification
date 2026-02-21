@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import type { Lead } from '../types';
 import Chatbot from '../components/Chatbot';
 import DateTimePicker from '../components/DateTimePicker';
+import Footer from '../components/Footer';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 import './LeadForm.css';
 
 type BookedSlot = {
@@ -13,11 +16,15 @@ const LeadForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '+1 ',
+    phone: '',
     leadType: 'appointment' as 'appointment' | 'emergency' | 'question',
     description: '',
     dateVisite: ''
   });
+
+  // Bot protection
+  const [honeypot, setHoneypot] = useState('');
+  const [formLoadTime] = useState(Date.now());
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showChatbot, setShowChatbot] = useState(false);
@@ -39,7 +46,7 @@ const LeadForm = () => {
         const now = new Date();
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
         const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-        const availabilityUrl = new URL('https://n8n.systemifyautomation.com/webhook/scalint-check-availability');
+        const availabilityUrl = new URL(import.meta.env.VITE_WEBHOOK_CHECK_AVAILABILITY);
         availabilityUrl.searchParams.set('month_start', formatMontrealDateTime(monthStart));
         availabilityUrl.searchParams.set('month_end', formatMontrealDateTime(monthEnd));
 
@@ -73,39 +80,10 @@ const LeadForm = () => {
     };
   }, [currentStep]);
 
-  const formatPhoneNumber = (value: string) => {
-    // Remove all non-digit characters
-    const digits = value.replace(/\D/g, '');
-    
-    // Remove leading 1 if present (country code)
-    const phoneDigits = digits.startsWith('1') ? digits.slice(1) : digits;
-    
-    // Format based on length
-    if (phoneDigits.length === 0) {
-      return '+1 ';
-    } else if (phoneDigits.length <= 3) {
-      return `+1 (${phoneDigits}`;
-    } else if (phoneDigits.length <= 6) {
-      return `+1 (${phoneDigits.slice(0, 3)}) ${phoneDigits.slice(3)}`;
-    } else {
-      return `+1 (${phoneDigits.slice(0, 3)}) ${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
-    }
-  };
-
   const isPhoneValid = (phone: string) => {
-    // Extract only digits
-    const digits = phone.replace(/\D/g, '');
-    
-    // Must have exactly 10 digits (for North America)
-    // or 11 digits if it starts with 1
-    if (digits.length === 11 && digits.startsWith('1')) {
-      return true;
-    }
-    if (digits.length === 10) {
-      return true;
-    }
-    
-    return false;
+    // Phone input library handles validation internally
+    // Just check if phone is provided and has reasonable length
+    return phone && phone.length >= 10;
   };
 
   const formatMontrealDateTime = (date: Date) => {
@@ -141,26 +119,23 @@ const LeadForm = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handlePhoneChange = (value: string | undefined) => {
+    setFormData({
+      ...formData,
+      phone: value || ''
+    });
     
-    if (name === 'phone') {
-      // Format phone number as user types
-      const formatted = formatPhoneNumber(value);
-      setFormData({
-        ...formData,
-        phone: formatted
-      });
-      
-      // Check if phone is valid
-      if (formatted === '+1 ' || !isPhoneValid(formatted)) {
-        setPhoneError('Veuillez entrer un numéro de téléphone valide (10 chiffres)');
-      } else {
-        setPhoneError(null);
-      }
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value
-      });
+    // Validate phone
+    if (value && isPhoneValid(value)) {
+      setPhoneError(null);
+    } else if (value) {
+      setPhoneError('Veuillez entrer un numéro de téléphone valide');
     }
   };
 
@@ -193,6 +168,31 @@ const LeadForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Bot protection checks
+    // 1. Honeypot field should be empty (bots will fill it)
+    if (honeypot) {
+      console.log('Bot detected: honeypot filled');
+      return;
+    }
+
+    // 2. Form should take at least 3 seconds to fill (too fast = bot)
+    const timeTaken = Date.now() - formLoadTime;
+    if (timeTaken < 3000) {
+      console.log('Bot detected: form filled too quickly');
+      return;
+    }
+
+    // 3. Rate limiting - max 3 submissions per IP per hour (using localStorage as proxy)
+    const submissionKey = 'dentisto_form_submissions';
+    const submissions = JSON.parse(localStorage.getItem(submissionKey) || '[]');
+    const oneHourAgo = Date.now() - (60 * 60 * 1000);
+    const recentSubmissions = submissions.filter((time: number) => time > oneHourAgo);
+    
+    if (recentSubmissions.length >= 3) {
+      alert('Vous avez atteint la limite de soumissions. Veuillez réessayer plus tard.');
+      return;
+    }
     
     const createdAt = formatMontrealDateTime(new Date());
     const lead: Lead = {
@@ -229,11 +229,19 @@ const LeadForm = () => {
       const existingLeads = JSON.parse(localStorage.getItem('leads') || '[]');
       localStorage.setItem('leads', JSON.stringify([...existingLeads, lead]));
 
+      // Record submission time for rate limiting
+      recentSubmissions.push(Date.now());
+      localStorage.setItem(submissionKey, JSON.stringify(recentSubmissions));
+
     } catch (error) {
       console.error('Failed to submit form:', error);
       // Still store locally even if webhook fails
       const existingLeads = JSON.parse(localStorage.getItem('leads') || '[]');
       localStorage.setItem('leads', JSON.stringify([...existingLeads, lead]));
+
+      // Record submission time for rate limiting
+      recentSubmissions.push(Date.now());
+      localStorage.setItem(submissionKey, JSON.stringify(recentSubmissions));
     }
 
     setSubmitted(true);
@@ -243,7 +251,7 @@ const LeadForm = () => {
       setFormData({
         name: '',
         email: '',
-        phone: '+1 ',
+        phone: '',
         leadType: 'appointment',
         description: '',
         dateVisite: ''
@@ -282,6 +290,18 @@ const LeadForm = () => {
               {currentStep === 1 ? (
                 <form onSubmit={handleNextStep} className="lead-form">
                   <h2>Vos Informations</h2>
+
+                  {/* Honeypot field - hidden from users, bots will fill it */}
+                  <input
+                    type="text"
+                    name="website"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                  />
               
               <div className="form-row">
                 <div className="form-group">
@@ -299,15 +319,13 @@ const LeadForm = () => {
 
                 <div className="form-group">
                   <label htmlFor="phone">Numéro de Téléphone *</label>
-                  <input
-                    type="text"
-                    id="phone"
-                    name="phone"
+                  <PhoneInput
+                    international
+                    defaultCountry="CA"
                     value={formData.phone}
-                    onChange={handleChange}
-                    required
-                    placeholder="+1 (___) ___-____"
-                    className={phoneError ? 'input-error' : ''}
+                    onChange={handlePhoneChange}
+                    placeholder="Enter phone number"
+                    className={phoneError ? 'phone-input-error' : ''}
                   />
                   {phoneError && <small className="form-error">{phoneError}</small>}
                   {!phoneError && <small className="form-hint">Vous recevrez un message WhatsApp pour confirmer vos informations</small>}
@@ -422,6 +440,7 @@ const LeadForm = () => {
 
       {/* Chatbot Component */}
       {showChatbot && <Chatbot onClose={() => setShowChatbot(false)} />}
+      <Footer />
     </div>
   );
 };

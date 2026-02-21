@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Footer from '../components/Footer';
 import './Strategy.css';
 
 const Strategy: React.FC = () => {
@@ -29,6 +30,11 @@ Livrables Attendus :
       <header className="strategy-header">
         <div className="header-content">
           <div className="header-left">
+            <img
+              src="/Dentisto Logo.png"
+              alt="Dentisto"
+              className="brand-logo"
+            />
             <h1>DENTIRO</h1>
           </div>
           <div className="header-center">
@@ -45,14 +51,14 @@ Livrables Attendus :
           <div className="header-right">
             <Link
               className="header-text-button"
-              to="/lead-form"
+              to="/formulaire"
               title="Nouveau lead"
             >
               Formulaire
             </Link>
             <Link
               className="header-text-button"
-              to="/admin"
+              to="/CRM"
               title="Admin CRM"
             >
               CRM
@@ -468,7 +474,54 @@ A bientot! 😊`}</pre>
           </div>
         </section>
 
-        {/* Section 8: Voice AI Fallback */}
+        {/* Section 8: Error Monitoring via Telegram */}
+        <section className="strategy-section">
+          <h2>Workflow n8n - Monitoring des Erreurs (Telegram Bot)</h2>
+          <div className="content-block">
+            <h3>Objectif</h3>
+            <p>
+              Surveiller les erreurs de workflows n8n en temps réel et notifier automatiquement
+              l'equipe via un bot Telegram avec un lien direct vers l'execution en erreur.
+            </p>
+
+            <h3>Fonctionnement</h3>
+            <ul>
+              <li><strong>Error Trigger:</strong> capture toute erreur de workflow dans n8n</li>
+              <li><strong>Send a text message (Telegram):</strong> envoie une alerte au canal d'operations</li>
+              <li><strong>Contenu de l'alerte:</strong> message d'erreur + URL de l'execution n8n</li>
+            </ul>
+
+            <h3>Message Telegram (exemple)</h3>
+            <div className="json-example">
+              <pre className="json-code">{`Something went wrong with a DENTISTO workflow:
+- Error: Your request is invalid or could not be processed by the service
+- URL: https://n8n.systemifyautomation.com/workflow/VF2652DIzg3E3E0naCZsX/executions/3123`}</pre>
+            </div>
+
+            <div className="n8n-diagram">
+              <p className="diagram-label">Workflow n8n d'alerte d'erreur vers Telegram</p>
+              <img
+                src="/Scalint - Error workflow.png"
+                alt="Workflow n8n Error Trigger vers Telegram"
+                className="workflow-diagram-image"
+                style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}
+              />
+            </div>
+
+            <div className="n8n-diagram">
+              <p className="diagram-label">Exemple de notification reçue dans Telegram</p>
+              <img
+                src="/Scalint - Error Message.png"
+                alt="Message Telegram d'alerte erreur workflow"
+                className="workflow-diagram-image"
+                style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}
+              />
+              <p className="diagram-note">✅ Les erreurs workflows sont notifiees en temps reel via Telegram Bot</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 9: Voice AI Fallback */}
         <section className="strategy-section">
           <h2>Alternative: Retell AI Voice Service</h2>
           <div className="content-block">
@@ -525,7 +578,40 @@ A bientot! 😊`}</pre>
             </div>
           </div>
         </section>
+
+        {/* Section 10: System Limitations */}
+        <section className="strategy-section">
+          <h2>Limitations du Système</h2>
+          <div className="content-block">
+            <ul>
+              <li>
+                Certaines personnes n'ont pas WhatsApp. Pour améliorer la couverture, il est préférable
+                d'ajouter un agent vocal pour la vérification du numéro et les rappels.
+              </li>
+              <li>
+                Au lieu de WhatsApp, on peut aussi utiliser Infobip ou Twilio pour les SMS. Toutefois,
+                WhatsApp reste plus interactif et plus user-friendly pour l'expérience patient.
+              </li>
+              <li>
+                Cette application utilise Google Calendar côté backend, mais un cabinet dentaire peut
+                utiliser un autre logiciel de planification.
+              </li>
+              <li>
+                L'application nécessite un niveau de sécurité renforcé, surtout dans la partie CRM
+                (section Admin). La solution est identifiée, c'est principalement une question de
+                développement et d'implémentation.
+              </li>
+              <li>
+                Ajouter une base dans n8n est utile, mais il faut aussi prévoir une sauvegarde externe
+                (Supabase ou Google Sheets). Google Sheets n'a pas été retenu en source principale car il
+                génère des erreurs sous forte charge et ralentit les traitements, mais il reste une bonne
+                option de backup.
+              </li>
+            </ul>
+          </div>
+        </section>
       </div>
+      <Footer />
     </div>
   );
 };

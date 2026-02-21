@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Phone, Pencil, Trash2, Save, X } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Phone, Pencil, Trash2, Save, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import DateTimePicker from '../components/DateTimePicker';
+import Footer from '../components/Footer';
 import './AdminDashboard.css';
 
 type ApiLead = {
@@ -34,6 +37,9 @@ type ApiLead = {
 };
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { logout, user } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +49,7 @@ const AdminDashboard = () => {
   const [editOriginalId, setEditOriginalId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<'dateVisiteAsc' | 'dateVisiteDesc' | 'nameAsc' | 'nameDesc' | 'createdDesc' | 'createdAsc'>('dateVisiteAsc');
   const [showAddLeadModal, setShowAddLeadModal] = useState(false);
@@ -64,7 +71,7 @@ const AdminDashboard = () => {
   const [addLeadBookedSlots, setAddLeadBookedSlots] = useState<Array<{ start: string; end: string }>>([]);
   const [addLeadAvailabilityLoading, setAddLeadAvailabilityLoading] = useState(false);
   const [addLeadAvailabilityError, setAddLeadAvailabilityError] = useState<string | null>(null);
-  const pageSize = 25;
+  const pageSize = 24;
 
   useEffect(() => {
     fetchLeads();
@@ -85,7 +92,7 @@ const AdminDashboard = () => {
         const now = new Date();
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
         const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-        const availabilityUrl = new URL('https://n8n.systemifyautomation.com/webhook/scalint-check-availability');
+        const availabilityUrl = new URL(import.meta.env.VITE_WEBHOOK_CHECK_AVAILABILITY);
         availabilityUrl.searchParams.set('month_start', formatMontrealDateTime(monthStart));
         availabilityUrl.searchParams.set('month_end', formatMontrealDateTime(monthEnd));
 
@@ -243,6 +250,17 @@ const AdminDashboard = () => {
     }
   };
 
+  const getStatusLabel = (status: Lead['status']) => {
+    switch (status) {
+      case 'phone-unconfirmed': return 'Non confirmé (WhatsApp)';
+      case 'phone-confirmed': return 'Confirmé WhatsApp';
+      case 'canceled': return 'Annulé';
+      case 'no-show': return 'absent';
+      case 'completed': return 'Visite complétée';
+      default: return 'Non confirmé (WhatsApp)';
+    }
+  };
+
   const filteredByStatus = filterStatus === 'all'
     ? leads
     : leads.filter(lead => lead.status === filterStatus);
@@ -257,18 +275,18 @@ const AdminDashboard = () => {
             : 'question';
         const statusLabel = getStatusLabel(lead.status).toLowerCase();
         const haystack = [
-          lead.name,
-          lead.email,
-          lead.phone,
-          lead.leadType,
+          lead.name || '',
+          lead.email || '',
+          lead.phone || '',
+          lead.leadType || '',
           typeLabel,
-          lead.status,
+          lead.status || '',
           statusLabel,
-          lead.calendarUrl,
-          lead.calendarId,
-          lead.rescheduleUrl,
-          lead.cancelUrl
-        ].join(' ').toLowerCase();
+          lead.calendarUrl || '',
+          lead.calendarId || '',
+          lead.rescheduleUrl || '',
+          lead.cancelUrl || ''
+        ].filter(Boolean).join(' ').toLowerCase();
         return haystack.includes(normalizedQuery);
       })
     : filteredByStatus;
@@ -343,17 +361,6 @@ const AdminDashboard = () => {
 
   const getLeadTypeLabel = (leadType: Lead['leadType']) => {
     return leadType === 'appointment' ? 'rendez-vous' : leadType === 'emergency' ? 'urgence' : 'question';
-  };
-
-  const getStatusLabel = (status: Lead['status']) => {
-    switch (status) {
-      case 'phone-unconfirmed': return 'Non confirmé (WhatsApp)';
-      case 'phone-confirmed': return 'Confirmé WhatsApp';
-      case 'canceled': return 'Annulé';
-      case 'no-show': return 'absent';
-      case 'completed': return 'Visite complétée';
-      default: return 'Non confirmé (WhatsApp)';
-    }
   };
 
   const formatYesNo = (value?: boolean) => (value ? 'Oui' : 'Non');
@@ -591,11 +598,63 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="admin-dashboard">
-      <header className="admin-header">
+    <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <button 
+          className="sidebar-toggle"
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          title={sidebarCollapsed ? 'Ouvrir la barre latérale' : 'Fermer la barre latérale'}
+        >
+          {sidebarCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
+        </button>
+        
+        <nav className="sidebar-nav">
+          <Link to="/CRM" className={`sidebar-link ${location.pathname === '/CRM' ? 'active' : ''}`}>
+            <LayoutDashboard size={20} />
+            {!sidebarCollapsed && <span>CRM</span>}
+          </Link>
+          <Link to="/users" className={`sidebar-link ${location.pathname === '/users' ? 'active' : ''}`}>
+            <Users size={20} />
+            {!sidebarCollapsed && <span>UTILISATEURS</span>}
+          </Link>
+        </nav>
+        
+        <div className="sidebar-footer">
+          {!sidebarCollapsed && (
+            <div className="sidebar-user-info">
+              <div className="sidebar-user-icon">
+                <UserCircle size={36} />
+              </div>
+              <div className="sidebar-user-details">
+                <div className="sidebar-user-name">{user?.name || 'Utilisateur'}</div>
+                <div className="sidebar-user-phone">{user?.phone || ''}</div>
+              </div>
+            </div>
+          )}
+          <button
+            className="sidebar-logout"
+            onClick={() => {
+              logout();
+              navigate('/login');
+            }}
+            title="Se déconnecter"
+          >
+            <LogOut size={20} />
+            {!sidebarCollapsed && <span>Déconnexion</span>}
+          </button>
+        </div>
+      </aside>
+      
+      <div className="main-wrapper">
+        <header className="admin-header">
         <div className="header-content">
           <div className="header-left">
-            <h1>SCALINT</h1>
+            <img
+              src="/Dentisto Logo.png"
+              alt="Dentisto"
+              className="brand-logo"
+            />
+            <h1>DENTISTO</h1>
           </div>
           <div className="header-center">
             <div className="header-search">
@@ -621,23 +680,7 @@ const AdminDashboard = () => {
           <div className="header-right">
             <a
               className="header-text-button"
-              href="https://scalint.net"
-              target="_blank"
-              rel="noreferrer"
-              title="scalint.net"
-            >
-              Site
-            </a>
-            <a
-              className="header-text-button"
-              href="/strategy"
-              title="Stratégie"
-            >
-              Stratégie
-            </a>
-            <a
-              className="header-text-button"
-              href="/apply"
+              href="/formulaire"
               target="_blank"
               rel="noopener noreferrer"
               title="Ouvrir le formulaire"
@@ -664,60 +707,82 @@ const AdminDashboard = () => {
 
       {!loading && (
       <div className="dashboard-content">
-        <aside className="sidebar">
-          <div className="stats-section">
-            <h2>Résumé</h2>
-            <button
-              type="button"
-              className={`stat-card ${filterStatus === 'all' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('all')}
-            >
-              <div className="stat-number">{leads.length}</div>
-              <div className="stat-label">Total Demandes</div>
-            </button>
-            <button
-              type="button"
-              className={`stat-card ${filterStatus === 'phone-unconfirmed' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('phone-unconfirmed')}
-            >
-              <div className="stat-number">{leads.filter(l => l.status === 'phone-unconfirmed').length}</div>
-              <div className="stat-label">Non confirmé WhatsApp</div>
-            </button>
-            <button
-              type="button"
-              className={`stat-card ${filterStatus === 'phone-confirmed' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('phone-confirmed')}
-            >
-              <div className="stat-number">{leads.filter(l => l.status === 'phone-confirmed').length}</div>
-              <div className="stat-label">Confirmé WhatsApp</div>
-            </button>
-            <button
-              type="button"
-              className={`stat-card ${filterStatus === 'canceled' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('canceled')}
-            >
-              <div className="stat-number">{leads.filter(l => l.status === 'canceled').length}</div>
-              <div className="stat-label">Annulés</div>
-            </button>
-            <button
-              type="button"
-              className={`stat-card ${filterStatus === 'no-show' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('no-show')}
-            >
-              <div className="stat-number">{leads.filter(l => l.status === 'no-show').length}</div>
-              <div className="stat-label">No-shows</div>
-            </button>
-            <button
-              type="button"
-              className={`stat-card ${filterStatus === 'completed' ? 'active' : ''}`}
-              onClick={() => setFilterStatus('completed')}
-            >
-              <div className="stat-number">{leads.filter(l => l.status === 'completed').length}</div>
-              <div className="stat-label">Visites complétées</div>
-            </button>
+        <div className="kpis-section">
+          <div className="kpi-card kpi-visits">
+            <div className="kpi-icon">
+              <Calendar size={28} strokeWidth={2} />
+            </div>
+            <div className="kpi-content">
+              <div className="kpi-label">Visites Aujourd'hui</div>
+              <div className="kpi-value">
+                {leads.filter(l => {
+                  if (!l.dateVisite) return false;
+                  const visitDate = new Date(l.dateVisite);
+                  const today = new Date();
+                  return visitDate.getDate() === today.getDate() &&
+                         visitDate.getMonth() === today.getMonth() &&
+                         visitDate.getFullYear() === today.getFullYear();
+                }).length}
+              </div>
+            </div>
           </div>
 
-        </aside>
+          <div className="kpi-card kpi-noshows">
+            <div className="kpi-icon">
+              <UserX size={28} strokeWidth={2} />
+            </div>
+            <div className="kpi-content">
+              <div className="kpi-label">No-Shows Aujourd'hui</div>
+              <div className="kpi-value">
+                {leads.filter(l => {
+                  if (!l.dateVisite || l.status !== 'no-show') return false;
+                  const visitDate = new Date(l.dateVisite);
+                  const today = new Date();
+                  return visitDate.getDate() === today.getDate() &&
+                         visitDate.getMonth() === today.getMonth() &&
+                         visitDate.getFullYear() === today.getFullYear();
+                }).length}
+              </div>
+            </div>
+          </div>
+
+          <div className="kpi-card kpi-emergencies">
+            <div className="kpi-icon">
+              <AlertTriangle size={28} strokeWidth={2} />
+            </div>
+            <div className="kpi-content">
+              <div className="kpi-label">Urgences Aujourd'hui</div>
+              <div className="kpi-value">
+                {leads.filter(l => {
+                  if (l.leadType !== 'emergency') return false;
+                  const today = new Date();
+                  
+                  // Check if created today
+                  if (l.createdAt) {
+                    const createdDate = new Date(l.createdAt);
+                    if (createdDate.getDate() === today.getDate() &&
+                        createdDate.getMonth() === today.getMonth() &&
+                        createdDate.getFullYear() === today.getFullYear()) {
+                      return true;
+                    }
+                  }
+                  
+                  // Check if visit is today
+                  if (l.dateVisite) {
+                    const visitDate = new Date(l.dateVisite);
+                    if (visitDate.getDate() === today.getDate() &&
+                        visitDate.getMonth() === today.getMonth() &&
+                        visitDate.getFullYear() === today.getFullYear()) {
+                      return true;
+                    }
+                  }
+                  
+                  return false;
+                }).length}
+              </div>
+            </div>
+          </div>
+        </div>
 
         <main className="main-content">
           <div className="leads-toolbar">
@@ -1266,6 +1331,8 @@ const AdminDashboard = () => {
       )}
       </div>
       )}
+      <Footer />
+      </div>
     </div>
   );
 };

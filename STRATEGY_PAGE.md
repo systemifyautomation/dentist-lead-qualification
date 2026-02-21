@@ -196,3 +196,11 @@ Capacites:
 - Temps: appels 2-3 minutes en general
 - Timing: meilleur entre 10h-17h (pas apres 19h)
 - Fallback: si pas de reponse -> envoi SMS classique
+
+## Limitations du systeme
+
+- Certaines personnes n'ont pas WhatsApp. Pour ameliorer la couverture, il est preferable d'ajouter un agent vocal pour la verification du numero et les rappels.
+- Au lieu de WhatsApp, on peut aussi utiliser Infobip ou Twilio pour les SMS. Toutefois, WhatsApp reste plus interactif et plus user-friendly pour l'experience patient.
+- Cette application utilise Google Calendar cote backend, mais un cabinet dentaire peut utiliser un autre logiciel de planification.
+- L'application necessite un niveau de securite renforce, surtout dans la partie CRM (section Admin). La solution est identifiee, c'est principalement une question de developpement et d'implementation.
+- Ajouter une base dans n8n est utile, mais il faut aussi prevoir une sauvegarde externe (Supabase ou Google Sheets). Google Sheets n'a pas ete retenu en source principale car il genere des erreurs sous forte charge et ralentit les traitements, mais il reste une bonne option de backup.

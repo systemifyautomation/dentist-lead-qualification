@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import DateTimePicker from '../components/DateTimePicker';
 import Chatbot from '../components/Chatbot';
+import Footer from '../components/Footer';
 import './Reschedule.css';
 
 type BookedSlot = {
@@ -34,7 +35,7 @@ const Reschedule = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `https://n8n.systemifyautomation.com/webhook/scalint-lead-reschedule?visit_id=${encodeURIComponent(visitId)}`
+          `${import.meta.env.VITE_WEBHOOK_RESCHEDULE_MEETING}?visit_id=${encodeURIComponent(visitId)}`
         );
 
         if (!response.ok) {
@@ -132,7 +133,7 @@ const Reschedule = () => {
 
       // First, cancel the existing meeting
       const cancelResponse = await fetch(
-        'https://n8n.systemifyautomation.com/webhook/scalint-cancel-meeting',
+        import.meta.env.VITE_WEBHOOK_CANCEL_MEETING,
         {
           method: 'POST',
           headers: {
@@ -150,7 +151,7 @@ const Reschedule = () => {
 
       // Then, notify reschedule with the old visit_id
       const rescheduleResponse = await fetch(
-        'https://n8n.systemifyautomation.com/webhook/scalint-lead-reschedule',
+        import.meta.env.VITE_WEBHOOK_RESCHEDULE_MEETING,
         {
           method: 'POST',
           headers: {
@@ -270,6 +271,7 @@ const Reschedule = () => {
 
       {/* Chatbot Component */}
       {showChatbot && <Chatbot onClose={() => setShowChatbot(false)} />}
+      <Footer />
     </div>
   );
 };

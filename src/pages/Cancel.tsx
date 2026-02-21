@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Chatbot from '../components/Chatbot';
+import Footer from '../components/Footer';
 import './Cancel.css';
 
 const Cancel = () => {
@@ -28,7 +29,7 @@ const Cancel = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `https://n8n.systemifyautomation.com/webhook/scalint-lead-reschedule?visit_id=${encodeURIComponent(visitId)}`
+          `${import.meta.env.VITE_WEBHOOK_RESCHEDULE_MEETING}?visit_id=${encodeURIComponent(visitId)}`
         );
 
         if (!response.ok) {
@@ -71,7 +72,7 @@ const Cancel = () => {
 
       // Cancel the meeting
       const cancelResponse = await fetch(
-        'https://n8n.systemifyautomation.com/webhook/scalint-cancel-meeting',
+        import.meta.env.VITE_WEBHOOK_CANCEL_MEETING,
         {
           method: 'POST',
           headers: {
@@ -89,7 +90,7 @@ const Cancel = () => {
 
       // Send cancellation notification
       const notifyResponse = await fetch(
-        'https://n8n.systemifyautomation.com/webhook/scalint-lead-rescheduled',
+        import.meta.env.VITE_WEBHOOK_RESCHEDULED_CONFIRMATION,
         {
           method: 'POST',
           headers: {
@@ -229,6 +230,7 @@ const Cancel = () => {
 
       {/* Chatbot Component */}
       {showChatbot && <Chatbot onClose={() => setShowChatbot(false)} />}
+      <Footer />
     </div>
   );
 };

@@ -37,6 +37,13 @@
 .header-left {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 .strategy-header h1 {
