@@ -3,7 +3,55 @@
 Ce README est la version documentation de la page **Stratégie** de l’application, avec les mêmes sections clés, captures de workflows et diagrammes.
 
 ---
+## Setup & Configuration
 
+### Environment Variables
+
+This project uses environment variables to secure webhook URLs. Follow these steps to configure your environment:
+
+1. **Copy the example environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Update `.env` with your webhook URLs:**
+   ```env
+   # Leads management webhook (CRUD operations)
+   VITE_WEBHOOK_LEADS=https://your-n8n-instance.com/webhook/dentist-leads
+
+   # Chatbot webhook
+   VITE_WEBHOOK_CHATBOT=https://your-n8n-instance.com/webhook/scalint-chatbot
+
+   # Authentication webhook
+   VITE_WEBHOOK_LOGIN=https://your-n8n-instance.com/webhook/dentisto-new-user-login
+
+   # Availability check webhook
+   VITE_WEBHOOK_CHECK_AVAILABILITY=https://your-n8n-instance.com/webhook/scalint-check-availability
+
+   # Meeting management webhooks
+   VITE_WEBHOOK_CANCEL_MEETING=https://your-n8n-instance.com/webhook/scalint-cancel-meeting
+   VITE_WEBHOOK_RESCHEDULE_MEETING=https://your-n8n-instance.com/webhook/scalint-lead-reschedule
+   VITE_WEBHOOK_RESCHEDULED_CONFIRMATION=https://your-n8n-instance.com/webhook/scalint-lead-rescheduled
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+4. **Run development server:**
+   ```bash
+   npm run dev
+   ```
+
+5. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+**Note:** The `.env` file is ignored by git for security. Never commit webhook URLs or sensitive credentials to version control.
+
+---
 ## 1) Spécification du Projet
 
 **Conception & Blueprint de Workflow d'Agent IA Réceptionniste Simplifié pour Clinique Dentaire**
@@ -233,7 +281,37 @@ flowchart TD
 
 ---
 
-## 8) Alternative — Retell AI Voice Service
+## 8) Monitoring des Erreurs — Bot Telegram
+
+### Objectif
+Notifier automatiquement l'equipe quand un workflow n8n echoue, avec un lien direct vers l'execution en erreur.
+
+### Fonctionnement
+- **Error Trigger**: capte les erreurs de workflow
+- **Telegram (Send a text message)**: envoie une alerte dans le canal `clients_errors_notification`
+- **Payload d'alerte**: resume de l'erreur + URL vers l'execution n8n
+
+### Capture workflow
+
+![Workflow n8n error trigger vers Telegram](public/Scalint%20-%20Error%20workflow.png)
+
+### Exemple de message Telegram
+
+```text
+Something went wrong with a SCALINT workflow:
+- Error: Your request is invalid or could not be processed by the service
+- URL: https://n8n.systemifyautomation.com/workflow/VF2652DIzg3E3E0naCZsX/executions/3123
+```
+
+### Capture du message reçu
+
+![Message Telegram d'alerte erreur workflow](public/Scalint%20-%20Error%20Message.png)
+
+✅ Les erreurs workflows sont notifiees en temps reel via Telegram Bot
+
+---
+
+## 9) Alternative — Retell AI Voice Service
 
 ### Pourquoi une voix IA ?
 Tous les patients n'utilisent pas WhatsApp (notamment une partie de la clientèle plus âgée). Une voie vocale augmente la couverture.
@@ -279,4 +357,5 @@ flowchart TD
 - **Disponibilités mensuelles** → section 5 + capture
 - **Rappel WhatsApp 24h** → section 6 + capture
 - **Gestion no-show** → section 7 + capture
-- **Alternative voice AI** → section 8
+- **Monitoring erreurs Telegram** → section 8 + captures
+- **Alternative voice AI** → section 9
