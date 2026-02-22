@@ -3,7 +3,7 @@ import type { Lead } from '../types';
 import Chatbot from '../components/Chatbot';
 import DateTimePicker from '../components/DateTimePicker';
 import Footer from '../components/Footer';
-import PhoneInput from 'react-phone-number-input';
+import PhoneInput, { isValidPhoneNumber, parsePhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import './LeadForm.css';
 
@@ -81,9 +81,29 @@ const LeadForm = () => {
   }, [currentStep]);
 
   const isPhoneValid = (phone: string) => {
-    // Phone input library handles validation internally
-    // Just check if phone is provided and has reasonable length
-    return phone && phone.length >= 10;
+    if (!phone) return false;
+    
+    // Must start with + (international format)
+    if (!phone.startsWith('+')) return false;
+    
+    // Use library's built-in validation
+    try {
+      // This validates the entire number including country code
+      const isValid = isValidPhoneNumber(phone);
+      if (!isValid) return false;
+      
+      // Additional check: parse and verify country code exists
+      const parsed = parsePhoneNumber(phone);
+      if (!parsed || !parsed.country) return false;
+      
+      // Reject invalid country codes (like +0)
+      const countryCode = phone.match(/^\+(\d+)/);
+      if (countryCode && countryCode[1].startsWith('0')) return false;
+      
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const formatMontrealDateTime = (date: Date) => {
@@ -132,10 +152,14 @@ const LeadForm = () => {
     });
     
     // Validate phone
-    if (value && isPhoneValid(value)) {
+    if (!value) {
+      setPhoneError(null);
+    } else if (value && !value.startsWith('+')) {
+      setPhoneError('Le numéro doit commencer par + suivi du code pays');
+    } else if (value && isPhoneValid(value)) {
       setPhoneError(null);
     } else if (value) {
-      setPhoneError('Veuillez entrer un numéro de téléphone valide');
+      setPhoneError('Numéro de téléphone invalide. Vérifiez le code pays');
     }
   };
 
@@ -143,8 +167,18 @@ const LeadForm = () => {
     e.preventDefault();
     
     // Validate phone number before proceeding
+    if (!formData.phone) {
+      setPhoneError('Le numéro de téléphone est requis');
+      return;
+    }
+    
+    if (!formData.phone.startsWith('+')) {
+      setPhoneError('Le numéro doit commencer par + suivi du code pays (ex: +1 pour Canada)');
+      return;
+    }
+    
     if (!isPhoneValid(formData.phone)) {
-      setPhoneError('Veuillez entrer un numéro de téléphone valide (10 chiffres)');
+      setPhoneError('Numéro invalide. Vérifiez le code pays et le format');
       return;
     }
     
@@ -168,6 +202,13 @@ const LeadForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate phone number one final time
+    if (!isPhoneValid(formData.phone)) {
+      setPhoneError('Numéro de téléphone invalide. Le numéro doit inclure un code pays valide.');
+      setCurrentStep(1); // Go back to step 1 to fix
+      return;
+    }
 
     // Bot protection checks
     // 1. Honeypot field should be empty (bots will fill it)

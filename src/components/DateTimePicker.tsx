@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { DayPicker } from 'react-day-picker';
-import { format, setHours, setMinutes, startOfDay, isBefore, addDays, addMonths, subMonths, addMinutes } from 'date-fns';
+import { format, setHours, setMinutes, startOfDay, startOfMonth, isBefore, addDays, addMonths, subMonths, addMinutes } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar, Clock, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import 'react-day-picker/dist/style.css';
@@ -147,11 +147,22 @@ const DateTimePicker = ({
   };
 
   const handlePrevMonth = () => {
-    setDisplayMonth(subMonths(displayMonth, 1));
+    const prevMonth = subMonths(displayMonth, 1);
+    const currentMonthStart = startOfMonth(new Date());
+    // Don't allow navigation to months before the current month
+    if (!isBefore(startOfMonth(prevMonth), currentMonthStart)) {
+      setDisplayMonth(prevMonth);
+    }
   };
 
   const handleNextMonth = () => {
     setDisplayMonth(addMonths(displayMonth, 1));
+  };
+
+  const isPrevMonthDisabled = () => {
+    const prevMonth = subMonths(displayMonth, 1);
+    const currentMonthStart = startOfMonth(new Date());
+    return isBefore(startOfMonth(prevMonth), currentMonthStart);
   };
 
   const formatDisplayValue = () => {
@@ -203,14 +214,16 @@ const DateTimePicker = ({
             <div className="datetime-content">
               <div className="calendar-section">
                 <div className="month-navigation">
-                  <button 
-                    type="button"
-                    className="month-nav-button" 
-                    onClick={handlePrevMonth}
-                    aria-label="Mois précédent"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
+                  {!isPrevMonthDisabled() && (
+                    <button 
+                      type="button"
+                      className="month-nav-button" 
+                      onClick={handlePrevMonth}
+                      aria-label="Mois précédent"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                  )}
                   <h2 className="month-year-display">
                     {selectedDate && <span className="selected-day-text">{format(selectedDate, 'd')}</span>}
                     {format(displayMonth, 'MMMM yyyy', { locale: fr })}
@@ -229,6 +242,7 @@ const DateTimePicker = ({
                   selected={selectedDate}
                   onSelect={handleDaySelect}
                   disabled={(day) => isBefore(day, minDay) || isDayFullyBooked(day)}
+                  fromDate={tomorrow}
                   month={displayMonth}
                   onMonthChange={setDisplayMonth}
                   modifiers={{
