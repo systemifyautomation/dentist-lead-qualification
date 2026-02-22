@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, Pencil, Trash2, Save, X, LogOut, Calendar, UserX, CheckCircle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, ClipboardList } from 'lucide-react';
+import { Phone, LogOut, UserX, CheckCircle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, Megaphone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import Footer from '../components/Footer';
@@ -43,11 +43,7 @@ const NoShows = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState<Lead | null>(null);
-  const [editOriginalId, setEditOriginalId] = useState<string | null>(null);
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'tomorrow' | 'custom'>('all');
-  const [customDate, setCustomDate] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'yesterday'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -184,6 +180,60 @@ const NoShows = () => {
     }
   };
 
+  // Helper function to check if a date is today in Montreal timezone
+  const isToday = (dateString: string) => {
+    const date = new Date(dateString);
+    const nowParts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date());
+    
+    const dateParts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(date);
+    
+    const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
+      parts.find((part) => part.type === type)?.value ?? '';
+    
+    return getPart(nowParts, 'year') === getPart(dateParts, 'year') &&
+           getPart(nowParts, 'month') === getPart(dateParts, 'month') &&
+           getPart(nowParts, 'day') === getPart(dateParts, 'day');
+  };
+
+  // Helper function to check if a date is yesterday in Montreal timezone
+  const isYesterday = (dateString: string) => {
+    const date = new Date(dateString);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const yesterdayParts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(yesterday);
+    
+    const dateParts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(date);
+    
+    const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
+      parts.find((part) => part.type === type)?.value ?? '';
+    
+    return getPart(yesterdayParts, 'year') === getPart(dateParts, 'year') &&
+           getPart(yesterdayParts, 'month') === getPart(dateParts, 'month') &&
+           getPart(yesterdayParts, 'day') === getPart(dateParts, 'day');
+  };
+
+
   // Apply date filter
   const filteredByDate = dateFilter === 'all'
     ? leads
@@ -192,10 +242,8 @@ const NoShows = () => {
         switch (dateFilter) {
           case 'today':
             return isToday(lead.dateVisite);
-          case 'tomorrow':
-            return isTomorrow(lead.dateVisite);
-          case 'custom':
-            return matchesCustomDate(lead.dateVisite, customDate);
+          case 'yesterday':
+            return isYesterday(lead.dateVisite);
           default:
             return true;
         }
@@ -290,11 +338,10 @@ const NoShows = () => {
     const tomorrowOnly = new Date(todayOnly);
     tomorrowOnly.setDate(tomorrowOnly.getDate() + 1);
     
-    // Format time
-    const timeString = date.toLocaleString('fr-CA', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    // Format time as HH:MM
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const timeString = `${hours}:${minutes}`;
     
     // Check if date is yesterday, today, or tomorrow
     if (dateOnly.getTime() === yesterdayOnly.getTime()) {
@@ -306,13 +353,12 @@ const NoShows = () => {
     }
     
     // Default format for other dates
-    return date.toLocaleString('fr-CA', {
+    const dateStr = date.toLocaleDateString('fr-CA', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric'
     });
+    return `${dateStr} ${timeString}`;
   };
 
   const formatMaybeDate = (dateString?: string) => {
@@ -359,175 +405,7 @@ const NoShows = () => {
     return `${localIso}${sign}${offsetHours}:${offsetMins}`;
   };
 
-  // Helper function to check if a date is today in Montreal timezone
-  const isToday = (dateString: string) => {
-    const date = new Date(dateString);
-    const nowParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(new Date());
-    
-    const dateParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(date);
-    
-    const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
-      parts.find((part) => part.type === type)?.value ?? '';
-    
-    return getPart(nowParts, 'year') === getPart(dateParts, 'year') &&
-           getPart(nowParts, 'month') === getPart(dateParts, 'month') &&
-           getPart(nowParts, 'day') === getPart(dateParts, 'day');
-  };
 
-  // Helper function to check if a date is tomorrow in Montreal timezone
-  const isTomorrow = (dateString: string) => {
-    const date = new Date(dateString);
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const tomorrowParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(tomorrow);
-    
-    const dateParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(date);
-    
-    const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
-      parts.find((part) => part.type === type)?.value ?? '';
-    
-    return getPart(tomorrowParts, 'year') === getPart(dateParts, 'year') &&
-           getPart(tomorrowParts, 'month') === getPart(dateParts, 'month') &&
-           getPart(tomorrowParts, 'day') === getPart(dateParts, 'day');
-  };
-
-  // Helper function to check if a date matches the custom date filter
-  const matchesCustomDate = (dateString: string, customDate: string) => {
-    if (!customDate) return true;
-    const date = new Date(dateString);
-    const filterDate = new Date(customDate);
-    
-    const dateParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(date);
-    
-    const filterParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(filterDate);
-    
-    const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
-      parts.find((part) => part.type === type)?.value ?? '';
-    
-    return getPart(filterParts, 'year') === getPart(dateParts, 'year') &&
-           getPart(filterParts, 'month') === getPart(dateParts, 'month') &&
-           getPart(filterParts, 'day') === getPart(dateParts, 'day');
-  };
-
-  const handleEditChange = (field: keyof Lead, value: string | boolean) => {
-    if (!editForm) return;
-    setEditForm({
-      ...editForm,
-      [field]: value
-    });
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editForm || !editOriginalId) return;
-    
-    // Update timestamp
-    const updatedForm = {
-      ...editForm,
-      updatedAt: formatMontrealDateTime(new Date())
-    };
-    
-    // Send PUT request to webhook
-    try {
-      const webhookData = {
-        id: updatedForm.id,
-        nom: updatedForm.name,
-        email: updatedForm.email,
-        telephone: updatedForm.phone,
-        typeDemande: updatedForm.leadType,
-        statut: updatedForm.status,
-        rappelEnvoye: updatedForm.reminderSent,
-        dateRappel: updatedForm.reminderDate,
-        dateVisite: updatedForm.dateVisite,
-        calendar_url: updatedForm.calendarUrl,
-        calendar_id: updatedForm.calendarId,
-        reschedule_url: updatedForm.rescheduleUrl,
-        cancel_url: updatedForm.cancelUrl,
-        creeA: updatedForm.createdAt,
-        modifieA: updatedForm.updatedAt
-      };
-
-      await fetch(import.meta.env.VITE_WEBHOOK_LEADS, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(webhookData)
-      });
-    } catch (error) {
-      console.error('Failed to update lead on server:', error);
-      // Continue with local update even if webhook fails
-    }
-    
-    // Update local state
-    const updatedLeads = leads.map(lead =>
-      lead.id === editOriginalId ? updatedForm : lead
-    );
-    setLeads(updatedLeads);
-    setSelectedLead(updatedForm);
-    setIsEditing(false);
-    setEditForm(null);
-    setEditOriginalId(null);
-  };
-
-  const handleDeleteLead = async (leadId: string) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette demande ? Cette action est irréversible.')) {
-      return;
-    }
-
-    try {
-      // Send DELETE request to webhook
-      await fetch(`${import.meta.env.VITE_WEBHOOK_LEADS}?id=${leadId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-    } catch (error) {
-      console.error('Failed to delete lead from server:', error);
-      // Continue with local deletion even if webhook fails
-    }
-
-    // Update local state
-    const updatedLeads = leads.filter(lead => lead.id !== leadId);
-    setLeads(updatedLeads);
-    
-    // Close the modal
-    setSelectedLead(null);
-    setIsEditing(false);
-    setEditForm(null);
-    setEditOriginalId(null);
-  };
 
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
@@ -553,6 +431,12 @@ const NoShows = () => {
             <CheckCircle size={20} />
             {!sidebarCollapsed && <span>PATIENTS PASSÉS</span>}
           </Link>
+          {(user?.role === 'admin' || user?.role === 'super-admin') && (
+            <Link to="/promotions" className={`sidebar-link ${location.pathname === '/promotions' ? 'active' : ''}`}>
+              <Megaphone size={20} />
+              {!sidebarCollapsed && <span>PROMOTIONS</span>}
+            </Link>
+          )}
           <Link to="/utilisateurs" className={`sidebar-link ${location.pathname === '/utilisateurs' ? 'active' : ''}`}>
             <Users size={20} />
             {!sidebarCollapsed && <span>UTILISATEURS</span>}
@@ -647,42 +531,6 @@ const NoShows = () => {
 
       {!loading && (
       <div className="dashboard-content">
-        <div className="kpis-section">
-          <div className="kpi-card kpi-noshows">
-            <div className="kpi-icon">
-              <UserX size={28} strokeWidth={2} />
-            </div>
-            <div className="kpi-content">
-              <div className="kpi-label">Total No-Shows</div>
-              <div className="kpi-value">{leads.length}</div>
-            </div>
-          </div>
-
-          <div className="kpi-card kpi-visits">
-            <div className="kpi-icon">
-              <Calendar size={28} strokeWidth={2} />
-            </div>
-            <div className="kpi-content">
-              <div className="kpi-label">Rendez-vous manqués</div>
-              <div className="kpi-value">
-                {leads.filter(l => l.leadType === 'appointment').length}
-              </div>
-            </div>
-          </div>
-
-          <div className="kpi-card kpi-emergencies">
-            <div className="kpi-icon">
-              <ClipboardList size={28} strokeWidth={2} />
-            </div>
-            <div className="kpi-content">
-              <div className="kpi-label">Urgences manquées</div>
-              <div className="kpi-value">
-                {leads.filter(l => l.leadType === 'emergency').length}
-              </div>
-            </div>
-          </div>
-        </div>
-
         <main className="main-content">
           <div className="leads-toolbar">
             <div className="filters-top">
@@ -699,8 +547,7 @@ const NoShows = () => {
                 >
                   <option value="all">Toutes les dates</option>
                   <option value="today">Aujourd'hui</option>
-                  <option value="tomorrow">Demain</option>
-                  <option value="custom">Date personnalisée</option>
+                  <option value="yesterday">Hier</option>
                 </select>
               </div>
               <div className="filter-group">
@@ -726,21 +573,6 @@ const NoShows = () => {
                 </select>
               </div>
             </div>
-            {dateFilter === 'custom' && (
-              <div className="custom-date-picker">
-                <label htmlFor="custom-date" className="filter-label">Sélectionner la date:</label>
-                <input
-                  type="date"
-                  id="custom-date"
-                  value={customDate}
-                  onChange={(e) => {
-                    setCustomDate(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="date-input"
-                />
-              </div>
-            )}
           </div>
           <div className="leads-list">
             <div className="leads-list-header">
@@ -758,9 +590,6 @@ const NoShows = () => {
                     className={`lead-card ${selectedLead?.id === lead.id ? 'selected' : ''}`}
                     onClick={() => {
                       setSelectedLead(lead);
-                      setIsEditing(false);
-                      setEditForm(null);
-                      setEditOriginalId(null);
                     }}
                   >
                     <div className="lead-card-header">
@@ -837,66 +666,16 @@ const NoShows = () => {
               className="modal-backdrop"
               onClick={() => {
                 setSelectedLead(null);
-                setIsEditing(false);
-                setEditForm(null);
-                setEditOriginalId(null);
               }}
             ></div>
             <div className="details-modal">
               <div className="details-header">
                 <h2>Détails de la Demande</h2>
                 <div className="details-actions">
-                  {!isEditing && (
-                    <button
-                      className="icon-button edit-button"
-                      onClick={() => {
-                        setIsEditing(true);
-                        setEditForm({ ...selectedLead });
-                        setEditOriginalId(selectedLead.id);
-                      }}
-                      title="Editer"
-                    >
-                      <Pencil size={20} strokeWidth={2.5} />
-                    </button>
-                  )}
-                  {!isEditing && (
-                    <button
-                      className="icon-button delete-button"
-                      onClick={() => handleDeleteLead(selectedLead.id)}
-                      title="Supprimer"
-                    >
-                      <Trash2 size={20} strokeWidth={2.5} />
-                    </button>
-                  )}
-                  {isEditing && (
-                    <>
-                      <button
-                        className="icon-button save-button"
-                        onClick={handleSaveEdit}
-                        title="Sauvegarder"
-                      >
-                        <Save size={20} strokeWidth={2.5} />
-                      </button>
-                      <button
-                        className="icon-button cancel-button"
-                        onClick={() => {
-                          setIsEditing(false);
-                          setEditForm(null);
-                          setEditOriginalId(null);
-                        }}
-                        title="Annuler"
-                      >
-                        <X size={20} strokeWidth={2.5} />
-                      </button>
-                    </>
-                  )}
                   <button 
                     className="close-details"
                     onClick={() => {
                       setSelectedLead(null);
-                      setIsEditing(false);
-                      setEditForm(null);
-                      setEditOriginalId(null);
                     }}
                   >
                     ✕
@@ -905,8 +684,6 @@ const NoShows = () => {
               </div>
 
               <div className="details-content">
-              {!isEditing && (
-                <>
                   <div className="detail-section">
                     <h3>Coordonnées</h3>
                     <div className="detail-item">
@@ -979,93 +756,6 @@ const NoShows = () => {
                     </div>
                   </div>
 
-                </>
-              )}
-
-              {isEditing && editForm && (
-                <>
-                  <div className="detail-section">
-                    <h3>Edition</h3>
-                    <div className="edit-form">
-                      <div className="edit-field">
-                        <label>Nom</label>
-                        <input
-                          className="edit-input"
-                          type="text"
-                          value={editForm.name}
-                          onChange={(e) => handleEditChange('name', e.target.value)}
-                        />
-                      </div>
-                      <div className="edit-field">
-                        <label>Email</label>
-                        <input
-                          className="edit-input"
-                          type="email"
-                          value={editForm.email}
-                          onChange={(e) => handleEditChange('email', e.target.value)}
-                        />
-                      </div>
-                      <div className="edit-field">
-                        <label>Telephone</label>
-                        <input
-                          className="edit-input"
-                          type="text"
-                          value={editForm.phone}
-                          onChange={(e) => handleEditChange('phone', e.target.value)}
-                        />
-                      </div>
-                      <div className="edit-field">
-                        <label>Type de demande</label>
-                        <select
-                          className="edit-select"
-                          value={editForm.leadType}
-                          onChange={(e) => handleEditChange('leadType', e.target.value as Lead['leadType'])}
-                        >
-                          <option value="appointment">rendez-vous</option>
-                          <option value="emergency">urgence</option>
-                          <option value="question">question</option>
-                        </select>
-                      </div>
-                      <div className="edit-field">
-                        <label>Statut</label>
-                        <select
-                          className="edit-select status-filter"
-                          value={editForm.status}
-                          onChange={(e) => handleEditChange('status', e.target.value as Lead['status'])}
-                        >
-                          <option value="phone-unconfirmed" className="status-phone-unconfirmed">Non confirmé</option>
-                          <option value="phone-confirmed" className="status-phone-confirmed">Confirmé</option>
-                          <option value="canceled" className="status-canceled">Annulé</option>
-                          <option value="no-show" className="status-no-show">Absent</option>
-                          <option value="completed" className="status-completed">Visite complétée</option>
-                        </select>
-                      </div>
-                      <div className="edit-field">
-                        <label>Rappel envoye</label>
-                        <select
-                          className="edit-select"
-                          value={editForm.reminderSent ? 'true' : 'false'}
-                          onChange={(e) => handleEditChange('reminderSent', e.target.value === 'true')}
-                        >
-                          <option value="true">Oui</option>
-                          <option value="false">Non</option>
-                        </select>
-                      </div>
-                      <div className="edit-field">
-                        <label>Description</label>
-                        <textarea
-                          className="edit-input"
-                          value={editForm.description || ''}
-                          onChange={(e) => handleEditChange('description', e.target.value)}
-                          placeholder="Description de la visite..."
-                          rows={4}
-                          style={{ resize: 'vertical', fontFamily: 'inherit' }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
           </div>
         </>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, Pencil, Trash2, Save, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle } from 'lucide-react';
+import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import DateTimePicker from '../components/DateTimePicker';
+import StatusDropdown from '../components/StatusDropdown';
 import Footer from '../components/Footer';
 import './AdminDashboard.css';
 
@@ -36,6 +37,23 @@ type ApiLead = {
   reminderDate?: string;
 };
 
+const STATUS_FILTER_OPTIONS = [
+  { value: 'all', label: 'Tous', color: '#6b7280' },
+  { value: 'phone-unconfirmed', label: 'Non confirmé', color: '#f59e0b' },
+  { value: 'phone-confirmed', label: 'Confirmé', color: '#3b82f6' }
+];
+
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'Toutes les demandes', color: '#6b7280' },
+  { value: 'phone-unconfirmed', label: 'Non confirmé', color: '#f59e0b' },
+  { value: 'phone-confirmed', label: 'Confirmé', color: '#3b82f6' },
+  { value: 'canceled', label: 'Annulé', color: '#9b9b9b' },
+  { value: 'no-show', label: 'Absent', color: '#e74c3c' },
+  { value: 'completed', label: 'Visite complétée', color: '#27ae60' }
+];
+
+const STATUS_OPTIONS_WITHOUT_ALL = STATUS_OPTIONS.filter(opt => opt.value !== 'all');
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,8 +66,7 @@ const AdminDashboard = () => {
   const [editForm, setEditForm] = useState<Lead | null>(null);
   const [editOriginalId, setEditOriginalId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'tomorrow' | 'custom'>('all');
-  const [customDate, setCustomDate] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'tomorrow'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -241,17 +258,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const deleteLead = (leadId: string) => {
-    if (window.confirm('Are you sure you want to delete this lead?')) {
-      const updatedLeads = leads.filter(lead => lead.id !== leadId);
-      setLeads(updatedLeads);
-      localStorage.setItem('leads', JSON.stringify(updatedLeads));
-      if (selectedLead?.id === leadId) {
-        setSelectedLead(null);
-      }
-    }
-  };
-
   const getStatusLabel = (status: Lead['status']) => {
     switch (status) {
       case 'phone-unconfirmed': return 'Non confirmé';
@@ -262,6 +268,61 @@ const AdminDashboard = () => {
       default: return 'Non confirmé';
     }
   };
+
+  // Helper function to check if a date is today in Montreal timezone
+  const isToday = (dateString: string) => {
+    const date = new Date(dateString);
+    const nowParts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date());
+    
+    const dateParts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(date);
+    
+    const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
+      parts.find((part) => part.type === type)?.value ?? '';
+    
+    return getPart(nowParts, 'year') === getPart(dateParts, 'year') &&
+           getPart(nowParts, 'month') === getPart(dateParts, 'month') &&
+           getPart(nowParts, 'day') === getPart(dateParts, 'day');
+  };
+
+  // Helper function to check if a date is tomorrow in Montreal timezone
+  const isTomorrow = (dateString: string) => {
+    const date = new Date(dateString);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const tomorrowParts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(tomorrow);
+    
+    const dateParts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(date);
+    
+    const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
+      parts.find((part) => part.type === type)?.value ?? '';
+    
+    return getPart(tomorrowParts, 'year') === getPart(dateParts, 'year') &&
+           getPart(tomorrowParts, 'month') === getPart(dateParts, 'month') &&
+           getPart(tomorrowParts, 'day') === getPart(dateParts, 'day');
+  };
+
+
 
   const filteredByStatus = filterStatus === 'all'
     ? leads
@@ -277,8 +338,6 @@ const AdminDashboard = () => {
             return isToday(lead.dateVisite);
           case 'tomorrow':
             return isTomorrow(lead.dateVisite);
-          case 'custom':
-            return matchesCustomDate(lead.dateVisite, customDate);
           default:
             return true;
         }
@@ -373,11 +432,10 @@ const AdminDashboard = () => {
     const tomorrowOnly = new Date(todayOnly);
     tomorrowOnly.setDate(tomorrowOnly.getDate() + 1);
     
-    // Format time
-    const timeString = date.toLocaleString('fr-CA', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    // Format time as HH:MM
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const timeString = `${hours}:${minutes}`;
     
     // Check if date is yesterday, today, or tomorrow
     if (dateOnly.getTime() === yesterdayOnly.getTime()) {
@@ -389,13 +447,12 @@ const AdminDashboard = () => {
     }
     
     // Default format for other dates
-    return date.toLocaleString('fr-CA', {
+    const dateStr = date.toLocaleDateString('fr-CA', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric'
     });
+    return `${dateStr} ${timeString}`;
   };
 
   const formatMaybeDate = (dateString?: string) => {
@@ -455,87 +512,6 @@ const AdminDashboard = () => {
     const offsetMins = String(absMinutes % 60).padStart(2, '0');
 
     return `${localIso}${sign}${offsetHours}:${offsetMins}`;
-  };
-
-  // Helper function to check if a date is today in Montreal timezone
-  const isToday = (dateString: string) => {
-    const date = new Date(dateString);
-    const nowParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(new Date());
-    
-    const dateParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(date);
-    
-    const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
-      parts.find((part) => part.type === type)?.value ?? '';
-    
-    return getPart(nowParts, 'year') === getPart(dateParts, 'year') &&
-           getPart(nowParts, 'month') === getPart(dateParts, 'month') &&
-           getPart(nowParts, 'day') === getPart(dateParts, 'day');
-  };
-
-  // Helper function to check if a date is tomorrow in Montreal timezone
-  const isTomorrow = (dateString: string) => {
-    const date = new Date(dateString);
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const tomorrowParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(tomorrow);
-    
-    const dateParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(date);
-    
-    const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
-      parts.find((part) => part.type === type)?.value ?? '';
-    
-    return getPart(tomorrowParts, 'year') === getPart(dateParts, 'year') &&
-           getPart(tomorrowParts, 'month') === getPart(dateParts, 'month') &&
-           getPart(tomorrowParts, 'day') === getPart(dateParts, 'day');
-  };
-
-  // Helper function to check if a date matches the custom date filter
-  const matchesCustomDate = (dateString: string, customDate: string) => {
-    if (!customDate) return true;
-    const date = new Date(dateString);
-    const filterDate = new Date(customDate);
-    
-    const dateParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(date);
-    
-    const filterParts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Toronto',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).formatToParts(filterDate);
-    
-    const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
-      parts.find((part) => part.type === type)?.value ?? '';
-    
-    return getPart(filterParts, 'year') === getPart(dateParts, 'year') &&
-           getPart(filterParts, 'month') === getPart(dateParts, 'month') &&
-           getPart(filterParts, 'day') === getPart(dateParts, 'day');
   };
 
   const handleAddLeadChange = (field: string, value: string | boolean) => {
@@ -748,6 +724,12 @@ const AdminDashboard = () => {
             <CheckCircle size={20} />
             {!sidebarCollapsed && <span>PATIENTS PASSÉS</span>}
           </Link>
+          {(user?.role === 'admin' || user?.role === 'super-admin') && (
+            <Link to="/promotions" className={`sidebar-link ${location.pathname === '/promotions' ? 'active' : ''}`}>
+              <Megaphone size={20} />
+              {!sidebarCollapsed && <span>PROMOTIONS</span>}
+            </Link>
+          )}
           <Link to="/utilisateurs" className={`sidebar-link ${location.pathname === '/utilisateurs' ? 'active' : ''}`}>
             <Users size={20} />
             {!sidebarCollapsed && <span>UTILISATEURS</span>}
@@ -905,19 +887,12 @@ const AdminDashboard = () => {
             <div className="filters-top">
               <div className="filter-group">
                 <label htmlFor="status-filter" className="filter-label">Filtrer par statut</label>
-                <select 
-                  id="status-filter"
-                  value={filterStatus} 
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="filter-select status-filter"
-                >
-                  <option value="all">Toutes les demandes</option>
-                  <option value="phone-unconfirmed" className="status-phone-unconfirmed">Non confirmé</option>
-                  <option value="phone-confirmed" className="status-phone-confirmed">Confirmé</option>
-                  <option value="canceled" className="status-canceled">Annulé</option>
-                  <option value="no-show" className="status-no-show">Absent</option>
-                  <option value="completed" className="status-completed">Visite complétée</option>
-                </select>
+                <StatusDropdown
+                  value={filterStatus}
+                  onChange={setFilterStatus}
+                  options={STATUS_FILTER_OPTIONS}
+                  className="filter-context white-variant"
+                />
               </div>
               <div className="filter-group">
                 <label htmlFor="date-filter" className="filter-label">Filtrer par date</label>
@@ -933,7 +908,6 @@ const AdminDashboard = () => {
                   <option value="all">Toutes les dates</option>
                   <option value="today">Aujourd'hui</option>
                   <option value="tomorrow">Demain</option>
-                  <option value="custom">Date personnalisée</option>
                 </select>
               </div>
               <div className="filter-group">
@@ -959,21 +933,6 @@ const AdminDashboard = () => {
                 </select>
               </div>
             </div>
-            {dateFilter === 'custom' && (
-              <div className="custom-date-picker">
-                <label htmlFor="custom-date" className="filter-label">Sélectionner la date:</label>
-                <input
-                  type="date"
-                  id="custom-date"
-                  value={customDate}
-                  onChange={(e) => {
-                    setCustomDate(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="date-input"
-                />
-              </div>
-            )}
           </div>
           <div className="leads-list">
             <div className="leads-list-header">
@@ -1111,11 +1070,11 @@ const AdminDashboard = () => {
                   {isEditing && (
                     <>
                       <button
-                        className="icon-button save-button"
+                        className="text-save-button"
                         onClick={handleSaveEdit}
                         title="Sauvegarder"
                       >
-                        <Save size={20} strokeWidth={2.5} />
+                        Sauvegarder
                       </button>
                       <button
                         className="icon-button cancel-button"
@@ -1130,17 +1089,19 @@ const AdminDashboard = () => {
                       </button>
                     </>
                   )}
-                  <button 
-                    className="close-details"
-                    onClick={() => {
-                      setSelectedLead(null);
-                      setIsEditing(false);
-                      setEditForm(null);
-                      setEditOriginalId(null);
-                    }}
-                  >
-                    ✕
-                  </button>
+                  {!isEditing && (
+                    <button 
+                      className="close-details"
+                      onClick={() => {
+                        setSelectedLead(null);
+                        setIsEditing(false);
+                        setEditForm(null);
+                        setEditOriginalId(null);
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -1296,17 +1257,12 @@ const AdminDashboard = () => {
                       </div>
                       <div className="edit-field">
                         <label>Statut</label>
-                        <select
-                          className="edit-select status-filter"
+                        <StatusDropdown
                           value={editForm.status}
-                          onChange={(e) => handleEditChange('status', e.target.value as Lead['status'])}
-                        >
-                          <option value="phone-unconfirmed" className="status-phone-unconfirmed">Non confirmé</option>
-                          <option value="phone-confirmed" className="status-phone-confirmed">Confirmé</option>
-                          <option value="canceled" className="status-canceled">Annulé</option>
-                          <option value="no-show" className="status-no-show">Absent</option>
-                          <option value="completed" className="status-completed">Visite complétée</option>
-                        </select>
+                          onChange={(value) => handleEditChange('status', value as Lead['status'])}
+                          options={STATUS_OPTIONS_WITHOUT_ALL}
+                          className="edit-context"
+                        />
                       </div>
                       <div className="edit-field">
                         <label>Rappel envoye</label>
@@ -1331,15 +1287,6 @@ const AdminDashboard = () => {
                         />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="detail-section">
-                    <button
-                      className="delete-button"
-                      onClick={() => deleteLead(selectedLead.id)}
-                    >
-                      Supprimer la Demande
-                    </button>
                   </div>
                 </>
               )}
@@ -1415,17 +1362,12 @@ const AdminDashboard = () => {
                   </div>
                   <div className="edit-field">
                     <label>Statut</label>
-                    <select
-                      className="edit-select"
+                    <StatusDropdown
                       value={addLeadForm.status}
-                      onChange={(e) => handleAddLeadChange('status', e.target.value)}
-                    >
-                      <option value="phone-unconfirmed">non confirmé</option>
-                      <option value="phone-confirmed">confirmé</option>
-                      <option value="canceled">annulé</option>
-                      <option value="no-show">absent</option>
-                      <option value="completed">visite complétée</option>
-                    </select>
+                      onChange={(value) => handleAddLeadChange('status', value)}
+                      options={STATUS_OPTIONS_WITHOUT_ALL}
+                      className="edit-context"
+                    />
                   </div>
                   <div className="edit-field">
                     <label>Date de visite</label>
@@ -1465,7 +1407,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="detail-section">
+              <div className="detail-section full-width-section">
                 <button
                   className="save-button"
                   onClick={handleAddLeadSubmit}

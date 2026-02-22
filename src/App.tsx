@@ -5,6 +5,7 @@ import LeadForm from './pages/LeadForm';
 import AdminDashboard from './pages/AdminDashboard';
 import NoShows from './pages/NoShows';
 import PastPatients from './pages/PastPatients';
+import Promotions from './pages/Promotions';
 import Users from './pages/Users';
 import Login from './pages/Login';
 import Strategy from './pages/Strategy';
@@ -43,6 +44,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <PastPatients />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/promotions" 
+            element={
+              <ProtectedRoute>
+                <Promotions />
               </ProtectedRoute>
             } 
           />

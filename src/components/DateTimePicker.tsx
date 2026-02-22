@@ -16,6 +16,7 @@ interface DateTimePickerProps {
   bookedSlots?: Array<{ start: string; end: string }>;
   availabilityLoading?: boolean;
   availabilityError?: string | null;
+  showTimeSelect?: boolean;
 }
 
 const DateTimePicker = ({
@@ -27,6 +28,7 @@ const DateTimePicker = ({
   bookedSlots = [],
   availabilityLoading = false,
   availabilityError = null,
+  showTimeSelect = true,
 }: DateTimePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(selected || undefined);
@@ -109,7 +111,14 @@ const DateTimePicker = ({
   const handleDaySelect = (day: Date | undefined) => {
     if (day && !isBefore(day, minDay)) {
       setSelectedDate(day);
-      // Don't auto-close, let user select time
+      // If showTimeSelect is false, immediately confirm and close
+      if (!showTimeSelect) {
+        const [hours, minutes] = selectedTime.split(':').map(Number);
+        const newDate = setMinutes(setHours(day, hours), minutes);
+        onChange(newDate);
+        setIsOpen(false);
+      }
+      // Otherwise, let user select time
     }
   };
 
@@ -140,6 +149,9 @@ const DateTimePicker = ({
 
   const formatDisplayValue = () => {
     if (!selected) return placeholder;
+    if (!showTimeSelect) {
+      return format(selected, 'EEEE d MMMM yyyy', { locale: fr });
+    }
     return format(selected, "EEEE d MMMM yyyy 'à' HH:mm", { locale: fr });
   };
 
@@ -227,37 +239,39 @@ const DateTimePicker = ({
                 />
               </div>
 
-              <div className="time-section">
-                <div className="time-header">
-                  <Clock size={16} />
-                  <span>Heure</span>
-                </div>
-                {(availabilityLoading || availabilityError) && (
-                  <div className={`availability-status ${availabilityError ? 'error' : ''}`}>
-                    {availabilityLoading ? 'Chargement des disponibilites...' : availabilityError}
+              {showTimeSelect && (
+                <div className="time-section">
+                  <div className="time-header">
+                    <Clock size={16} />
+                    <span>Heure</span>
                   </div>
-                )}
-                <div className="time-list">
-                  {timeSlots.map((time) => {
-                    const blocked = isSlotBlocked(time);
-                    return (
-                      <button
-                        key={time}
-                        type="button"
-                        className={`time-slot ${selectedTime === time ? 'selected' : ''} ${blocked ? 'blocked' : ''}`}
-                        onClick={() => {
-                          if (!blocked) {
-                            handleTimeSelect(time);
-                          }
-                        }}
-                        disabled={!selectedDate || availabilityLoading || blocked}
-                      >
-                        {time}
-                      </button>
-                    );
-                  })}
+                  {(availabilityLoading || availabilityError) && (
+                    <div className={`availability-status ${availabilityError ? 'error' : ''}`}>
+                      {availabilityLoading ? 'Chargement des disponibilites...' : availabilityError}
+                    </div>
+                  )}
+                  <div className="time-list">
+                    {timeSlots.map((time) => {
+                      const blocked = isSlotBlocked(time);
+                      return (
+                        <button
+                          key={time}
+                          type="button"
+                          className={`time-slot ${selectedTime === time ? 'selected' : ''} ${blocked ? 'blocked' : ''}`}
+                          onClick={() => {
+                            if (!blocked) {
+                              handleTimeSelect(time);
+                            }
+                          }}
+                          disabled={!selectedDate || availabilityLoading || blocked}
+                        >
+                          {time}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

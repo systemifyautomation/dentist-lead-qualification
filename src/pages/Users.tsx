@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogOut, Menu, Users as UsersIcon, LayoutDashboard, ChevronLeft, UserCircle, UserPlus, Trash2, Shield, ShieldOff, AlertCircle, Loader2, Key, Eye, EyeOff, UserX, CheckCircle } from 'lucide-react';
+import { LogOut, Menu, Users as UsersIcon, LayoutDashboard, ChevronLeft, UserCircle, UserPlus, Trash2, Shield, ShieldOff, AlertCircle, Loader2, Key, Eye, EyeOff, UserX, CheckCircle, Megaphone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import './Users.css';
@@ -368,6 +368,12 @@ const Users = () => {
             <CheckCircle size={20} />
             {!sidebarCollapsed && <span>PATIENTS PASSÉS</span>}
           </Link>
+          {(user?.role === 'admin' || user?.role === 'super-admin') && (
+            <Link to="/promotions" className={`sidebar-link ${location.pathname === '/promotions' ? 'active' : ''}`}>
+              <Megaphone size={20} />
+              {!sidebarCollapsed && <span>PROMOTIONS</span>}
+            </Link>
+          )}
           <Link to="/utilisateurs" className={`sidebar-link ${location.pathname === '/utilisateurs' ? 'active' : ''}`}>
             <UsersIcon size={20} />
             {!sidebarCollapsed && <span>UTILISATEURS</span>}
