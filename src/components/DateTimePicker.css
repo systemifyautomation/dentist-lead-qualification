@@ -1071,6 +1071,12 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 0.4rem;
     padding: 0.75rem;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .time-list::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
   }
 
   .time-slot {
