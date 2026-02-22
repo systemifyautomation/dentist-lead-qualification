@@ -69,7 +69,14 @@ const DateTimePicker = ({
     const slotEnd = addMinutes(slotStart, 30);
     const startMs = slotStart.getTime();
     const endMs = slotEnd.getTime();
-    return bookedRanges.some((range) => startMs < range.endMs && endMs > range.startMs);
+    
+    // Count how many bookings overlap with this slot
+    const overlappingCount = bookedRanges.filter((range) => 
+      startMs < range.endMs && endMs > range.startMs
+    ).length;
+    
+    // Block only if 6 or more patients are booked in this slot
+    return overlappingCount >= 6;
   };
 
   const isSlotBlocked = (time: string) => {

@@ -418,7 +418,6 @@ const Users = () => {
               <h1>DENTISTO</h1>
             </div>
             <div className="header-center">
-              <h2 className="page-title">Gestion des Utilisateurs</h2>
             </div>
             <div className="header-right">
               <a

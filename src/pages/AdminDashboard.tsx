@@ -213,7 +213,12 @@ const AdminDashboard = () => {
   };
 
   const normalizeLeads = (data: ApiLead[]): Lead[] => {
-    return data.map((lead) => ({
+    // Filter out empty objects (e.g., [{}]) that indicate no leads
+    const validLeads = data.filter(lead => 
+      lead && (lead.id || lead.nom || lead.name || lead.email || lead.telephone || lead.phone)
+    );
+    
+    return validLeads.map((lead) => ({
       id: String(lead.id ?? Date.now()),
       name: lead.nom ?? lead.name ?? '',
       email: lead.email ?? '',

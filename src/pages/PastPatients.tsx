@@ -157,7 +157,11 @@ const PastPatients = () => {
       }
       
       const data = await response.json();
-      const rawLeads = Array.isArray(data) ? data : data.leads || [];
+      let rawLeads = Array.isArray(data) ? data : data.leads || [];
+      // Filter out empty objects (e.g., [{}]) that indicate no leads
+      rawLeads = rawLeads.filter((lead: any) => 
+        lead && (lead.id || lead.nom || lead.name || lead.email || lead.telephone || lead.phone)
+      );
       setLeads(normalizeLeads(rawLeads));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch leads';
@@ -478,7 +482,7 @@ const PastPatients = () => {
               alt="Dentisto"
               className="brand-logo"
             />
-            <h1>DENTISTO - Patients Passés</h1>
+            <h1>DENTISTO</h1>
           </div>
           <div className="header-center">
             <div className="header-search">

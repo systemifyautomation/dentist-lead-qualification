@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogOut, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, UserX, CheckCircle, Mail, MessageSquare, Smartphone, Send, Megaphone } from 'lucide-react';
+import { LogOut, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, UserX, CheckCircle, Mail, MessageSquare, Smartphone, Send, Megaphone, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import './AdminDashboard.css';
@@ -10,11 +10,15 @@ const Promotions = () => {
   const location = useLocation();
   const { logout, user } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [selectedCampaignType, setSelectedCampaignType] = useState<'email' | 'whatsapp' | 'sms' | null>(null);
+  const [selectedCampaignTypes, setSelectedCampaignTypes] = useState<string[]>([]);
   const [selectedAudiences, setSelectedAudiences] = useState<string[]>([]);
   const [campaignHeader, setCampaignHeader] = useState('');
   const [campaignBody, setCampaignBody] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState<'error' | 'success' | 'confirm' | null>(null);
+  const [modalMessage, setModalMessage] = useState('');
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   // Check if user has permission (admin or super-admin only)
   useEffect(() => {
@@ -22,6 +26,16 @@ const Promotions = () => {
       navigate('/CRM');
     }
   }, [user, navigate]);
+
+  const handleCampaignTypeToggle = (type: string) => {
+    setSelectedCampaignTypes(prev => {
+      if (prev.includes(type)) {
+        return prev.filter(t => t !== type);
+      } else {
+        return [...prev, type];
+      }
+    });
+  };
 
   const handleAudienceToggle = (audience: string) => {
     setSelectedAudiences(prev => {
@@ -33,38 +47,37 @@ const Promotions = () => {
     });
   };
 
-  const handleSendCampaign = async () => {
-    if (!selectedCampaignType) {
-      alert('Veuillez sélectionner un type de campagne');
-      return;
+  const showModalMessage = (type: 'error' | 'success' | 'confirm', message: string, action?: () => void) => {
+    setModalType(type);
+    setModalMessage(message);
+    setShowModal(true);
+    if (action) {
+      setPendingAction(() => action);
     }
+  };
 
-    if (selectedAudiences.length === 0) {
-      alert('Veuillez sélectionner au moins une audience');
-      return;
-    }
+  const closeModal = () => {
+    setShowModal(false);
+    setModalType(null);
+    setModalMessage('');
+    setPendingAction(null);
+  };
 
-    if (!campaignHeader.trim()) {
-      alert('Veuillez entrer un en-tête');
-      return;
+  const confirmModal = () => {
+    if (pendingAction) {
+      pendingAction();
     }
+    closeModal();
+  };
 
-    if (!campaignBody.trim()) {
-      alert('Veuillez entrer un message');
-      return;
-    }
-
-    const confirmMessage = `Êtes-vous sûr de vouloir envoyer cette campagne ${selectedCampaignType} ?`;
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+  const executeSendCampaign = async () => {
 
     setIsSending(true);
 
     try {
       // Prepare campaign data
       const campaignData = {
-        type: selectedCampaignType,
+        types: selectedCampaignTypes,
         header: campaignHeader,
         body: campaignBody,
         audiences: selectedAudiences,
@@ -81,21 +94,48 @@ const Promotions = () => {
       });
 
       if (response.ok) {
-        alert(`Campagne ${selectedCampaignType} envoyée avec succès!`);
+        const channelText = selectedCampaignTypes.join(', ');
+        showModalMessage('success', `Campagne(s) envoyée(s) avec succès via ${channelText}!`);
         // Reset form
         setCampaignHeader('');
         setCampaignBody('');
-        setSelectedCampaignType(null);
+        setSelectedCampaignTypes([]);
         setSelectedAudiences([]);
       } else {
         throw new Error('Failed to send campaign');
       }
     } catch (error) {
       console.error('Campaign send error:', error);
-      alert('Erreur lors de l\'envoi de la campagne. Veuillez réessayer.');
+      showModalMessage('error', 'Erreur lors de l\'envoi de la campagne. Veuillez réessayer.');
     } finally {
       setIsSending(false);
     }
+  };
+
+  const handleSendCampaign = () => {
+    if (selectedCampaignTypes.length === 0) {
+      showModalMessage('error', 'Veuillez sélectionner au moins un canal de campagne');
+      return;
+    }
+
+    if (selectedAudiences.length === 0) {
+      showModalMessage('error', 'Veuillez sélectionner au moins une audience');
+      return;
+    }
+
+    if (!campaignHeader.trim()) {
+      showModalMessage('error', 'Veuillez entrer un en-tête');
+      return;
+    }
+
+    if (!campaignBody.trim()) {
+      showModalMessage('error', 'Veuillez entrer un message');
+      return;
+    }
+
+    const channelText = selectedCampaignTypes.join(', ');
+    const confirmMessage = `Êtes-vous sûr de vouloir envoyer cette campagne via ${channelText} ?`;
+    showModalMessage('confirm', confirmMessage, executeSendCampaign);
   };
 
   return (
@@ -169,7 +209,9 @@ const Promotions = () => {
                 alt="Dentisto"
                 className="brand-logo"
               />
-              <h1>DENTISTO - Promotions</h1>
+              <h1>DENTISTO</h1>
+            </div>
+            <div className="header-center">
             </div>
             <div className="header-right">
               <a
@@ -177,8 +219,9 @@ const Promotions = () => {
                 href="/formulaire"
                 target="_blank"
                 rel="noopener noreferrer"
+                title="Ouvrir le formulaire"
               >
-                Ajouter Nouveau Lead
+                Formulaire
               </a>
             </div>
           </div>
@@ -188,13 +231,13 @@ const Promotions = () => {
           <div className="promotions-container">
             <div className="promotions-header">
               <h2>Créer une Campagne</h2>
-              <p>Envoyez des offres et promotions à vos patients existants et passés</p>
+              <p>Sélectionnez un ou plusieurs canaux pour envoyer vos offres et promotions</p>
             </div>
 
                 <div className="campaign-types">
                   <button
-                    className={`campaign-type-card ${selectedCampaignType === 'email' ? 'active' : ''}`}
-                    onClick={() => setSelectedCampaignType('email')}
+                    className={`campaign-type-card ${selectedCampaignTypes.includes('email') ? 'active' : ''}`}
+                    onClick={() => handleCampaignTypeToggle('email')}
                   >
                     <Mail size={32} />
                     <h3>Campagne Email</h3>
@@ -202,8 +245,8 @@ const Promotions = () => {
                   </button>
 
                   <button
-                    className={`campaign-type-card ${selectedCampaignType === 'whatsapp' ? 'active' : ''}`}
-                    onClick={() => setSelectedCampaignType('whatsapp')}
+                    className={`campaign-type-card ${selectedCampaignTypes.includes('whatsapp') ? 'active' : ''}`}
+                    onClick={() => handleCampaignTypeToggle('whatsapp')}
                   >
                     <MessageSquare size={32} />
                     <h3>Campagne WhatsApp</h3>
@@ -211,8 +254,8 @@ const Promotions = () => {
                   </button>
 
                   <button
-                    className={`campaign-type-card ${selectedCampaignType === 'sms' ? 'active' : ''}`}
-                    onClick={() => setSelectedCampaignType('sms')}
+                    className={`campaign-type-card ${selectedCampaignTypes.includes('sms') ? 'active' : ''}`}
+                    onClick={() => handleCampaignTypeToggle('sms')}
                   >
                     <Smartphone size={32} />
                     <h3>Campagne SMS</h3>
@@ -220,7 +263,13 @@ const Promotions = () => {
                   </button>
                 </div>
 
-                {selectedCampaignType && (
+                {selectedCampaignTypes.length > 0 && (
+                  <div className="selected-channels-indicator">
+                    <p>✓ {selectedCampaignTypes.length} canal{selectedCampaignTypes.length > 1 ? 'aux' : ''} sélectionné{selectedCampaignTypes.length > 1 ? 's' : ''}: {selectedCampaignTypes.join(', ')}</p>
+                  </div>
+                )}
+
+                {selectedCampaignTypes.length > 0 && (
                   <div className="campaign-form">
                     <div className="form-section">
                       <h3>Audience</h3>
@@ -265,13 +314,16 @@ const Promotions = () => {
 
                     <div className="form-section">
                       <label>Message</label>
-                      <textarea
-                        className="campaign-textarea"
-                        value={campaignBody}
-                        onChange={(e) => setCampaignBody(e.target.value)}
-                        placeholder={`Entrez le corps de votre message...`}
-                        rows={8}
-                      />
+                      <div className="message-preview">
+                        <div className="static-greeting">Bonjour {`{{Prénom}}`}</div>
+                        <textarea
+                          className="campaign-textarea"
+                          value={campaignBody}
+                          onChange={(e) => setCampaignBody(e.target.value)}
+                          placeholder={`Entrez le corps de votre message...`}
+                          rows={8}
+                        />
+                      </div>
                       <small className="char-count">{campaignBody.length} caractères</small>
                     </div>
 
@@ -295,6 +347,40 @@ const Promotions = () => {
                 )}
               </div>
             </div>
+
+        {showModal && (
+          <div className="modal-overlay" onClick={closeModal}>
+            <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-icon">
+                {modalType === 'error' && <AlertCircle size={48} color="#e74c3c" />}
+                {modalType === 'success' && <CheckCircle2 size={48} color="#27ae60" />}
+                {modalType === 'confirm' && <AlertCircle size={48} color="#f39c12" />}
+              </div>
+              <h3 className="modal-title">
+                {modalType === 'error' && 'Erreur'}
+                {modalType === 'success' && 'Succès'}
+                {modalType === 'confirm' && 'Confirmation'}
+              </h3>
+              <p className="modal-message">{modalMessage}</p>
+              <div className="modal-actions">
+                {modalType === 'confirm' ? (
+                  <>
+                    <button className="modal-button cancel" onClick={closeModal}>
+                      Annuler
+                    </button>
+                    <button className="modal-button confirm" onClick={confirmModal}>
+                      Confirmer
+                    </button>
+                  </>
+                ) : (
+                  <button className="modal-button confirm" onClick={closeModal}>
+                    OK
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         <Footer />
       </div>

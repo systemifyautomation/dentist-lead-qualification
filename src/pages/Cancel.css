@@ -7,7 +7,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: 2rem 1rem;
 }
 
 .cancel-content {
@@ -24,7 +24,7 @@
   width: 100%;
   background: var(--color-white);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
@@ -329,17 +329,23 @@
 /* Tablet and smaller screens */
 @media (max-width: 768px) {
   .cancel-container {
-    padding: 1.5rem;
+    padding: 1rem;
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
   }
 
   .cancel-content {
     width: 100%;
+    max-width: 100%;
   }
 
   .form-wrapper {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1.25rem;
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    max-width: 100%;
   }
 
   .confirmation-state h2 {
@@ -359,6 +365,7 @@
   .decline-button,
   .confirm-button {
     flex: auto;
+    min-height: 48px;
   }
 
   .visit-info {
@@ -383,8 +390,11 @@
 /* Small phones */
 @media (max-width: 480px) {
   .cancel-container {
-    padding: 1rem 0.5rem;
-    min-height: auto;
+    padding: 0.75rem;
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
 
   .cancel-content {
@@ -393,13 +403,13 @@
   }
 
   .form-wrapper {
-    padding: 1.25rem 0.75rem;
-    border-radius: 10px;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
   }
 
   .loading-state p,
   .confirmation-state h2 {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
   }
 
   .spinner {
@@ -438,6 +448,7 @@
   .confirm-button {
     padding: 0.65rem 1rem;
     font-size: 0.95rem;
+    min-height: 48px;
   }
 
   .visit-info {
@@ -457,6 +468,7 @@
   .back-link {
     padding: 0.65rem 1rem;
     font-size: 0.95rem;
+    min-height: 48px;
   }
 
   .form-info {

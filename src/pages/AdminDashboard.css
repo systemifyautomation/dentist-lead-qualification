@@ -2009,6 +2009,22 @@
   margin: 0;
 }
 
+.selected-channels-indicator {
+  background: linear-gradient(135deg, rgba(210, 172, 103, 0.15) 0%, rgba(210, 172, 103, 0.08) 100%);
+  border: 2px solid var(--color-gold);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.selected-channels-indicator p {
+  margin: 0;
+  color: var(--color-black);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
 .campaign-form {
   background: var(--color-white);
   border-radius: 12px;
@@ -2071,7 +2087,7 @@
 .checkbox-option {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.25rem;
   padding: 1rem;
   background: var(--color-light-gray);
   border-radius: 8px;
@@ -2090,13 +2106,37 @@
   accent-color: var(--color-gold);
   flex-shrink: 0;
   margin: 0;
+  margin-right: 0.25rem;
+  vertical-align: middle;
 }
 
 .checkbox-option span {
   color: var(--color-black);
   font-size: 0.95rem;
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 18px;
+  vertical-align: middle;
+}
+
+.message-preview {
+  position: relative;
+}
+
+.static-greeting {
+  background: var(--color-light-gray);
+  padding: 0.875rem;
+  border: 2px solid var(--color-light-gray);
+  border-bottom: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  font-size: 0.95rem;
+  color: var(--color-black);
+  font-weight: 500;
+}
+
+.message-preview .campaign-textarea {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 .campaign-input,
@@ -2116,6 +2156,10 @@
   outline: none;
   border-color: var(--color-gold);
   box-shadow: 0 0 0 3px rgba(210, 172, 103, 0.1);
+}
+
+.message-preview:focus-within .static-greeting {
+  border-color: var(--color-gold);
 }
 
 .campaign-textarea {
@@ -2179,6 +2223,113 @@
   cursor: not-allowed;
 }
 
+/* Promotions Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+.confirmation-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-icon {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-black);
+}
+
+.modal-message {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modal-button {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.modal-button.confirm {
+  background: linear-gradient(135deg, var(--color-gold) 0%, #c49b5a 100%);
+  color: white;
+}
+
+.modal-button.confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(210, 172, 103, 0.4);
+}
+
+.modal-button.cancel {
+  background: #e0e0e0;
+  color: var(--color-black);
+}
+
+.modal-button.cancel:hover {
+  background: #d0d0d0;
+  transform: translateY(-2px);
+}
+
+.modal-button:active {
+  transform: translateY(0);
+}
+
 @media (max-width: 768px) {
   .promotions-container {
     padding: 1rem;
@@ -2197,5 +2348,18 @@
   .send-campaign-button {
     width: 100%;
     justify-content: center;
+  }
+
+  .confirmation-modal {
+    padding: 1.5rem;
+    max-width: 95%;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-button {
+    width: 100%;
   }
 }

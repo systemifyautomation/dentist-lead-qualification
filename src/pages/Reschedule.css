@@ -7,7 +7,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: 2rem 1rem;
 }
 
 .reschedule-content {
@@ -24,7 +24,7 @@
   width: 100%;
   background: var(--color-white);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
@@ -60,10 +60,10 @@
 
 .form-group label {
   display: block;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
   color: var(--color-black);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .form-hint {
@@ -313,17 +313,23 @@
 /* Tablet and smaller screens */
 @media (max-width: 768px) {
   .reschedule-container {
-    padding: 1.5rem;
+    padding: 1rem;
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
   }
 
   .reschedule-content {
     width: 100%;
+    max-width: 100%;
   }
 
   .form-wrapper {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1.25rem;
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    max-width: 100%;
   }
 
   .reschedule-form h2 {
@@ -336,8 +342,9 @@
   }
 
   .form-group label {
-    margin-bottom: 0.35rem;
-    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+    font-weight: 600;
   }
 
   .current-visit-info {
@@ -353,6 +360,7 @@
   .cancel-button,
   .submit-button {
     flex: auto;
+    min-height: 48px;
   }
 
   .form-info {
@@ -372,8 +380,11 @@
 /* Small phones */
 @media (max-width: 480px) {
   .reschedule-container {
-    padding: 1rem 0.5rem;
-    min-height: auto;
+    padding: 0.75rem;
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
 
   .reschedule-content {
@@ -382,12 +393,12 @@
   }
 
   .form-wrapper {
-    padding: 1.25rem 0.75rem;
-    border-radius: 10px;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
   }
 
   .reschedule-form h2 {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     margin-bottom: 1rem;
   }
 
@@ -396,8 +407,9 @@
   }
 
   .form-group label {
-    margin-bottom: 0.3rem;
-    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
   }
 
   .current-visit-info {
@@ -411,18 +423,21 @@
   }
 
   .form-hint {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
   }
 
   .submit-button {
     padding: 0.65rem 1rem;
     font-size: 0.95rem;
     margin-top: 0.5rem;
+    min-height: 48px;
   }
 
   .cancel-button {
     padding: 0.65rem 1rem;
     font-size: 0.95rem;
+    min-height: 48px;
   }
 
   .form-error {
