@@ -1,0 +1,133 @@
+.notfound-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  padding: 2rem;
+}
+
+.notfound-content {
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notfound-icon {
+  color: #d2ac67;
+  margin-bottom: 1.5rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.notfound-content h1 {
+  font-size: 5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+  line-height: 1;
+}
+
+.notfound-content h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+}
+
+.notfound-content > p {
+  color: #64748b;
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.notfound-redirect {
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.notfound-redirect p {
+  color: #475569;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.notfound-redirect strong {
+  color: #d2ac67;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.btn-redirect {
+  background: linear-gradient(135deg, #d2ac67 0%, #c99d57 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(210, 172, 103, 0.3);
+}
+
+.btn-redirect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(210, 172, 103, 0.4);
+}
+
+.btn-redirect:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .notfound-content {
+    padding: 2rem 1.5rem;
+  }
+
+  .notfound-content h1 {
+    font-size: 4rem;
+  }
+
+  .notfound-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .notfound-content > p {
+    font-size: 1rem;
+  }
+
+  .notfound-icon {
+    svg {
+      width: 60px;
+      height: 60px;
+    }
+  }
+}

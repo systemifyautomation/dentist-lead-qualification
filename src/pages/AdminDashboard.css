@@ -643,6 +643,40 @@
   text-transform: capitalize;
 }
 
+.custom-date-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  margin-top: 0.5rem;
+}
+
+.custom-date-picker .filter-label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.date-input {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--color-light-gray);
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+}
+
+.date-input:hover {
+  border-color: var(--color-gold);
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(210, 172, 103, 0.1);
+}
+
 .results-count {
   font-size: 0.9rem;
   color: var(--color-medium-gray);
