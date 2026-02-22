@@ -422,7 +422,7 @@ const LeadForm = () => {
               </button>
             </form>
               ) : (
-                <form onSubmit={handleSubmit} className="lead-form">
+                <form onSubmit={handleSubmit} className="lead-form step-2-form">
                   <h2>Choisir une Disponibilité</h2>
                   
                   <div className="form-group">

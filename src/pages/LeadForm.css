@@ -5,9 +5,7 @@
   background: linear-gradient(135deg, var(--color-black) 0%, var(--color-dark-gray) 100%);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 1rem;
+  padding: 0 1rem;
 }
 
 .lead-form-content {
@@ -17,6 +15,8 @@
   align-items: center;
   width: 100%;
   max-width: 800px;
+  flex: 1;
+  margin: 0 auto;
 }
 
 .form-wrapper {
@@ -267,6 +267,11 @@
 }
 
 /* Form Actions */
+.step-2-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
 .form-actions {
   display: flex;
   gap: 0.75rem;
@@ -371,16 +376,19 @@
 /* Tablet and smaller screens */
 @media (max-width: 768px) {
   .lead-form-container {
-    padding: 1rem;
+    padding: 0 1rem;
     min-height: 100vh;
-    justify-content: flex-start;
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
   }
 
   .lead-form-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     max-width: 100%;
+    flex: 1;
+    margin: 0 auto;
   }
 
   .form-wrapper {
@@ -511,16 +519,19 @@
 /* Small phones */
 @media (max-width: 480px) {
   .lead-form-container {
-    padding: 0.75rem;
+    padding: 0 0.75rem;
     min-height: 100vh;
-    justify-content: flex-start;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
   }
 
   .lead-form-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     max-width: 100%;
+    flex: 1;
+    margin: 0 auto;
   }
 
   .form-wrapper {

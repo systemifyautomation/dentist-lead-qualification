@@ -201,31 +201,20 @@ const DateTimePicker = ({
             onClick={(e) => e.stopPropagation()}
             ref={containerRef}
           >
-            <div className="modal-header">
-              <span className="modal-title">Choisir une date</span>
-              <button 
-                className="modal-close-button" 
-                onClick={() => setIsOpen(false)}
-                aria-label="Fermer"
-              >
-                <X size={20} />
-              </button>
-            </div>
             <div className="datetime-content">
               <div className="calendar-section">
                 <div className="month-navigation">
-                  {!isPrevMonthDisabled() && (
-                    <button 
-                      type="button"
-                      className="month-nav-button" 
-                      onClick={handlePrevMonth}
-                      aria-label="Mois précédent"
-                    >
-                      <ChevronLeft size={24} />
-                    </button>
-                  )}
+                  <button 
+                    type="button"
+                    className="month-nav-button" 
+                    onClick={handlePrevMonth}
+                    disabled={isPrevMonthDisabled()}
+                    aria-label="Mois précédent"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
                   <h2 className="month-year-display">
-                    {selectedDate && <span className="selected-day-text">{format(selectedDate, 'd')}</span>}
+                    {selectedDate && `${format(selectedDate, 'd')} `}
                     {format(displayMonth, 'MMMM yyyy', { locale: fr })}
                   </h2>
                   <button 
@@ -241,7 +230,7 @@ const DateTimePicker = ({
                   mode="single"
                   selected={selectedDate}
                   onSelect={handleDaySelect}
-                  disabled={(day) => isBefore(day, minDay) || isDayFullyBooked(day)}
+                  disabled={(day) => isBefore(day, tomorrow) || isDayFullyBooked(day)}
                   fromDate={tomorrow}
                   month={displayMonth}
                   onMonthChange={setDisplayMonth}
