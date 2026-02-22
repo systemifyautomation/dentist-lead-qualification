@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, Pencil, Trash2, Save, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle } from 'lucide-react';
+import { Phone, Pencil, Trash2, Save, X, LogOut, Calendar, UserX, CheckCircle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
-import DateTimePicker from '../components/DateTimePicker';
 import Footer from '../components/Footer';
 import './AdminDashboard.css';
 
@@ -36,7 +35,7 @@ type ApiLead = {
   reminderDate?: string;
 };
 
-const AdminDashboard = () => {
+const PastPatients = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
@@ -47,32 +46,12 @@ const AdminDashboard = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Lead | null>(null);
   const [editOriginalId, setEditOriginalId] = useState<string | null>(null);
-  const [filterStatus, setFilterStatus] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'tomorrow' | 'custom'>('all');
   const [customDate, setCustomDate] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortOrder, setSortOrder] = useState<'dateVisiteAsc' | 'dateVisiteDesc' | 'nameAsc' | 'nameDesc' | 'createdDesc' | 'createdAsc'>('dateVisiteAsc');
-  const [showAddLeadModal, setShowAddLeadModal] = useState(false);
-  const [addLeadForm, setAddLeadForm] = useState({
-    name: '',
-    email: '',
-    phone: '+1 ',
-    leadType: 'appointment' as Lead['leadType'],
-    status: 'phone-unconfirmed' as Lead['status'],
-    description: '',
-    calendarUrl: '',
-    calendarId: '',
-    rescheduleUrl: '',
-    cancelUrl: '',
-    dateVisite: '',
-    reminderSent: false
-  });
-  const [addLeadSelectedDate, setAddLeadSelectedDate] = useState<Date | null>(null);
-  const [addLeadBookedSlots, setAddLeadBookedSlots] = useState<Array<{ start: string; end: string }>>([]);
-  const [addLeadAvailabilityLoading, setAddLeadAvailabilityLoading] = useState(false);
-  const [addLeadAvailabilityError, setAddLeadAvailabilityError] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'dateVisiteAsc' | 'dateVisiteDesc' | 'nameAsc' | 'nameDesc' | 'createdDesc' | 'createdAsc'>('dateVisiteDesc');
   const pageSize = 24;
 
   useEffect(() => {
@@ -81,52 +60,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterStatus, searchQuery, sortOrder]);
-
-  useEffect(() => {
-    if (!showAddLeadModal) return;
-
-    let isMounted = true;
-    const fetchAvailability = async () => {
-      setAddLeadAvailabilityLoading(true);
-      setAddLeadAvailabilityError(null);
-      try {
-        const now = new Date();
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
-        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-        const availabilityUrl = new URL(import.meta.env.VITE_WEBHOOK_CHECK_AVAILABILITY);
-        availabilityUrl.searchParams.set('month_start', formatMontrealDateTime(monthStart));
-        availabilityUrl.searchParams.set('month_end', formatMontrealDateTime(monthEnd));
-
-        const response = await fetch(availabilityUrl.toString());
-        if (!response.ok) {
-          throw new Error('Erreur lors du chargement des disponibilites');
-        }
-        const data = await response.json();
-        if (!Array.isArray(data)) {
-          throw new Error('Format de disponibilites invalide');
-        }
-        if (isMounted) {
-          setAddLeadBookedSlots(data);
-        }
-      } catch (err) {
-        if (isMounted) {
-          const message = err instanceof Error ? err.message : 'Erreur inconnue';
-          setAddLeadAvailabilityError(message);
-        }
-      } finally {
-        if (isMounted) {
-          setAddLeadAvailabilityLoading(false);
-        }
-      }
-    };
-
-    fetchAvailability();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [showAddLeadModal]);
+  }, [searchQuery, sortOrder]);
 
   const mapStatus = (statut?: string): Lead['status'] => {
     switch ((statut || '').toLowerCase()) {
@@ -220,7 +154,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${import.meta.env.VITE_WEBHOOK_LEADS}?statut=phone-`);
+      const response = await fetch(`${import.meta.env.VITE_WEBHOOK_LEADS}?statut=completed`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch leads: ${response.statusText}`);
@@ -233,22 +167,9 @@ const AdminDashboard = () => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch leads';
       setError(errorMessage);
       console.error('Error fetching leads:', err);
-      // Fallback to localStorage if webhook fails
-      const storedLeads = JSON.parse(localStorage.getItem('leads') || '[]');
-      setLeads(normalizeLeads(storedLeads));
+      setLeads([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const deleteLead = (leadId: string) => {
-    if (window.confirm('Are you sure you want to delete this lead?')) {
-      const updatedLeads = leads.filter(lead => lead.id !== leadId);
-      setLeads(updatedLeads);
-      localStorage.setItem('leads', JSON.stringify(updatedLeads));
-      if (selectedLead?.id === leadId) {
-        setSelectedLead(null);
-      }
     }
   };
 
@@ -263,14 +184,10 @@ const AdminDashboard = () => {
     }
   };
 
-  const filteredByStatus = filterStatus === 'all'
-    ? leads
-    : leads.filter(lead => lead.status === filterStatus);
-
   // Apply date filter
   const filteredByDate = dateFilter === 'all'
-    ? filteredByStatus
-    : filteredByStatus.filter(lead => {
+    ? leads
+    : leads.filter(lead => {
         if (!lead.dateVisite) return false;
         switch (dateFilter) {
           case 'today':
@@ -411,21 +328,6 @@ const AdminDashboard = () => {
 
   const formatYesNo = (value?: boolean) => (value ? 'Oui' : 'Non');
 
-  const formatPhoneNumber = (value: string) => {
-    const digits = value.replace(/\D/g, '');
-    const phoneDigits = digits.startsWith('1') ? digits.slice(1) : digits;
-    
-    if (phoneDigits.length === 0) {
-      return '+1 ';
-    } else if (phoneDigits.length <= 3) {
-      return `+1 (${phoneDigits}`;
-    } else if (phoneDigits.length <= 6) {
-      return `+1 (${phoneDigits.slice(0, 3)}) ${phoneDigits.slice(3)}`;
-    } else {
-      return `+1 (${phoneDigits.slice(0, 3)}) ${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
-    }
-  };
-
   const formatMontrealDateTime = (date: Date) => {
     const parts = new Intl.DateTimeFormat('en-CA', {
       timeZone: 'America/Toronto',
@@ -538,101 +440,6 @@ const AdminDashboard = () => {
            getPart(filterParts, 'day') === getPart(dateParts, 'day');
   };
 
-  const handleAddLeadChange = (field: string, value: string | boolean) => {
-    if (field === 'phone' && typeof value === 'string') {
-      setAddLeadForm(prev => ({ ...prev, [field]: formatPhoneNumber(value) }));
-    } else {
-      setAddLeadForm(prev => ({ ...prev, [field]: value }));
-    }
-  };
-
-  const handleAddLeadDateChange = (date: Date | null) => {
-    setAddLeadSelectedDate(date);
-    if (date) {
-      setAddLeadForm(prev => ({ ...prev, dateVisite: formatMontrealDateTime(date) }));
-    } else {
-      setAddLeadForm(prev => ({ ...prev, dateVisite: '' }));
-    }
-  };
-
-  const handleCloseAddLeadModal = () => {
-    setShowAddLeadModal(false);
-    setAddLeadForm({
-      name: '',
-      email: '',
-      phone: '+1 ',
-      leadType: 'appointment',
-      status: 'phone-unconfirmed',
-      description: '',
-      calendarUrl: '',
-      calendarId: '',
-      rescheduleUrl: '',
-      cancelUrl: '',
-      dateVisite: '',
-      reminderSent: false
-    });
-    setAddLeadSelectedDate(null);
-  };
-
-  const handleAddLeadSubmit = async () => {
-    if (!addLeadForm.name || !addLeadForm.phone || !addLeadForm.email) {
-      alert('Veuillez remplir tous les champs obligatoires (nom, email, téléphone)');
-      return;
-    }
-
-    const createdAt = formatMontrealDateTime(new Date());
-    const newLead: Lead = {
-      id: Date.now().toString(),
-      name: addLeadForm.name,
-      email: addLeadForm.email,
-      phone: addLeadForm.phone,
-      leadType: addLeadForm.leadType,
-      status: addLeadForm.status,
-      description: addLeadForm.description || undefined,
-      calendarUrl: addLeadForm.calendarUrl || undefined,
-      calendarId: addLeadForm.calendarId || undefined,
-      rescheduleUrl: addLeadForm.rescheduleUrl || undefined,
-      cancelUrl: addLeadForm.cancelUrl || undefined,
-      reminderSent: addLeadForm.reminderSent,
-      dateVisite: addLeadForm.dateVisite || undefined,
-      createdAt
-    };
-
-    try {
-      const webhookData = {
-        nom: newLead.name,
-        email: newLead.email,
-        telephone: newLead.phone,
-        typeDemande: newLead.leadType,
-        statut: newLead.status,
-        description: newLead.description,
-        calendar_url: newLead.calendarUrl,
-        calendar_id: newLead.calendarId,
-        reschedule_url: newLead.rescheduleUrl,
-        cancel_url: newLead.cancelUrl,
-        rappelEnvoye: newLead.reminderSent,
-        dateVisite: newLead.dateVisite,
-        creeA: createdAt
-      };
-
-      await fetch(`${import.meta.env.VITE_WEBHOOK_LEADS}?type=manual`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(webhookData)
-      });
-    } catch (error) {
-      console.error('Failed to submit manual lead:', error);
-    }
-
-    const updatedLeads = [newLead, ...leads];
-    setLeads(updatedLeads);
-    localStorage.setItem('leads', JSON.stringify(updatedLeads));
-    
-    handleCloseAddLeadModal();
-  };
-
   const handleEditChange = (field: keyof Lead, value: string | boolean) => {
     if (!editForm) return;
     setEditForm({
@@ -687,7 +494,6 @@ const AdminDashboard = () => {
       lead.id === editOriginalId ? updatedForm : lead
     );
     setLeads(updatedLeads);
-    localStorage.setItem('leads', JSON.stringify(updatedLeads));
     setSelectedLead(updatedForm);
     setIsEditing(false);
     setEditForm(null);
@@ -715,7 +521,6 @@ const AdminDashboard = () => {
     // Update local state
     const updatedLeads = leads.filter(lead => lead.id !== leadId);
     setLeads(updatedLeads);
-    localStorage.setItem('leads', JSON.stringify(updatedLeads));
     
     // Close the modal
     setSelectedLead(null);
@@ -789,7 +594,7 @@ const AdminDashboard = () => {
               alt="Dentisto"
               className="brand-logo"
             />
-            <h1>DENTISTO</h1>
+            <h1>DENTISTO - Patients Passés</h1>
           </div>
           <div className="header-center">
             <div className="header-search">
@@ -829,7 +634,7 @@ const AdminDashboard = () => {
       {loading && (
         <div className="loading-container">
           <div className="spinner"></div>
-          <p>Chargement des demandes...</p>
+          <p>Chargement des patients passés...</p>
         </div>
       )}
 
@@ -845,30 +650,22 @@ const AdminDashboard = () => {
         <div className="kpis-section">
           <div className="kpi-card kpi-visits">
             <div className="kpi-icon">
-              <Calendar size={28} strokeWidth={2} />
+              <CheckCircle size={28} strokeWidth={2} />
             </div>
             <div className="kpi-content">
-              <div className="kpi-label">Visites Aujourd'hui</div>
-              <div className="kpi-value">
-                {leads.filter(l => {
-                  if (!l.dateVisite) return false;
-                  return isToday(l.dateVisite);
-                }).length}
-              </div>
+              <div className="kpi-label">Total Visites Complétées</div>
+              <div className="kpi-value">{leads.length}</div>
             </div>
           </div>
 
-          <div className="kpi-card kpi-noshows">
+          <div className="kpi-card kpi-visits">
             <div className="kpi-icon">
-              <UserX size={28} strokeWidth={2} />
+              <Calendar size={28} strokeWidth={2} />
             </div>
             <div className="kpi-content">
-              <div className="kpi-label">No-Shows Aujourd'hui</div>
+              <div className="kpi-label">Rendez-vous complétés</div>
               <div className="kpi-value">
-                {leads.filter(l => {
-                  if (!l.dateVisite || l.status !== 'no-show') return false;
-                  return isToday(l.dateVisite);
-                }).length}
+                {leads.filter(l => l.leadType === 'appointment').length}
               </div>
             </div>
           </div>
@@ -878,23 +675,9 @@ const AdminDashboard = () => {
               <AlertTriangle size={28} strokeWidth={2} />
             </div>
             <div className="kpi-content">
-              <div className="kpi-label">Urgences Aujourd'hui</div>
+              <div className="kpi-label">Urgences traitées</div>
               <div className="kpi-value">
-                {leads.filter(l => {
-                  if (l.leadType !== 'emergency') return false;
-                  
-                  // Check if created today
-                  if (l.createdAt && isToday(l.createdAt)) {
-                    return true;
-                  }
-                  
-                  // Check if visit is today
-                  if (l.dateVisite && isToday(l.dateVisite)) {
-                    return true;
-                  }
-                  
-                  return false;
-                }).length}
+                {leads.filter(l => l.leadType === 'emergency').length}
               </div>
             </div>
           </div>
@@ -903,22 +686,6 @@ const AdminDashboard = () => {
         <main className="main-content">
           <div className="leads-toolbar">
             <div className="filters-top">
-              <div className="filter-group">
-                <label htmlFor="status-filter" className="filter-label">Filtrer par statut</label>
-                <select 
-                  id="status-filter"
-                  value={filterStatus} 
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="filter-select status-filter"
-                >
-                  <option value="all">Toutes les demandes</option>
-                  <option value="phone-unconfirmed" className="status-phone-unconfirmed">Non confirmé</option>
-                  <option value="phone-confirmed" className="status-phone-confirmed">Confirmé</option>
-                  <option value="canceled" className="status-canceled">Annulé</option>
-                  <option value="no-show" className="status-no-show">Absent</option>
-                  <option value="completed" className="status-completed">Visite complétée</option>
-                </select>
-              </div>
               <div className="filter-group">
                 <label htmlFor="date-filter" className="filter-label">Filtrer par date</label>
                 <select
@@ -945,8 +712,8 @@ const AdminDashboard = () => {
                   className="filter-select"
                 >
                   <optgroup label="Date de visite">
-                    <option value="dateVisiteAsc">Prochaines visites</option>
                     <option value="dateVisiteDesc">Dernières visites</option>
+                    <option value="dateVisiteAsc">Prochaines visites</option>
                   </optgroup>
                   <optgroup label="Nom du patient">
                     <option value="nameAsc">A → Z</option>
@@ -977,18 +744,11 @@ const AdminDashboard = () => {
           </div>
           <div className="leads-list">
             <div className="leads-list-header">
-              <h2>Demandes Patients ({sortedLeads.length})</h2>
-              <button
-                type="button"
-                className="add-lead-button"
-                onClick={() => setShowAddLeadModal(true)}
-              >
-                + Ajouter Lead
-              </button>
+              <h2>Patients Passés ({sortedLeads.length})</h2>
             </div>
             {sortedLeads.length === 0 ? (
               <div className="empty-state">
-                <p>Aucune demande trouvée. Ajustez votre recherche ou votre filtre.</p>
+                <p>Aucun patient passé trouvé.</p>
               </div>
             ) : (
               <div className="leads-grid">
@@ -1205,34 +965,6 @@ const AdminDashboard = () => {
                         <span>—</span>
                       )}
                     </div>
-                    <div className="detail-item">
-                      <label>Lien de report:</label>
-                      {selectedLead.rescheduleUrl ? (
-                        <a
-                          href={selectedLead.rescheduleUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Replanifier
-                        </a>
-                      ) : (
-                        <span>—</span>
-                      )}
-                    </div>
-                    <div className="detail-item">
-                      <label>Lien d'annulation:</label>
-                      {selectedLead.cancelUrl ? (
-                        <a
-                          href={selectedLead.cancelUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Annuler
-                        </a>
-                      ) : (
-                        <span>—</span>
-                      )}
-                    </div>
                   </div>
 
                   <div className="detail-section">
@@ -1332,151 +1064,12 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                   </div>
-
-                  <div className="detail-section">
-                    <button
-                      className="delete-button"
-                      onClick={() => deleteLead(selectedLead.id)}
-                    >
-                      Supprimer la Demande
-                    </button>
-                  </div>
                 </>
               )}
             </div>
           </div>
         </>
         )}
-
-      {showAddLeadModal && (
-        <>
-          <div 
-            className="modal-backdrop"
-            onClick={handleCloseAddLeadModal}
-          ></div>
-          <div className="details-modal">
-            <div className="details-header">
-              <h2>Ajouter un Lead</h2>
-              <div className="details-actions">
-                <button 
-                  className="close-details"
-                  onClick={handleCloseAddLeadModal}
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-
-            <div className="details-content">
-              <div className="detail-section">
-                <h3>Informations du Lead</h3>
-                <div className="edit-form">
-                  <div className="edit-field">
-                    <label>Nom *</label>
-                    <input
-                      className="edit-input"
-                      type="text"
-                      value={addLeadForm.name}
-                      onChange={(e) => handleAddLeadChange('name', e.target.value)}
-                      placeholder="Nom complet"
-                    />
-                  </div>
-                  <div className="edit-field">
-                    <label>Email *</label>
-                    <input
-                      className="edit-input"
-                      type="email"
-                      value={addLeadForm.email}
-                      onChange={(e) => handleAddLeadChange('email', e.target.value)}
-                      placeholder="exemple@email.com"
-                    />
-                  </div>
-                  <div className="edit-field">
-                    <label>Téléphone *</label>
-                    <input
-                      className="edit-input"
-                      type="text"
-                      value={addLeadForm.phone}
-                      onChange={(e) => handleAddLeadChange('phone', e.target.value)}
-                      placeholder="+1 (XXX) XXX-XXXX"
-                    />
-                  </div>
-                  <div className="edit-field">
-                    <label>Type de demande</label>
-                    <select
-                      className="edit-select"
-                      value={addLeadForm.leadType}
-                      onChange={(e) => handleAddLeadChange('leadType', e.target.value)}
-                    >
-                      <option value="appointment">rendez-vous</option>
-                      <option value="emergency">urgence</option>
-                      <option value="question">question</option>
-                    </select>
-                  </div>
-                  <div className="edit-field">
-                    <label>Statut</label>
-                    <select
-                      className="edit-select"
-                      value={addLeadForm.status}
-                      onChange={(e) => handleAddLeadChange('status', e.target.value)}
-                    >
-                      <option value="phone-unconfirmed">non confirmé</option>
-                      <option value="phone-confirmed">confirmé</option>
-                      <option value="canceled">annulé</option>
-                      <option value="no-show">absent</option>
-                      <option value="completed">visite complétée</option>
-                    </select>
-                  </div>
-                  <div className="edit-field">
-                    <label>Date de visite</label>
-                    <DateTimePicker
-                      selected={addLeadSelectedDate}
-                      onChange={handleAddLeadDateChange}
-                      placeholder="Cliquez pour sélectionner une date"
-                      isClearable
-                      bookedSlots={addLeadBookedSlots}
-                      availabilityLoading={addLeadAvailabilityLoading}
-                      availabilityError={addLeadAvailabilityError}
-                    />
-                    <small className="form-hint">Disponibilités: Lundi au Vendredi, 8h00 à 18h00</small>
-                  </div>
-                  <div className="edit-field">
-                    <label>Rappel envoyé</label>
-                    <select
-                      className="edit-select"
-                      value={addLeadForm.reminderSent ? 'true' : 'false'}
-                      onChange={(e) => handleAddLeadChange('reminderSent', e.target.value === 'true')}
-                    >
-                      <option value="false">Non</option>
-                      <option value="true">Oui</option>
-                    </select>
-                  </div>
-                  <div className="edit-field">
-                    <label>Description</label>
-                    <textarea
-                      className="edit-input"
-                      value={addLeadForm.description}
-                      onChange={(e) => handleAddLeadChange('description', e.target.value)}
-                      placeholder="Description de la visite..."
-                      rows={4}
-                      style={{ resize: 'vertical', fontFamily: 'inherit' }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="detail-section">
-                <button
-                  className="save-button"
-                  onClick={handleAddLeadSubmit}
-                >
-                  Créer le Lead
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
       </div>
       )}
       <Footer />
@@ -1485,4 +1078,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default PastPatients;

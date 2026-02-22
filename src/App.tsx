@@ -3,12 +3,15 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LeadForm from './pages/LeadForm';
 import AdminDashboard from './pages/AdminDashboard';
+import NoShows from './pages/NoShows';
+import PastPatients from './pages/PastPatients';
 import Users from './pages/Users';
 import Login from './pages/Login';
 import Strategy from './pages/Strategy';
 import About from './pages/About';
 import Reschedule from './pages/Reschedule';
 import Cancel from './pages/Cancel';
+import NotFound from './pages/NotFound';
 import './App.css';
 
 function App() {
@@ -28,7 +31,23 @@ function App() {
             } 
           />
           <Route 
-            path="/users" 
+            path="/no-shows" 
+            element={
+              <ProtectedRoute>
+                <NoShows />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patients-passes" 
+            element={
+              <ProtectedRoute>
+                <PastPatients />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/utilisateurs" 
             element={
               <ProtectedRoute>
                 <Users />
@@ -39,6 +58,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/reschedule" element={<Reschedule />} />
           <Route path="/cancel" element={<Cancel />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
