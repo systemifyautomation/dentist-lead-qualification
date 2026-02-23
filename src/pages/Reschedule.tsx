@@ -131,25 +131,7 @@ const Reschedule = () => {
       setSubmitting(true);
       setError(null);
 
-      // First, cancel the existing meeting
-      const cancelResponse = await fetch(
-        import.meta.env.VITE_WEBHOOK_CANCEL_MEETING,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            visit_id: visitId
-          })
-        }
-      );
-
-      if (!cancelResponse.ok) {
-        throw new Error('Erreur lors de l\'annulation du rendez-vous existant');
-      }
-
-      // Then, notify reschedule with the old visit_id
+      // Notify reschedule with the old visit_id
       const rescheduleResponse = await fetch(
         import.meta.env.VITE_WEBHOOK_RESCHEDULE_MEETING,
         {

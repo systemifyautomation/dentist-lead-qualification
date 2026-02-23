@@ -12,6 +12,7 @@ import Strategy from './pages/Strategy';
 import About from './pages/About';
 import Reschedule from './pages/Reschedule';
 import Cancel from './pages/Cancel';
+import Verify from './pages/Verify';
 import NotFound from './pages/NotFound';
 import './App.css';
 
@@ -67,6 +68,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/reschedule" element={<Reschedule />} />
           <Route path="/cancel" element={<Cancel />} />
+          <Route path="/verify" element={<Verify />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
