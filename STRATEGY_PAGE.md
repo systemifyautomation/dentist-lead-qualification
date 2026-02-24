@@ -22,7 +22,7 @@ Livrables attendus :
 - n8n: Orchestration des workflows d'automatisation et gestion des webhooks
 - React: Interface web pour formulaire de leads et dashboard CRM
 - OpenAI: IA pour chatbot intelligent et qualification des leads
-- WaSender API: Envoi de messages WhatsApp/SMS automatises aux patients
+- WhatsApp Business API: Envoi de messages WhatsApp automatises officiels aux patients
 
 ## Formulaire de lead - Flux et architecture
 
@@ -77,7 +77,7 @@ Etapes:
 2. Reponse immediate (HTTP 202 -> confirmation UX)
 3. Database write (sauvegarde lead dans n8n DB)
 4. OpenAI (GPT-4) (creer conversation d'accueil)
-5. WaSender API (envoi WhatsApp au patient)
+5. WhatsApp Business API (envoi WhatsApp au patient)
 
 Image:
 - /Scalint - Leads Workflow.png

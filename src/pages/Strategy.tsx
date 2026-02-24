@@ -104,7 +104,7 @@ Livrables Attendus :
                 <p>IA pour chatbot intelligent et qualification des leads</p>
               </div>
               <div className="tool-card">
-                <h3>WaSender API</h3>
+                <h3>WhatsApp Business API</h3>
                 <p>Envoi de messages WhatsApp/SMS automatisés aux patients</p>
               </div>
             </div>
@@ -206,7 +206,7 @@ Livrables Attendus :
               <div className="workflow-arrow">↓</div>
 
               <div className="workflow-step step-5">
-                <div className="step-title">5. WaSender API</div>
+                <div className="step-title">5. WhatsApp Business API</div>
                 <p>Envoi WhatsApp au patient</p>
                 <small>Message généré par OpenAI</small>
               </div>

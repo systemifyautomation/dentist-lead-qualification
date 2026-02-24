@@ -79,7 +79,7 @@ Développer un blueprint détaillé pour un workflow automatisé capable de :
 | **n8n** | Orchestration des workflows d'automatisation, webhooks |
 | **React** | Interface web (formulaire lead + CRM) |
 | **OpenAI** | Qualification intelligente & génération de messages |
-| **WaSender API** | Envoi de messages WhatsApp/SMS automatisés |
+| **WhatsApp Business API** | Envoi de messages WhatsApp automatisés officiels |
 
 ---
 
@@ -149,7 +149,7 @@ flowchart TD
   A[1. Webhook Reçu] --> B[2. Réponse Immédiate HTTP 202]
   B --> C[3. Database Write]
   C --> D[4. OpenAI GPT-4]
-  D --> E[5. WaSender API]
+  D --> E[5. WhatsApp Business API]
 ```
 
 ### Capture workflow
