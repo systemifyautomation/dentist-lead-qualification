@@ -1326,7 +1326,119 @@ function isPhoneValid(phone: string): boolean {
 
 ## 9. Coûts Opérationnels v3.0
 
-### 9.1 Coûts Mensuels (100 patients/mois)
+### 9.1 Détails des Tarifs par Service
+
+#### WhatsApp Business API (Meta)
+**Structure tarifaire** : Facturation par conversation (24h window)
+
+| Type de Conversation | Canada/USA | Europe | Détails |
+|---------------------|-----------|---------|---------|
+| **Service** (confirmations, support) | $0.028 USD | €0.025 | Réponse dans 24h après message patient |
+| **Marketing** (campagnes) | $0.060 USD | €0.055 | Messages promotionnels initiés |
+| **Utility** (rappels automatiques) | $0.014 USD | €0.012 | OTP, notifications transactionnelles |
+
+**Équivalent mensuel estimé:**
+- 100 patients : ~300 conversations × $0.028 = **$8.40 USD (~12€)**
+- 1000 patients : ~3000 conversations × $0.028 = **$84 USD (~120€)**
+
+**Notes importantes:**
+- Une conversation = fenêtre de 24h (messages illimités)
+- Premier message gratuit si réponse dans 24h
+- Template messages requis pour initier conversation
+
+#### SMS Gateway (Twilio)
+**Tarification par message** :
+
+| Destination | Coût par SMS | Notes |
+|-------------|--------------|-------|
+| **Canada** | $0.0075 USD | ~€0.007 |
+| **USA** | $0.0079 USD | ~€0.007 |
+| **France** | $0.095 USD | ~€0.087 |
+| **International** | $0.05-0.20 USD | Varie selon pays |
+
+**Équivalent mensuel estimé:**
+- 100 SMS (Canada/USA) : 100 × $0.008 = **$0.80 USD (~1€)**
+- 1000 SMS (Canada/USA) : 1000 × $0.008 = **$8 USD (~11€)**
+
+**Alternatives:**
+- Plivo : ~$0.0055/SMS (Canada)
+- MessageBird : ~$0.007/SMS
+- Bandwidth : ~$0.006/SMS
+
+#### Retell AI (Voice Agent)
+**Tarification à l'usage** :
+
+| Plan | Minutes incluses | Coût/minute supplémentaire | Coût mensuel |
+|------|------------------|---------------------------|--------------|
+| **Pay-as-you-go** | 0 | $0.18 USD | Variable |
+| **Starter** | 1,000 min | $0.15 USD | $150/mois |
+| **Growth** | 5,000 min | $0.12 USD | $500/mois |
+| **Enterprise** | 20,000+ min | $0.08-0.10 USD | Custom |
+
+**Calcul pour notre usage:**
+- Appel moyen : 3 minutes
+- 200 appels/mois : 600 minutes × $0.18 = **$108 USD (~150€)**
+- 2000 appels/mois : 6000 minutes → Plan Growth = **$500 USD (~700€)**
+
+**Inclus dans Retell:**
+- Speech-to-Text (Deepgram)
+- Text-to-Speech (ElevenLabs ou OpenAI)
+- Téléphonie (Twilio integration)
+- Analytics & logs
+
+#### OpenAI API - GPT-4.1 / GPT-4 Turbo
+**Tarification par tokens** :
+
+| Modèle | Input (1K tokens) | Output (1K tokens) | Contexte |
+|--------|-------------------|-------------------|----------|
+| **GPT-4.1 Turbo** | $0.01 USD | $0.03 USD | 128K tokens |
+| **GPT-4** | $0.03 USD | $0.06 USD | 8K tokens |
+| **GPT-3.5 Turbo** | $0.0005 USD | $0.0015 USD | 16K tokens |
+
+**Estimation par requête chatbot:**
+- Prompt système : ~500 tokens
+- Message utilisateur : ~100 tokens  
+- Réponse générée : ~150 tokens
+- **Total par requête : 750 tokens = ~$0.015 USD**
+
+**Équivalent mensuel estimé:**
+- 500 requêtes/mois : 500 × $0.015 = **$7.50 USD (~11€)**
+- 5000 requêtes/mois : 5000 × $0.015 = **$75 USD (~105€)**
+
+**Optimisation possible:**
+- Utiliser GPT-3.5 Turbo pour FAQ simples : **-95% coût**
+- Cache système prompt : **-60% tokens input**
+- Streaming responses : Améliore UX
+
+#### Email Provider (SendGrid / Mailgun)
+**Tarification par email** :
+
+| Provider | Plan Gratuit | Coût supplémentaire | Notes |
+|----------|--------------|-------------------|-------|
+| **SendGrid** | 100/jour (3000/mois) | $0.0012/email | Après quota |
+| **Mailgun** | 5000/mois | $0.0008/email | Flex plan |
+| **Amazon SES** | 62,000/mois (gratuit) | $0.0001/email | AWS account |
+
+**Recommandation:** Amazon SES pour volume élevé (quasi-gratuit)
+
+### 9.2 Coûts Mensuels (100 patients/mois)
+
+| Service | Usage | Tarif unitaire | Coût v3.0 | Coût v2.0 |
+|---------|-------|---------------|-----------|-----------|
+| **Vercel** | Hosting + CDN | Gratuit | 0€ | 0€ |
+| **n8n** | Self-hosted VM | - | 15€/mois | 15€ |
+| **Retell AI** | 200 appels (600 min) | $0.18/min | 150€/mois | - |
+| **WhatsApp Business API** | 300 conversations | $0.028/conv | 12€/mois | 10€ |
+| **Email Provider** (SendGrid) | 1000 emails | Gratuit | 0€/mois | - |
+| **SMS Gateway** (Twilio) | 100 SMS | $0.008/SMS | 1€/mois | - |
+| **OpenAI API** (GPT-4.1) | 500 requêtes | $0.015/req | 11€/mois | 8€ |
+| **Database** | Airtable Free | - | 0€ | 0€ |
+| **Domaine** | dentisto.clinic | - | 1€/mois | 1€/mois |
+| **TOTAL** | | | **190€/mois** | 34€/mois |
+
+**Note:** Coûts basés sur taux de change 1 USD = 1.40 CAD = 0.92 EUR (moyenne 2026)
+
+### 9.3 Coûts Scaling (1000 patients/mois)
 
 | Service | Usage | Coût v3.0 | Coût v2.0 |
 |---------|-------|-----------|-----------|
@@ -1341,39 +1453,56 @@ function isPhoneValid(phone: string): boolean {
 | **Domaine** | dentisto.clinic | 1€/mois | 1€/mois |
 | **TOTAL** | | **102€/mois** | 34€/mois |
 
-### 9.2 Coûts Scaling (1000 patients/mois)
+### 9.3 Coûts Scaling (1000 patients/mois)
 
-| Service | Usage | Coût v3.0 |
-|---------|-------|-----------|
-| **Vercel** | Pro plan | 20€/mois |
-| **n8n** | Cloud medium | 30€/mois |
-| **Retell AI** | 2000 appels | 350€/mois |
-| **WhatsApp Business API** | 3000 messages | 150€/mois |
-| **Email Provider** | 10,000 emails | 50€/mois |
-| **SMS Gateway** | 1000 SMS | 70€/mois |
-| **OpenAI API** | 5000 requests | 60€/mois |
-| **Database** | Airtable Pro | 20€/mois |
-| **Domaine** | | 1€/mois |
-| **TOTAL** | | **751€/mois** |
+| Service | Usage | Tarif unitaire | Coût v3.0 |
+|---------|-------|---------------|-----------|
+| **Vercel** | Pro plan | $20/mois | 28€/mois |
+| **n8n** | Cloud medium | - | 30€/mois |
+| **Retell AI** | 2000 appels (6000 min) | $0.12/min (Growth) | 700€/mois |
+| **WhatsApp Business API** | 3000 conversations | $0.028/conv | 120€/mois |
+| **Email Provider** (Amazon SES) | 10,000 emails | $0.0001/email | 2€/mois |
+| **SMS Gateway** (Twilio) | 1000 SMS | $0.008/SMS | 11€/mois |
+| **OpenAI API** (GPT-4.1) | 5000 requêtes | $0.015/req | 105€/mois |
+| **Database** | Airtable Pro | - | 20€/mois |
+| **Domaine** | dentisto.clinic | - | 1€/mois |
+| **TOTAL** | | | **1,017€/mois** |
 
-### 9.3 ROI Analysis v3.0
+**Optimisations possibles à haut volume:**
+- **Retell Enterprise:** -20% ($0.10/min) = **Économie 120€/mois**
+- **WhatsApp en masse:** Négociation Meta = **Économie 30€/mois**
+- **GPT-3.5 pour FAQ:** -50% requêtes GPT-4 = **Économie 26€/mois**
+- **Total optimisé:** ~**840€/mois** (au lieu de 1,017€)
+
+### 9.4 ROI Analysis v3.0
 
 **Investissement mensuel (1000 patients):** 751€
 
 **Bénéfices identifiables:**
 
-| Bénéfice | Calcul | Valeur |
-|----------|--------|--------|
+| Bénéfice | Calcul (1000 patients/mois) | Valeur |
+|----------|----------------------------|--------|
 | **Économie temps staff** | 60h × 25€/h | 1,500€ |
 | **Réduction no-shows** | 35 RDV × 100€ | 3,500€ |
 | **Conversions campagnes** | 80 nouveaux RDV × 150€ | 12,000€ |
 | **Appels Retell AI** | 1200 RDV × 150€ | 180,000€ |
 | **TOTAL REVENUS** | | **197,000€** |
 
-**ROI Net:** 197,000€ - 751€ = **196,249€/mois**  
-**ROI %:** (196,249 / 751) × 100 = **26,130%**
+**Coûts opérationnels (échelle 1000 patients):** 1,017€/mois  
+**Coûts optimisés (avec négociations):** 840€/mois
 
-**Seuil de rentabilité:** 5 conversions/mois (atteint dès Jour 2)
+**ROI Net (non-optimisé):** 197,000€ - 1,017€ = **195,983€/mois**  
+**ROI % (non-optimisé):** (195,983 / 1,017) × 100 = **19,270%**
+
+**ROI Net (optimisé):** 197,000€ - 840€ = **196,160€/mois**  
+**ROI % (optimisé):** (196,160 / 840) × 100 = **23,352%**
+
+**Seuil de rentabilité:** 7-8 conversions/mois (atteint dès Jour 3-4)
+
+**Comparatif coûts vs revenus:**
+- Pour chaque 1€ investi → **193-233€ de retour**
+- Break-even à ~8 patients automatisés/mois
+- À partir du 9ème patient, chaque RDV = **pur profit**
 
 ---
 
