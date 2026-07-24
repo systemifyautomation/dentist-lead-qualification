@@ -35,6 +35,11 @@ type ApiLead = {
   cancelUrl?: string;
   reminderSent?: boolean;
   reminderDate?: string;
+  valeurVisite?: number | string;
+  valeurAVie?: number | string;
+  valeurVie?: number | string;
+  visitValue?: number | string;
+  lifetimeValue?: number | string;
 };
 
 const STATUS_FILTER_OPTIONS = [
@@ -84,7 +89,9 @@ const AdminDashboard = () => {
     rescheduleUrl: '',
     cancelUrl: '',
     dateVisite: '',
-    reminderSent: false
+    reminderSent: false,
+    visitValue: 0,
+    lifetimeValue: 0
   });
   const [addLeadSelectedDate, setAddLeadSelectedDate] = useState<Date | null>(null);
   const [addLeadBookedSlots, setAddLeadBookedSlots] = useState<Array<{ start: string; end: string }>>([]);
@@ -218,6 +225,14 @@ const AdminDashboard = () => {
       lead && (lead.id || lead.nom || lead.name || lead.email || lead.telephone || lead.phone)
     );
     
+    const toMoneyValue = (value: number | string | undefined) => {
+      if (value === undefined || value === null || value === '') return 0;
+      const parsed = typeof value === 'number'
+        ? value
+        : Number(value.replace(/\s/g, '').replace(',', '.'));
+      return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    };
+
     return validLeads.map((lead) => ({
       id: String(lead.id ?? Date.now()),
       name: lead.nom ?? lead.name ?? '',
@@ -233,6 +248,8 @@ const AdminDashboard = () => {
       reminderSent: Boolean(lead.rappelEnvoye ?? lead.reminderSent),
       reminderDate: lead.dateRappel ?? lead.reminderDate,
       dateVisite: lead.dateVisite,
+      visitValue: toMoneyValue(lead.valeurVisite ?? lead.visitValue),
+      lifetimeValue: toMoneyValue(lead.valeurAVie ?? lead.valeurVie ?? lead.lifetimeValue),
       updatedAt: lead.updatedAt,
       createdAt: lead.createdAt ?? formatMontrealDateTime(new Date())
     }));
@@ -473,6 +490,11 @@ const AdminDashboard = () => {
 
   const formatYesNo = (value?: boolean) => (value ? 'Oui' : 'Non');
 
+  const formatCurrency = (value?: number) => new Intl.NumberFormat('fr-CA', {
+    style: 'currency',
+    currency: 'CAD'
+  }).format(value ?? 0);
+
   const formatPhoneNumber = (value: string) => {
     const digits = value.replace(/\D/g, '');
     const phoneDigits = digits.startsWith('1') ? digits.slice(1) : digits;
@@ -519,7 +541,7 @@ const AdminDashboard = () => {
     return `${localIso}${sign}${offsetHours}:${offsetMins}`;
   };
 
-  const handleAddLeadChange = (field: string, value: string | boolean) => {
+  const handleAddLeadChange = (field: string, value: string | boolean | number) => {
     if (field === 'phone' && typeof value === 'string') {
       setAddLeadForm(prev => ({ ...prev, [field]: formatPhoneNumber(value) }));
     } else {
@@ -550,7 +572,9 @@ const AdminDashboard = () => {
       rescheduleUrl: '',
       cancelUrl: '',
       dateVisite: '',
-      reminderSent: false
+      reminderSent: false,
+      visitValue: 0,
+      lifetimeValue: 0
     });
     setAddLeadSelectedDate(null);
   };
@@ -576,6 +600,8 @@ const AdminDashboard = () => {
       cancelUrl: addLeadForm.cancelUrl || undefined,
       reminderSent: addLeadForm.reminderSent,
       dateVisite: addLeadForm.dateVisite || undefined,
+      visitValue: addLeadForm.visitValue,
+      lifetimeValue: addLeadForm.lifetimeValue,
       createdAt
     };
 
@@ -593,6 +619,8 @@ const AdminDashboard = () => {
         cancel_url: newLead.cancelUrl,
         rappelEnvoye: newLead.reminderSent,
         dateVisite: newLead.dateVisite,
+        valeurVisite: newLead.visitValue,
+        valeurAVie: newLead.lifetimeValue,
         creeA: createdAt
       };
 
@@ -614,7 +642,7 @@ const AdminDashboard = () => {
     handleCloseAddLeadModal();
   };
 
-  const handleEditChange = (field: keyof Lead, value: string | boolean) => {
+  const handleEditChange = (field: keyof Lead, value: string | boolean | number) => {
     if (!editForm) return;
     setEditForm({
       ...editForm,
@@ -643,6 +671,8 @@ const AdminDashboard = () => {
         rappelEnvoye: updatedForm.reminderSent,
         dateRappel: updatedForm.reminderDate,
         dateVisite: updatedForm.dateVisite,
+        valeurVisite: updatedForm.visitValue,
+        valeurAVie: updatedForm.lifetimeValue,
         calendar_url: updatedForm.calendarUrl,
         calendar_id: updatedForm.calendarId,
         reschedule_url: updatedForm.rescheduleUrl,
@@ -1005,6 +1035,7 @@ const AdminDashboard = () => {
                         </a>
                       </div>
                       <p className="lead-date">Visite: {formatMaybeDate(lead.dateVisite)}</p>
+                      <p className="lead-date">Valeur: {formatCurrency(lead.visitValue)}</p>
                     </div>
                   </div>
                 ))}
@@ -1046,9 +1077,39 @@ const AdminDashboard = () => {
                 setEditOriginalId(null);
               }}
             ></div>
-            <div className="details-modal">
+            <div
+              className="details-modal request-details-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="lead-details-title"
+            >
               <div className="details-header">
-                <h2>Détails de la Demande</h2>
+                <div className="details-title-group">
+                  <div className="patient-avatar" aria-hidden="true">
+                    {(selectedLead.name || '?').trim().charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <span className="details-eyebrow">Fiche patient</span>
+                    <h2 id="lead-details-title">{selectedLead.name || 'Détails de la demande'}</h2>
+                    <div className="details-subtitle">
+                      <span>{getLeadTypeLabel(selectedLead.leadType)}</span>
+                      <span className="subtitle-separator" aria-hidden="true">•</span>
+                      <span
+                        className="details-status"
+                        style={{
+                          color: getStatusColor(selectedLead.status),
+                          backgroundColor: `${getStatusColor(selectedLead.status)}14`
+                        }}
+                      >
+                        <span
+                          className="details-status-dot"
+                          style={{ backgroundColor: getStatusColor(selectedLead.status) }}
+                        />
+                        {getStatusLabel(selectedLead.status)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
                 <div className="details-actions">
                   {!isEditing && (
                     <button
@@ -1113,8 +1174,8 @@ const AdminDashboard = () => {
               <div className="details-content">
               {!isEditing && (
                 <>
-                  <div className="detail-section">
-                    <h3>Coordonnées</h3>
+                  <div className="detail-section contact-detail-section">
+                    <h3><span className="section-icon" aria-hidden="true">01</span> Coordonnées</h3>
                     <div className="detail-item">
                       <label>Nom:</label>
                       <span>{selectedLead.name}</span>
@@ -1129,15 +1190,23 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  <div className="detail-section">
-                    <h3>Information de la Demande</h3>
+                  <div className="detail-section request-detail-section">
+                    <h3><span className="section-icon" aria-hidden="true">02</span> Demande</h3>
                     <div className="detail-item">
                       <label>Type:</label>
                       <span>{getLeadTypeLabel(selectedLead.leadType)}</span>
                     </div>
                     <div className="detail-item">
                       <label>Statut:</label>
-                      <span>{getStatusLabel(selectedLead.status)}</span>
+                      <span
+                        className="inline-status"
+                        style={{
+                          color: getStatusColor(selectedLead.status),
+                          backgroundColor: `${getStatusColor(selectedLead.status)}14`
+                        }}
+                      >
+                        {getStatusLabel(selectedLead.status)}
+                      </span>
                     </div>
                     {selectedLead.description && (
                       <div className="detail-item">
@@ -1147,11 +1216,19 @@ const AdminDashboard = () => {
                     )}
                   </div>
 
-                  <div className="detail-section">
-                    <h3>Visite</h3>
+                  <div className="detail-section visit-detail-section">
+                    <h3><span className="section-icon" aria-hidden="true">03</span> Visite</h3>
                     <div className="detail-item">
                       <label>Date de visite:</label>
                       <span>{formatMaybeDate(selectedLead.dateVisite)}</span>
+                    </div>
+                    <div className="detail-item financial-detail">
+                      <label>Valeur de cette visite:</label>
+                      <span className="financial-value">{formatCurrency(selectedLead.visitValue)}</span>
+                    </div>
+                    <div className="detail-item financial-detail lifetime-detail">
+                      <label>Valeur à vie:</label>
+                      <span className="financial-value">{formatCurrency(selectedLead.lifetimeValue)}</span>
                     </div>
                     <div className="detail-item">
                       <label>Calendar ID:</label>
@@ -1201,8 +1278,8 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  <div className="detail-section">
-                    <h3>Rappel</h3>
+                  <div className="detail-section reminder-detail-section">
+                    <h3><span className="section-icon" aria-hidden="true">04</span> Rappel</h3>
                     <div className="detail-item">
                       <label>Rappel envoye:</label>
                       <span>{formatYesNo(selectedLead.reminderSent)}</span>
@@ -1279,6 +1356,28 @@ const AdminDashboard = () => {
                           <option value="true">Oui</option>
                           <option value="false">Non</option>
                         </select>
+                      </div>
+                      <div className="edit-field">
+                        <label>Valeur de cette visite (CAD)</label>
+                        <input
+                          className="edit-input"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={editForm.visitValue ?? 0}
+                          onChange={(e) => handleEditChange('visitValue', Math.max(0, Number(e.target.value)))}
+                        />
+                      </div>
+                      <div className="edit-field">
+                        <label>Valeur à vie (CAD)</label>
+                        <input
+                          className="edit-input"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={editForm.lifetimeValue ?? 0}
+                          onChange={(e) => handleEditChange('lifetimeValue', Math.max(0, Number(e.target.value)))}
+                        />
                       </div>
                       <div className="edit-field">
                         <label>Description</label>
@@ -1397,6 +1496,28 @@ const AdminDashboard = () => {
                       <option value="false">Non</option>
                       <option value="true">Oui</option>
                     </select>
+                  </div>
+                  <div className="edit-field">
+                    <label>Valeur de cette visite (CAD)</label>
+                    <input
+                      className="edit-input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={addLeadForm.visitValue}
+                      onChange={(e) => handleAddLeadChange('visitValue', Math.max(0, Number(e.target.value)))}
+                    />
+                  </div>
+                  <div className="edit-field">
+                    <label>Valeur à vie (CAD)</label>
+                    <input
+                      className="edit-input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={addLeadForm.lifetimeValue}
+                      onChange={(e) => handleAddLeadChange('lifetimeValue', Math.max(0, Number(e.target.value)))}
+                    />
                   </div>
                   <div className="edit-field">
                     <label>Description</label>

@@ -13,6 +13,8 @@ export interface Lead {
   reminderSent?: boolean;
   reminderDate?: string;
   dateVisite?: string;
+  visitValue?: number;
+  lifetimeValue?: number;
   updatedAt?: string;
   createdAt: string;
 }
