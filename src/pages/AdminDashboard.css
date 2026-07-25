@@ -1198,7 +1198,7 @@
 }
 
 .request-details-modal {
-  width: min(920px, calc(100vw - 2rem));
+  width: min(680px, calc(100vw - 2rem));
   max-height: calc(100vh - 2rem);
   padding: 0;
   display: flex;
@@ -1414,11 +1414,15 @@
 }
 
 .request-details-modal .detail-item {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
   min-height: 28px;
   margin: 0;
   padding: 0.48rem 0;
   border-bottom: 1px solid #f3f4f6;
   align-items: center;
+  justify-content: initial;
+  gap: 0.75rem;
 }
 
 .request-details-modal .detail-item:last-child {
@@ -1426,7 +1430,7 @@
 }
 
 .request-details-modal .detail-item label {
-  min-width: 132px;
+  min-width: 0;
   color: #7b8494;
   font-size: 0.77rem;
   font-weight: 650;
@@ -1437,9 +1441,13 @@
   color: #20293a;
   font-size: 0.88rem;
   font-weight: 600;
+  justify-self: end;
+  text-align: right;
 }
 
 .request-details-modal .detail-item a {
+  justify-self: end;
+  text-align: right;
   color: #4b5563;
   font-size: 0.84rem;
   font-weight: 700;
@@ -2281,6 +2289,7 @@
   }
 
   .request-details-modal .detail-item {
+    display: flex;
     align-items: flex-start;
     padding: 0.55rem 0;
   }
@@ -2291,6 +2300,12 @@
 
   .request-details-modal .detail-item span {
     width: 100%;
+    justify-self: initial;
+    text-align: left;
+  }
+
+  .request-details-modal .detail-item a {
+    justify-self: initial;
     text-align: left;
   }
 
