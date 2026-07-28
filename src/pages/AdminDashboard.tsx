@@ -7,6 +7,7 @@ import type { Lead } from '../types';
 import DateTimePicker from '../components/DateTimePicker';
 import StatusDropdown from '../components/StatusDropdown';
 import Footer from '../components/Footer';
+import LoadingScreen from '../components/LoadingScreen';
 import './AdminDashboard.css';
 
 type ApiLead = {
@@ -934,6 +935,10 @@ const AdminDashboard = () => {
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <Link to="/CRM" className="sidebar-brand" aria-label="ReactivationFlow CRM">
+          <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
+          {!sidebarCollapsed && <span>ReactivationFlow</span>}
+        </Link>
         <button 
           className="sidebar-toggle"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -996,14 +1001,6 @@ const AdminDashboard = () => {
       <div className="main-wrapper">
         <header className="admin-header">
         <div className="header-content">
-          <div className="header-left">
-            <img
-              src="/reactivationflow-logo.svg"
-              alt="ReactivationFlow"
-              className="brand-logo"
-            />
-            <h1>ReactivationFlow</h1>
-          </div>
           <div className="header-center">
             <div className="header-search">
               <span className="header-search-icon">⌕</span>
@@ -1040,10 +1037,7 @@ const AdminDashboard = () => {
       </header>
 
       {loading && (
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Chargement des demandes...</p>
-        </div>
+        <LoadingScreen message="Chargement des demandes..." />
       )}
 
       {error && (

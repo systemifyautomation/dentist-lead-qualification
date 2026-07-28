@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { LogOut, Menu, Users as UsersIcon, LayoutDashboard, ChevronLeft, UserCircle, UserPlus, Trash2, Shield, ShieldOff, AlertCircle, Loader2, Key, Eye, EyeOff, UserX, CheckCircle, Megaphone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
+import LoadingScreen from '../components/LoadingScreen';
 import './Users.css';
 
 interface User {
@@ -347,6 +348,10 @@ const Users = () => {
   return (
     <div className={`users-page ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <Link to="/CRM" className="sidebar-brand" aria-label="ReactivationFlow CRM">
+          <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
+          {!sidebarCollapsed && <span>ReactivationFlow</span>}
+        </Link>
         <button 
           className="sidebar-toggle"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -409,14 +414,6 @@ const Users = () => {
       <div className="main-wrapper">
         <header className="admin-header">
           <div className="header-content">
-            <div className="header-left">
-              <img
-                src="/reactivationflow-logo.svg"
-                alt="ReactivationFlow"
-                className="brand-logo"
-              />
-              <h1>ReactivationFlow</h1>
-            </div>
             <div className="header-center">
             </div>
             <div className="header-right">
@@ -435,10 +432,7 @@ const Users = () => {
 
         <div className="users-content">
           {loading && (
-            <div className="loading-container">
-              <Loader2 size={48} className="spinner" />
-              <p>Chargement des utilisateurs...</p>
-            </div>
+            <LoadingScreen message="Chargement des utilisateurs..." />
           )}
 
           {error && (

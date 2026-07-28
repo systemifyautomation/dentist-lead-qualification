@@ -4,6 +4,7 @@ import { Phone, LogOut, UserX, CheckCircle, Menu, Users, LayoutDashboard, Chevro
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import Footer from '../components/Footer';
+import LoadingScreen from '../components/LoadingScreen';
 import './AdminDashboard.css';
 
 type ApiLead = {
@@ -416,6 +417,10 @@ const NoShows = () => {
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <Link to="/CRM" className="sidebar-brand" aria-label="ReactivationFlow CRM">
+          <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
+          {!sidebarCollapsed && <span>ReactivationFlow</span>}
+        </Link>
         <button 
           className="sidebar-toggle"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -478,14 +483,6 @@ const NoShows = () => {
       <div className="main-wrapper">
         <header className="admin-header">
         <div className="header-content">
-          <div className="header-left">
-            <img
-              src="/reactivationflow-logo.svg"
-              alt="ReactivationFlow"
-              className="brand-logo"
-            />
-            <h1>ReactivationFlow</h1>
-          </div>
           <div className="header-center">
             <div className="header-search">
               <span className="header-search-icon">⌕</span>
@@ -522,10 +519,7 @@ const NoShows = () => {
       </header>
 
       {loading && (
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Chargement des no-shows...</p>
-        </div>
+        <LoadingScreen message="Chargement des no-shows..." />
       )}
 
       {error && (

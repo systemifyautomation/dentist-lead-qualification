@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import DateTimePicker from '../components/DateTimePicker';
 import Chatbot from '../components/Chatbot';
 import Footer from '../components/Footer';
+import LoadingScreen from '../components/LoadingScreen';
 import './Reschedule.css';
 
 type BookedSlot = {
@@ -169,10 +170,7 @@ const Reschedule = () => {
       <div className="reschedule-content">
         <div className="form-wrapper">
           {loading ? (
-            <div className="loading-state">
-              <div className="spinner"></div>
-              <p>Chargement des données...</p>
-            </div>
+            <LoadingScreen message="Chargement des données..." compact />
           ) : error ? (
             <div className="error-state">
               <div className="error-icon">✕</div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Chatbot from '../components/Chatbot';
 import Footer from '../components/Footer';
+import LoadingScreen from '../components/LoadingScreen';
 import './Verify.css';
 
 const Verify = () => {
@@ -52,10 +53,7 @@ const Verify = () => {
       <div className="verify-content">
         <div className="form-wrapper">
           {loading ? (
-            <div className="loading-state">
-              <div className="spinner"></div>
-              <p>Vérification en cours...</p>
-            </div>
+            <LoadingScreen message="Vérification en cours..." compact />
           ) : verified ? (
             <div className="success-message">
               <div className="success-icon">✓</div>

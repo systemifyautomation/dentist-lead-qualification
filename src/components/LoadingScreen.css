@@ -1,0 +1,40 @@
+.brand-loading {
+  display: flex;
+  min-height: 260px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 2rem;
+  color: #667085;
+  text-align: center;
+}
+
+.brand-loading-animation {
+  display: block;
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+}
+
+.brand-loading p {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.brand-loading-compact {
+  min-height: 150px;
+  padding: 1rem;
+}
+
+.brand-loading-compact .brand-loading-animation {
+  width: 84px;
+  height: 84px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-loading-animation {
+    animation-play-state: paused;
+  }
+}

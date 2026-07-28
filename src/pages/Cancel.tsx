@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Chatbot from '../components/Chatbot';
 import Footer from '../components/Footer';
+import LoadingScreen from '../components/LoadingScreen';
 import './Cancel.css';
 
 const Cancel = () => {
@@ -147,10 +148,7 @@ const Cancel = () => {
       <div className="cancel-content">
         <div className="form-wrapper">
           {loading ? (
-            <div className="loading-state">
-              <div className="spinner"></div>
-              <p>Vérification du rendez-vous...</p>
-            </div>
+            <LoadingScreen message="Vérification du rendez-vous..." compact />
           ) : error && !isVerified ? (
             <div className="error-state">
               <div className="error-icon">✕</div>

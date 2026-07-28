@@ -141,6 +141,10 @@ const Promotions = () => {
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <Link to="/CRM" className="sidebar-brand" aria-label="ReactivationFlow CRM">
+          <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
+          {!sidebarCollapsed && <span>ReactivationFlow</span>}
+        </Link>
         <button 
           className="sidebar-toggle"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -203,14 +207,6 @@ const Promotions = () => {
       <div className="main-wrapper">
         <header className="admin-header">
           <div className="header-content">
-            <div className="header-left">
-              <img
-                src="/reactivationflow-logo.svg"
-                alt="ReactivationFlow"
-                className="brand-logo"
-              />
-              <h1>ReactivationFlow</h1>
-            </div>
             <div className="header-center">
             </div>
             <div className="header-right">
