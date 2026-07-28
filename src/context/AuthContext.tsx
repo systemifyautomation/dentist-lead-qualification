@@ -16,6 +16,8 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AUTH_TOKEN_KEY = 'reactivationflow_auth_token';
+const AUTH_USER_KEY = 'reactivationflow_auth_user';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -25,8 +27,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Check for existing auth token on mount and listen for storage events
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem('dentisto_auth_token');
-      const storedUserData = localStorage.getItem('dentisto_auth_user');
+      const token = localStorage.getItem(AUTH_TOKEN_KEY);
+      const storedUserData = localStorage.getItem(AUTH_USER_KEY);
       
       if (token && storedUserData) {
         try {
@@ -38,13 +40,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUser(userData);
           } else {
             // Token expired, clear it
-            localStorage.removeItem('dentisto_auth_token');
-            localStorage.removeItem('dentisto_auth_user');
+            localStorage.removeItem(AUTH_TOKEN_KEY);
+            localStorage.removeItem(AUTH_USER_KEY);
           }
         } catch {
           // Invalid token, clear it
-          localStorage.removeItem('dentisto_auth_token');
-          localStorage.removeItem('dentisto_auth_user');
+          localStorage.removeItem(AUTH_TOKEN_KEY);
+          localStorage.removeItem(AUTH_USER_KEY);
         }
       }
       setLoading(false);
@@ -54,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Listen for storage events from other tabs
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'dentisto_auth_token' || e.key === 'dentisto_auth_user') {
+      if (e.key === AUTH_TOKEN_KEY || e.key === AUTH_USER_KEY) {
         checkAuth();
       }
     };
@@ -101,8 +103,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
         const token = btoa(JSON.stringify(tokenData));
         
-        localStorage.setItem('dentisto_auth_token', token);
-        localStorage.setItem('dentisto_auth_user', JSON.stringify(userData));
+        localStorage.setItem(AUTH_TOKEN_KEY, token);
+        localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData));
         
         setIsAuthenticated(true);
         setUser(userData);
@@ -119,8 +121,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('dentisto_auth_token');
-    localStorage.removeItem('dentisto_auth_user');
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
     setIsAuthenticated(false);
     setUser(null);
   };

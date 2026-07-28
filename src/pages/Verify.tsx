@@ -25,7 +25,7 @@ const Verify = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `https://n8n.systemifyautomation.com/webhook/dentisto-user-confirmation?whatsapp_num=${encodeURIComponent(whatsappNum)}&event_id=${encodeURIComponent(eventId)}`
+          `https://n8n.systemifyautomation.com/webhook/reactivationflow-user-confirmation?whatsapp_num=${encodeURIComponent(whatsappNum)}&event_id=${encodeURIComponent(eventId)}`
         );
 
         if (response.ok) {

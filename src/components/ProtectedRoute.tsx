@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n/I18nContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -7,6 +8,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated, loading } = useAuth();
+  const { messages } = useI18n();
 
   // Show loading screen while checking authentication
   if (loading) {
@@ -28,7 +30,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           borderRadius: '50%',
           animation: 'spin 1s linear infinite'
         }}></div>
-        <p style={{ marginTop: '1.5rem', fontSize: '1rem', opacity: 0.8 }}>Loading...</p>
+        <p style={{ marginTop: '1.5rem', fontSize: '1rem', opacity: 0.8 }}>{messages.loading}</p>
         <style>{`
           @keyframes spin {
             to { transform: rotate(360deg); }

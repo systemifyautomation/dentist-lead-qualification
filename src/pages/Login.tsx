@@ -5,6 +5,7 @@ import { Lock, Phone, AlertCircle } from 'lucide-react';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import './Login.css';
+import { useI18n } from '../i18n/I18nContext';
 
 const Login = () => {
   const [phone, setPhone] = useState('');
@@ -14,6 +15,7 @@ const Login = () => {
   const [verificationMessage, setVerificationMessage] = useState('');
   const navigate = useNavigate();
   const { login, isAuthenticated, loading: authLoading } = useAuth();
+  const { messages } = useI18n();
 
   // Redirect to CRM if already authenticated
   useEffect(() => {
@@ -58,10 +60,10 @@ const Login = () => {
       <div className="login-card">
         <div className="login-header">
           <div className="login-logo">
-            <img src="/Dentisto Logo.png" alt="Dentisto" />
+            <img src="/reactivationflow-logo.svg" alt="ReactivationFlow" />
           </div>
-          <h1>DENTISTO CRM</h1>
-          <p>Administration Portal</p>
+          <h1>ReactivationFlow</h1>
+          <p>{messages.login.portal}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -81,14 +83,14 @@ const Login = () => {
           <div className="login-field">
             <label htmlFor="phone">
               <Phone size={18} />
-              Phone Number
+              {messages.login.phone}
             </label>
             <PhoneInput
               international
               defaultCountry="CA"
               value={phone}
               onChange={(value) => setPhone(value || '')}
-              placeholder="Enter phone number"
+              placeholder={messages.login.phonePlaceholder}
               disabled={loading}
               className="login-phone-input"
             />
@@ -97,14 +99,14 @@ const Login = () => {
           <div className="login-field">
             <label htmlFor="password">
               <Lock size={18} />
-              Password
+              {messages.login.password}
             </label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder={messages.login.passwordPlaceholder}
               required
               autoComplete="current-password"
               disabled={loading}
@@ -112,7 +114,7 @@ const Login = () => {
           </div>
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? messages.login.submitting : messages.login.submit}
           </button>
         </form>
 

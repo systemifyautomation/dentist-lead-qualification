@@ -1,15 +1,15 @@
-# DENTIRO - Stratégie Complète v3.0
+# ReactivationFlow - Stratégie Complète v3.0
 ## Plateforme de Gestion des Patients + Automatisation Intelligence Artificielle
 
 **Date:** 23 Février 2026  
 **Version:** 3.0 - Enterprise Ready  
-**Équipe:** DENTIRO
+**Équipe:** ReactivationFlow
 
 ---
 
 ## Résumé Exécutif
 
-DENTIRO est une plateforme complète de gestion des patients pour cliniques dentaires, intégrant l'intelligence artificielle vocale (Retell AI), l'automatisation multi-canal (WhatsApp, Email, SMS), et un système de sécurité robuste avec gestion des utilisateurs. Cette version 3.0 représente une solution enterprise-ready avec fonctionnalités avancées de CRM et d'automatisation.
+ReactivationFlow est une plateforme complète de gestion des patients pour cliniques dentaires, intégrant l'intelligence artificielle vocale (Retell AI), l'automatisation multi-canal (WhatsApp, Email, SMS), et un système de sécurité robuste avec gestion des utilisateurs. Cette version 3.0 représente une solution enterprise-ready avec fonctionnalités avancées de CRM et d'automatisation.
 
 ### Nouvelles Fonctionnalités v3.0
 
@@ -95,7 +95,7 @@ Hosting:
 ### 1.2 Structure de l'Application v3.0
 
 ```
-dentist-lead-qualification/
+reactivationflow/
 ├── src/
 │   ├── pages/
 │   │   ├── Home.tsx                  # Page d'accueil publique
@@ -111,7 +111,7 @@ dentist-lead-qualification/
 │   │   ├── PastPatients.tsx          # 🆕 Historique patients
 │   │   └── Promotions.tsx            # 🆕 Campagnes marketing
 │   ├── components/
-│   │   ├── Chatbot.tsx               # Chatbot Scalint
+│   │   ├── Chatbot.tsx               # Chatbot ReactivationFlow
 │   │   ├── DateTimePicker.tsx        # Date picker multi-slots
 │   │   ├── Footer.tsx                # Footer global
 │   │   └── ProtectedRoute.tsx        # 🆕 Route protection
@@ -122,8 +122,8 @@ dentist-lead-qualification/
 │   └── leads_sample.csv              # Données de test
 ├── RETELL_RECEPTIONIST_PROMPT.md     # 🆕 Prompt IA réceptionniste
 ├── RETELL_CONFIRMATION_AGENT_PROMPT.md # 🆕 Prompt IA confirmation
-├── SCALINT_CHATBOT_PROMPT.md         # Prompt chatbot texte
-├── DENTIRO_STRATEGY_v3.md            # 🆕 Ce document
+├── ReactivationFlow_CHATBOT_PROMPT.md         # Prompt chatbot texte
+├── ReactivationFlow_STRATEGY_v3.md            # 🆕 Ce document
 ├── DEPLOYMENT.md                     # Guide déploiement
 ├── vercel.json                       # Configuration Vercel
 ├── .env.example                      # Variables environnement
@@ -284,7 +284,7 @@ Content-Type: application/json
 
 ```
 1. ACCUEIL (15 sec)
-   "Bonjour! Merci d'avoir appelé Dentisto. 
+   "Bonjour! Merci d'avoir appelé ReactivationFlow. 
     Je m'appelle Julliet. Comment puis-je vous aider?"
 
 2. COLLECTE INFORMATIONS (1-2 min)
@@ -311,7 +311,7 @@ Content-Type: application/json
 
 6. CLÔTURE (10-15 sec)
    "Y a-t-il autre chose avec quoi je peux vous aider?"
-   "Merci d'avoir appelé Dentisto. Passez une excellente journée!"
+   "Merci d'avoir appelé ReactivationFlow. Passez une excellente journée!"
 ```
 
 **Validation spéciale téléphone:**
@@ -341,7 +341,7 @@ Content-Type: application/json
 
 ```
 1. PRÉSENTATION (15-20 sec)
-   "Bonjour! Je m'appelle Sophie, j'appelle de la part de Dentisto. 
+   "Bonjour! Je m'appelle Sophie, j'appelle de la part de ReactivationFlow. 
     Est-ce bien [Nom du patient]?"
    "Je vous appelle suite à votre demande de rendez-vous en ligne. 
     Est-ce un bon moment pour parler quelques instants?"
@@ -539,12 +539,12 @@ Nous avons remarqué que vous avez été intéressé par nos services dentaires.
 - Blanchiment -30%
 
 Prenez rendez-vous dès maintenant:
-👉 https://dentisto.com/formulaire
+👉 https://reactivationflow.com/formulaire
 
 Cette offre expire le 28 février 2026.
 
 À bientôt!
-L'équipe Dentisto
+L'équipe ReactivationFlow
 ```
 
 ### 4.4 Workflow d'Envoi de Campagne
@@ -627,7 +627,7 @@ Pas de souci! 😊 Nous aimerions reprogrammer avec vous.
 
 Votre santé dentaire est importante pour nous.
 
-L'équipe Dentisto
+L'équipe ReactivationFlow
 ```
 
 **Campagne 2: Rappel Check-up Annuel**
@@ -637,7 +637,7 @@ L'équipe Dentisto
 ```
 Bonjour {{Prénom}}! 🦷
 
-Cela fait maintenant 6 mois depuis votre dernière visite chez Dentisto.
+Cela fait maintenant 6 mois depuis votre dernière visite chez ReactivationFlow.
 
 ⏰ Il est temps de votre check-up de routine!
 
@@ -646,11 +646,11 @@ Cela fait maintenant 6 mois depuis votre dernière visite chez Dentisto.
 ✓ Détection précoce problèmes
 
 📅 Réservez votre rendez-vous:
-https://dentisto.com/formulaire
+https://reactivationflow.com/formulaire
 
 Prenez soin de votre sourire! 😁
 
-Dr. Tremblay & l'équipe Dentisto
+Dr. Tremblay & l'équipe ReactivationFlow
 ```
 
 **Campagne 3: Promotion Blanchiment**
@@ -670,11 +670,11 @@ Résultats visibles dès la 1ère séance
 🗓️ Offre valide jusqu'au 29 février 2026
 
 Réservez maintenant:
-https://dentisto.com/formulaire?promo=BLANC40
+https://reactivationflow.com/formulaire?promo=BLANC40
 
 Des questions? Répondez à ce message!
 
-L'équipe Dentisto
+L'équipe ReactivationFlow
 ```
 
 ---
@@ -872,11 +872,11 @@ const formatMontrealDateTime = (date: Date) => {
 **Workflow:**
 ```
 1. Patient clique lien dans message WhatsApp:
-   https://dentisto.com/verify?whatsapp_num=15145551234&event_id=evt_123
+   https://reactivationflow.com/verify?whatsapp_num=15145551234&event_id=evt_123
 
 2. Page Verify charge et parse query params
 
-3. GET /webhook/dentisto-user-confirmation?whatsapp_num=X&event_id=Y
+3. GET /webhook/reactivationflow-user-confirmation?whatsapp_num=X&event_id=Y
 
 4. n8n:
    ├── Find lead by phone number
@@ -919,7 +919,7 @@ const formatMontrealDateTime = (date: Date) => {
 │  Ajouter un Utilisateur                │
 ├────────────────────────────────────────┤
 │  Nom complet *    [Jean Dupont      ] │
-│  Email *          [jean@dentisto.com] │
+│  Email *          [jean@reactivationflow.com] │
 │  Téléphone *      [+1-514-555-1234  ] │
 │  Rôle *           [▼ Admin          ] │
 │                   ↳ Staff             │
@@ -1036,7 +1036,7 @@ Changer le rôle de Jean Dupont:
 
 ```
 ┌─────────────────────┐
-│  DENTISTO           │
+│  ReactivationFlow           │
 ├─────────────────────┤
 │  🏠 Dashboard       │ ← AdminDashboard (tous)
 │  👥 Utilisateurs    │ ← Users (super-admin)
@@ -1319,7 +1319,7 @@ function isPhoneValid(phone: string): boolean {
 **3. Dashboard Financier (Mensuel)**
 - Coût acquisition patient (CAC)
 - Lifetime value patient (LTV)
-- ROI global système DENTIRO
+- ROI global système ReactivationFlow
 - Économies automatisation vs manuel
 
 ---
@@ -1433,7 +1433,7 @@ function isPhoneValid(phone: string): boolean {
 | **SMS Gateway** (Twilio) | 100 SMS | $0.008/SMS | 1€/mois | - |
 | **OpenAI API** (GPT-4.1) | 500 requêtes | $0.015/req | 11€/mois | 8€ |
 | **Database** | Airtable Free | - | 0€ | 0€ |
-| **Domaine** | dentisto.clinic | - | 1€/mois | 1€/mois |
+| **Domaine** | reactivationflow.com | - | 1€/mois | 1€/mois |
 | **TOTAL** | | | **190€/mois** | 34€/mois |
 
 **Note:** Coûts basés sur taux de change 1 USD = 1.40 CAD = 0.92 EUR (moyenne 2026)
@@ -1450,7 +1450,7 @@ function isPhoneValid(phone: string): boolean {
 | **SMS Gateway** (Twilio) | 100 SMS | 8€/mois | - |
 | **OpenAI API** | 500 requests GPT-4 | 8€/mois | 8€ |
 | **Database** | Airtable Free | 0€ | 0€ |
-| **Domaine** | dentisto.clinic | 1€/mois | 1€/mois |
+| **Domaine** | reactivationflow.com | 1€/mois | 1€/mois |
 | **TOTAL** | | **102€/mois** | 34€/mois |
 
 ### 9.3 Coûts Scaling (1000 patients/mois)
@@ -1465,7 +1465,7 @@ function isPhoneValid(phone: string): boolean {
 | **SMS Gateway** (Twilio) | 1000 SMS | $0.008/SMS | 11€/mois |
 | **OpenAI API** (GPT-4.1) | 5000 requêtes | $0.015/req | 105€/mois |
 | **Database** | Airtable Pro | - | 20€/mois |
-| **Domaine** | dentisto.clinic | - | 1€/mois |
+| **Domaine** | reactivationflow.com | - | 1€/mois |
 | **TOTAL** | | | **1,017€/mois** |
 
 **Optimisations possibles à haut volume:**
@@ -1637,12 +1637,12 @@ function isPhoneValid(phone: string): boolean {
 |----------|-------------|----------|
 | **README.md** | Introduction & setup local | Développeurs |
 | **DEPLOYMENT.md** | Guide déploiement Vercel | DevOps |
-| **DENTIRO_STRATEGY_v3.md** | 🆕 Ce document - Stratégie complète v3.0 | Tous |
-| **DENTIRO_STRATEGY_v2.md** | Stratégie v2.0 (référence historique) | Référence |
+| **ReactivationFlow_STRATEGY_v3.md** | 🆕 Ce document - Stratégie complète v3.0 | Tous |
+| **ReactivationFlow_STRATEGY_v2.md** | Stratégie v2.0 (référence historique) | Référence |
 | **RETELL_RECEPTIONIST_PROMPT.md** | 🆕 Prompt IA réceptionniste (Julliet) | AI Engineers |
 | **RETELL_CONFIRMATION_AGENT_PROMPT.md** | 🆕 Prompt IA confirmation (Sophie) | AI Engineers |
-| **SCALINT_CHATBOT_PROMPT.md** | Prompt chatbot texte (GPT-4) | AI Engineers |
-| **SCALINT_SYSTEM_PROMPT.md** | System prompt OpenAI | AI Engineers |
+| **ReactivationFlow_CHATBOT_PROMPT.md** | Prompt chatbot texte (GPT-4) | AI Engineers |
+| **ReactivationFlow_SYSTEM_PROMPT.md** | System prompt OpenAI | AI Engineers |
 | **data/CSV_GUIDE.md** | Format import/export CSV | Staff/Admin |
 
 ### 12.2 APIs & Webhooks Documentation
@@ -1658,10 +1658,10 @@ function isPhoneValid(phone: string): boolean {
 | POST | `/auth/logout` | JWT | Logout |
 | POST | `/auth/refresh` | JWT | Refresh token |
 | **Leads Management** ||||
-| GET | `/dentist-leads` | JWT | Liste tous leads |
-| POST | `/dentist-leads` | None | Créer lead |
-| PUT | `/dentist-leads` | JWT | Modifier lead |
-| DELETE | `/dentist-leads?id=X` | JWT | Supprimer lead |
+| GET | `/reactivationflow-leads` | JWT | Liste tous leads |
+| POST | `/reactivationflow-leads` | None | Créer lead |
+| PUT | `/reactivationflow-leads` | JWT | Modifier lead |
+| DELETE | `/reactivationflow-leads?id=X` | JWT | Supprimer lead |
 | **Users Management** ||||
 | GET | `/users` | JWT (super-admin) | Liste utilisateurs |
 | POST | `/users` | JWT (super-admin) | Créer utilisateur |
@@ -1679,12 +1679,12 @@ function isPhoneValid(phone: string): boolean {
 | GET | `/reschedule-meeting?visit_id=X` | None | Info rendez-vous |
 | POST | `/reschedule-meeting` | None | Reprogrammer rendez-vous |
 | **Verification** ||||
-| GET | `/dentisto-user-confirmation?whatsapp_num=X&event_id=Y` | None | Vérifier WhatsApp |
+| GET | `/reactivationflow-user-confirmation?whatsapp_num=X&event_id=Y` | None | Vérifier WhatsApp |
 | **Retell AI** ||||
 | POST | `/retell/receptionist` | Retell | Webhook réceptionniste |
 | POST | `/retell/confirmation` | Retell | Webhook confirmation |
 | **Chatbot** ||||
-| POST | `/scalint-chatbot` | None | Chatbot texte |
+| POST | `/reactivationflow-chatbot` | None | Chatbot texte |
 
 ### 12.3 Variables d'Environnement
 
@@ -1692,15 +1692,15 @@ function isPhoneValid(phone: string): boolean {
 
 ```bash
 # Webhooks n8n
-VITE_WEBHOOK_LEADS=https://n8n.domain.com/webhook/dentist-leads
-VITE_WEBHOOK_CHATBOT=https://n8n.domain.com/webhook/scalint-chatbot
+VITE_WEBHOOK_LEADS=https://n8n.domain.com/webhook/reactivationflow-leads
+VITE_WEBHOOK_CHATBOT=https://n8n.domain.com/webhook/reactivationflow-chatbot
 VITE_WEBHOOK_AUTH_LOGIN=https://n8n.domain.com/webhook/auth/login
 VITE_WEBHOOK_USERS=https://n8n.domain.com/webhook/users
 VITE_WEBHOOK_CAMPAIGNS=https://n8n.domain.com/webhook/campaigns
 VITE_WEBHOOK_AVAILABILITY=https://n8n.domain.com/webhook/availability
 VITE_WEBHOOK_CANCEL_MEETING=https://n8n.domain.com/webhook/cancel-meeting
 VITE_WEBHOOK_RESCHEDULE_MEETING=https://n8n.domain.com/webhook/reschedule-meeting
-VITE_WEBHOOK_VERIFY=https://n8n.domain.com/webhook/dentisto-user-confirmation
+VITE_WEBHOOK_VERIFY=https://n8n.domain.com/webhook/reactivationflow-user-confirmation
 
 # Retell AI
 RETELL_API_KEY=your_retell_api_key
@@ -1751,15 +1751,15 @@ npm run db:backup           # Backup manuel
 
 **Communauté & Support:**
 - GitHub Issues: [votre-repo]/issues
-- Email support: support@dentisto.com (si applicable)
-- Slack workspace: dentisto-team.slack.com
+- Email support: support@reactivationflow.com (si applicable)
+- Slack workspace: reactivationflow-team.slack.com
 - Documentation Wiki: [votre-repo]/wiki
 
 ---
 
 ## Conclusion
 
-La version 3.0 de DENTIRO représente une **plateforme enterprise-ready complète** avec:
+La version 3.0 de ReactivationFlow représente une **plateforme enterprise-ready complète** avec:
 
 🆕 **Authentification robuste** - Login sécurisé, rôles utilisateurs, permissions  
 🆕 **IA Vocale Retell AI** - 2 agents (réceptionniste + confirmation)  
@@ -1801,4 +1801,4 @@ La version 3.0 de DENTIRO représente une **plateforme enterprise-ready complèt
 
 ---
 
-*DENTIRO v3.0 - Propulsé par l'Intelligence Artificielle*
+*ReactivationFlow v3.0 - Propulsé par l'Intelligence Artificielle*

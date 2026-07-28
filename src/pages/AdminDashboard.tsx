@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { DragEvent } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone } from 'lucide-react';
+import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone, GripVertical, EyeOff, Columns3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import DateTimePicker from '../components/DateTimePicker';
@@ -41,6 +41,7 @@ type ApiLead = {
   valeurVie?: number | string;
   visitValue?: number | string;
   lifetimeValue?: number | string;
+  visitDate?: string;
 };
 
 const STATUS_FILTER_OPTIONS = [
@@ -59,6 +60,61 @@ const STATUS_OPTIONS = [
 ];
 
 const STATUS_OPTIONS_WITHOUT_ALL = STATUS_OPTIONS.filter(opt => opt.value !== 'all');
+const DATE_FILTER_OPTIONS = [
+  { value: 'all', label: 'Toutes les dates' },
+  { value: 'today', label: "Aujourd’hui" },
+  { value: 'tomorrow', label: 'Demain' },
+];
+const SORT_OPTIONS = [
+  { value: 'dateVisiteAsc', label: 'Visites à venir' },
+  { value: 'dateVisiteDesc', label: 'Visites les plus éloignées' },
+  { value: 'nameAsc', label: 'Nom — A à Z' },
+  { value: 'nameDesc', label: 'Nom — Z à A' },
+  { value: 'createdDesc', label: 'Création — plus récentes' },
+  { value: 'createdAsc', label: 'Création — plus anciennes' },
+];
+const LEAD_TYPE_OPTIONS = [
+  { value: 'appointment', label: 'Rendez-vous' },
+  { value: 'emergency', label: 'Urgence' },
+  { value: 'question', label: 'Question' },
+];
+const REMINDER_OPTIONS = [
+  { value: 'false', label: 'Non envoyé' },
+  { value: 'true', label: 'Envoyé' },
+];
+const PIPELINE_COLUMN_ORDER_KEY = 'reactivationflow_pipeline_column_order';
+const PIPELINE_HIDDEN_COLUMNS_KEY = 'reactivationflow_pipeline_hidden_columns';
+const PIPELINE_COLUMN_DRAG_TYPE = 'application/x-reactivationflow-pipeline-column';
+const DEFAULT_PIPELINE_COLUMN_ORDER = STATUS_OPTIONS_WITHOUT_ALL.map(option => option.value);
+
+const loadPipelineColumnOrder = () => {
+  try {
+    const savedOrder = JSON.parse(localStorage.getItem(PIPELINE_COLUMN_ORDER_KEY) ?? '[]');
+    if (!Array.isArray(savedOrder)) return DEFAULT_PIPELINE_COLUMN_ORDER;
+
+    const validSavedStatuses = savedOrder.filter(
+      (status): status is string =>
+        typeof status === 'string' && DEFAULT_PIPELINE_COLUMN_ORDER.includes(status)
+    );
+    const missingStatuses = DEFAULT_PIPELINE_COLUMN_ORDER.filter(status => !validSavedStatuses.includes(status));
+    return [...validSavedStatuses, ...missingStatuses];
+  } catch {
+    return DEFAULT_PIPELINE_COLUMN_ORDER;
+  }
+};
+
+const loadHiddenPipelineColumns = () => {
+  try {
+    const savedColumns = JSON.parse(localStorage.getItem(PIPELINE_HIDDEN_COLUMNS_KEY) ?? '[]');
+    if (!Array.isArray(savedColumns)) return [];
+    return savedColumns.filter(
+      (status): status is string =>
+        typeof status === 'string' && DEFAULT_PIPELINE_COLUMN_ORDER.includes(status)
+    );
+  } catch {
+    return [];
+  }
+};
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -76,9 +132,13 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState<'list' | 'pipeline'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'pipeline'>('pipeline');
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<Lead['status'] | null>(null);
+  const [pipelineColumnOrder, setPipelineColumnOrder] = useState<string[]>(loadPipelineColumnOrder);
+  const [hiddenPipelineColumns, setHiddenPipelineColumns] = useState<string[]>(loadHiddenPipelineColumns);
+  const [draggedColumnStatus, setDraggedColumnStatus] = useState<string | null>(null);
+  const [dragOverColumnStatus, setDragOverColumnStatus] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'dateVisiteAsc' | 'dateVisiteDesc' | 'nameAsc' | 'nameDesc' | 'createdDesc' | 'createdAsc'>('dateVisiteAsc');
   const [showAddLeadModal, setShowAddLeadModal] = useState(false);
   const [addLeadForm, setAddLeadForm] = useState({
@@ -104,7 +164,7 @@ const AdminDashboard = () => {
   const pageSize = 24;
 
   useEffect(() => {
-    fetchLeads();
+    fetchLeads('pipeline');
   }, []);
 
   useEffect(() => {
@@ -251,7 +311,7 @@ const AdminDashboard = () => {
       cancelUrl: lead.cancel_url ?? lead.cancelUrl,
       reminderSent: Boolean(lead.rappelEnvoye ?? lead.reminderSent),
       reminderDate: lead.dateRappel ?? lead.reminderDate,
-      dateVisite: lead.dateVisite,
+      dateVisite: lead.dateVisite ?? lead.visitDate,
       visitValue: toMoneyValue(lead.valeurVisite ?? lead.visitValue),
       lifetimeValue: toMoneyValue(lead.valeurAVie ?? lead.valeurVie ?? lead.lifetimeValue),
       updatedAt: lead.updatedAt,
@@ -259,21 +319,33 @@ const AdminDashboard = () => {
     }));
   };
 
-  const fetchLeads = async (includeAllStatuses = false) => {
+  const fetchLeads = async (mode: 'list' | 'pipeline' = viewMode) => {
     try {
       setLoading(true);
       setError(null);
-      const endpoint = includeAllStatuses
-        ? import.meta.env.VITE_WEBHOOK_LEADS
-        : `${import.meta.env.VITE_WEBHOOK_LEADS}?statut=phone-`;
-      const response = await fetch(endpoint);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch leads: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      const rawLeads = Array.isArray(data) ? data : data.leads || [];
+      const requestedStatuses = mode === 'pipeline'
+        ? DEFAULT_PIPELINE_COLUMN_ORDER
+        : ['phone-'];
+      const responses = await Promise.all(requestedStatuses.map(async statut => {
+        const endpoint = new URL(import.meta.env.VITE_WEBHOOK_LEADS);
+        endpoint.searchParams.set('statut', statut);
+        const response = await fetch(endpoint.toString());
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${statut} leads: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return Array.isArray(data)
+          ? data
+          : data.value ?? data.leads ?? [];
+      }));
+      const uniqueLeads = new Map<string, ApiLead>();
+      responses.flat().forEach((lead: ApiLead, index) => {
+        const key = String(lead.id ?? lead.email ?? lead.telephone ?? `${lead.nom ?? lead.name}-${index}`);
+        uniqueLeads.set(key, lead);
+      });
+      const rawLeads = [...uniqueLeads.values()];
       setLeads(normalizeLeads(rawLeads));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch leads';
@@ -745,6 +817,10 @@ const AdminDashboard = () => {
   const updateLeadStatus = async (leadId: string, status: Lead['status']) => {
     const lead = leads.find(item => item.id === leadId);
     if (!lead || lead.status === status) return;
+    if (!navigator.onLine) {
+      setError('Connexion internet indisponible. Le statut n’a pas été modifié.');
+      return;
+    }
 
     const updatedLead: Lead = {
       ...lead,
@@ -757,9 +833,14 @@ const AdminDashboard = () => {
     setLeads(updatedLeads);
     localStorage.setItem('leads', JSON.stringify(updatedLeads));
     if (selectedLead?.id === leadId) setSelectedLead(updatedLead);
+    setError(null);
 
     try {
-      const response = await fetch(import.meta.env.VITE_WEBHOOK_LEADS, {
+      const updateEndpoint = new URL(import.meta.env.VITE_WEBHOOK_LEADS);
+      updateEndpoint.searchParams.set('id', updatedLead.id);
+      updateEndpoint.searchParams.set('statut', updatedLead.status);
+
+      const response = await fetch(updateEndpoint.toString(), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -793,7 +874,11 @@ const AdminDashboard = () => {
       setLeads(previousLeads);
       localStorage.setItem('leads', JSON.stringify(previousLeads));
       if (selectedLead?.id === leadId) setSelectedLead(lead);
-      setError('Le statut n’a pas pu être enregistré. Le déplacement a été annulé.');
+      setError(
+        navigator.onLine
+          ? 'Le webhook n8n est inaccessible. Le déplacement a été annulé.'
+          : 'Connexion internet perdue. Le déplacement a été annulé.'
+      );
     }
   };
 
@@ -805,8 +890,46 @@ const AdminDashboard = () => {
     const leadId = event.dataTransfer.getData('text/plain') || draggedLeadId;
     setDraggedLeadId(null);
     setDragOverStatus(null);
-    if (leadId) void updateLeadStatus(leadId, status);
+    if (leadId) {
+      void updateLeadStatus(leadId, status).catch((unexpectedError) => {
+        console.error('Unexpected pipeline status update failure:', unexpectedError);
+        setError('Une erreur inattendue a empêché la mise à jour du statut.');
+      });
+    }
   };
+
+  const reorderPipelineColumns = (sourceStatus: string, targetStatus: string) => {
+    if (sourceStatus === targetStatus) return;
+
+    setPipelineColumnOrder(currentOrder => {
+      const sourceIndex = currentOrder.indexOf(sourceStatus);
+      const targetIndex = currentOrder.indexOf(targetStatus);
+      if (sourceIndex < 0 || targetIndex < 0) return currentOrder;
+
+      const nextOrder = [...currentOrder];
+      nextOrder.splice(sourceIndex, 1);
+      nextOrder.splice(targetIndex, 0, sourceStatus);
+      localStorage.setItem(PIPELINE_COLUMN_ORDER_KEY, JSON.stringify(nextOrder));
+      return nextOrder;
+    });
+  };
+
+  const setPipelineColumnVisibility = (status: string, visible: boolean) => {
+    setHiddenPipelineColumns(currentHiddenColumns => {
+      const nextHiddenColumns = visible
+        ? currentHiddenColumns.filter(hiddenStatus => hiddenStatus !== status)
+        : [...new Set([...currentHiddenColumns, status])];
+      localStorage.setItem(PIPELINE_HIDDEN_COLUMNS_KEY, JSON.stringify(nextHiddenColumns));
+      return nextHiddenColumns;
+    });
+  };
+
+  const orderedPipelineColumns = pipelineColumnOrder
+    .map(status => STATUS_OPTIONS_WITHOUT_ALL.find(option => option.value === status))
+    .filter((option): option is (typeof STATUS_OPTIONS_WITHOUT_ALL)[number] => Boolean(option));
+  const visiblePipelineColumns = orderedPipelineColumns.filter(
+    option => !hiddenPipelineColumns.includes(option.value)
+  );
 
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
@@ -875,11 +998,11 @@ const AdminDashboard = () => {
         <div className="header-content">
           <div className="header-left">
             <img
-              src="/Dentisto Logo.png"
-              alt="Dentisto"
+              src="/reactivationflow-logo.svg"
+              alt="ReactivationFlow"
               className="brand-logo"
             />
-            <h1>DENTISTO</h1>
+            <h1>ReactivationFlow</h1>
           </div>
           <div className="header-center">
             <div className="header-search">
@@ -926,7 +1049,7 @@ const AdminDashboard = () => {
       {error && (
         <div className="error-container">
           <p>⚠️ {error}</p>
-          <button onClick={() => void fetchLeads(viewMode === 'pipeline')} className="retry-button">Réessayer</button>
+          <button onClick={() => void fetchLeads(viewMode)} className="retry-button">Réessayer</button>
         </div>
       )}
 
@@ -1005,42 +1128,27 @@ const AdminDashboard = () => {
                 </div>
               )}
               <div className="filter-group">
-                <label htmlFor="date-filter" className="filter-label">Filtrer par date</label>
-                <select
-                  id="date-filter"
+                <label className="filter-label">Filtrer par date</label>
+                <StatusDropdown
                   value={dateFilter}
-                  onChange={(e) => {
-                    setDateFilter(e.target.value as typeof dateFilter);
+                  onChange={(value) => {
+                    setDateFilter(value as typeof dateFilter);
                     setCurrentPage(1);
                   }}
-                  className="filter-select"
-                >
-                  <option value="all">Toutes les dates</option>
-                  <option value="today">Aujourd'hui</option>
-                  <option value="tomorrow">Demain</option>
-                </select>
+                  options={DATE_FILTER_OPTIONS}
+                  className="filter-context"
+                  ariaLabel="Filtrer par date"
+                />
               </div>
               <div className="filter-group">
-                <label htmlFor="sort-select" className="filter-label">Trier par</label>
-                <select
-                  id="sort-select"
+                <label className="filter-label">Trier par</label>
+                <StatusDropdown
                   value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as typeof sortOrder)}
-                  className="filter-select"
-                >
-                  <optgroup label="Date de visite">
-                    <option value="dateVisiteAsc">Prochaines visites</option>
-                    <option value="dateVisiteDesc">Dernières visites</option>
-                  </optgroup>
-                  <optgroup label="Nom du patient">
-                    <option value="nameAsc">A → Z</option>
-                    <option value="nameDesc">Z → A</option>
-                  </optgroup>
-                  <optgroup label="Date de création">
-                    <option value="createdDesc">Plus récentes</option>
-                    <option value="createdAsc">Plus anciennes</option>
-                  </optgroup>
-                </select>
+                  onChange={(value) => setSortOrder(value as typeof sortOrder)}
+                  options={SORT_OPTIONS}
+                  className="filter-context"
+                  ariaLabel="Trier les leads"
+                />
               </div>
             </div>
           </div>
@@ -1053,6 +1161,34 @@ const AdminDashboard = () => {
                 )}
               </div>
               <div className="leads-header-actions">
+                {viewMode === 'pipeline' && (
+                  <details className="pipeline-columns-menu">
+                    <summary>
+                      <Columns3 size={16} aria-hidden="true" />
+                      Colonnes
+                      {hiddenPipelineColumns.length > 0 && (
+                        <span className="pipeline-columns-hidden-count">{hiddenPipelineColumns.length}</span>
+                      )}
+                    </summary>
+                    <div className="pipeline-columns-popover">
+                      <strong>Colonnes visibles</strong>
+                      {orderedPipelineColumns.map(column => (
+                        <label key={column.value}>
+                          <input
+                            type="checkbox"
+                            checked={!hiddenPipelineColumns.includes(column.value)}
+                            onChange={(event) => setPipelineColumnVisibility(column.value, event.target.checked)}
+                          />
+                          <span
+                            className="pipeline-status-dot"
+                            style={{ backgroundColor: getStatusColor(column.value as Lead['status']) }}
+                          />
+                          {column.label}
+                        </label>
+                      ))}
+                    </div>
+                  </details>
+                )}
                 <div className="view-switcher" role="group" aria-label="Mode d’affichage">
                   <button
                     type="button"
@@ -1060,7 +1196,7 @@ const AdminDashboard = () => {
                     aria-pressed={viewMode === 'list'}
                     onClick={() => {
                       setViewMode('list');
-                      void fetchLeads(false);
+                      void fetchLeads('list');
                     }}
                   >
                     Liste
@@ -1072,7 +1208,7 @@ const AdminDashboard = () => {
                     onClick={() => {
                       setFilterStatus('all');
                       setViewMode('pipeline');
-                      void fetchLeads(true);
+                      void fetchLeads('pipeline');
                     }}
                   >
                     Pipeline
@@ -1149,35 +1285,84 @@ const AdminDashboard = () => {
               </div>
             ) : (
               <div className="pipeline-board" aria-label="Pipeline des leads">
-                {STATUS_OPTIONS_WITHOUT_ALL.map(column => {
+                {visiblePipelineColumns.map(column => {
                   const status = column.value as Lead['status'];
                   const columnLeads = sortedLeads.filter(lead => lead.status === status);
 
                   return (
                     <div
                       key={status}
-                      className={`pipeline-column ${dragOverStatus === status ? 'drag-over' : ''}`}
+                      className={`pipeline-column ${dragOverStatus === status ? 'drag-over' : ''} ${dragOverColumnStatus === status ? 'column-drag-over' : ''} ${draggedColumnStatus === status ? 'column-dragging' : ''}`}
                       onDragOver={(event) => {
                         event.preventDefault();
                         event.dataTransfer.dropEffect = 'move';
-                        setDragOverStatus(status);
+                        if (event.dataTransfer.types.includes(PIPELINE_COLUMN_DRAG_TYPE)) {
+                          setDragOverColumnStatus(status);
+                          setDragOverStatus(null);
+                        } else {
+                          setDragOverStatus(status);
+                          setDragOverColumnStatus(null);
+                        }
                       }}
                       onDragLeave={(event) => {
                         if (!event.currentTarget.contains(event.relatedTarget as Node)) {
                           setDragOverStatus(null);
+                          setDragOverColumnStatus(null);
                         }
                       }}
-                      onDrop={(event) => handlePipelineDrop(event, status)}
+                      onDrop={(event) => {
+                        const sourceColumn = event.dataTransfer.getData(PIPELINE_COLUMN_DRAG_TYPE);
+                        if (sourceColumn) {
+                          event.preventDefault();
+                          reorderPipelineColumns(sourceColumn, status);
+                          setDraggedColumnStatus(null);
+                          setDragOverColumnStatus(null);
+                          return;
+                        }
+                        handlePipelineDrop(event, status);
+                      }}
                     >
-                      <div className="pipeline-column-header">
+                      <div
+                        className="pipeline-column-header"
+                        draggable
+                        onDragStart={(event) => {
+                          event.stopPropagation();
+                          event.dataTransfer.setData(PIPELINE_COLUMN_DRAG_TYPE, status);
+                          event.dataTransfer.effectAllowed = 'move';
+                          setDraggedColumnStatus(status);
+                          setDraggedLeadId(null);
+                        }}
+                        onDragEnd={() => {
+                          setDraggedColumnStatus(null);
+                          setDragOverColumnStatus(null);
+                        }}
+                        title="Glissez pour réorganiser la colonne"
+                      >
                         <div className="pipeline-column-title">
+                          <GripVertical className="pipeline-column-drag-handle" size={17} aria-hidden="true" />
                           <span
                             className="pipeline-status-dot"
                             style={{ backgroundColor: getStatusColor(status) }}
                           />
                           <h3>{column.label}</h3>
                         </div>
-                        <span className="pipeline-count">{columnLeads.length}</span>
+                        <div className="pipeline-column-header-actions">
+                          <span className="pipeline-count">{columnLeads.length}</span>
+                          <button
+                            type="button"
+                            className="pipeline-column-hide"
+                            draggable={false}
+                            onMouseDown={(event) => event.stopPropagation()}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setPipelineColumnVisibility(status, false);
+                            }}
+                            aria-label={`Masquer la colonne ${column.label}`}
+                            title="Masquer cette colonne"
+                          >
+                            <EyeOff size={15} aria-hidden="true" />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="pipeline-column-cards">
@@ -1519,15 +1704,13 @@ const AdminDashboard = () => {
                       </div>
                       <div className="edit-field">
                         <label>Type de demande</label>
-                        <select
-                          className="edit-select"
+                        <StatusDropdown
                           value={editForm.leadType}
-                          onChange={(e) => handleEditChange('leadType', e.target.value as Lead['leadType'])}
-                        >
-                          <option value="appointment">rendez-vous</option>
-                          <option value="emergency">urgence</option>
-                          <option value="question">question</option>
-                        </select>
+                          onChange={(value) => handleEditChange('leadType', value as Lead['leadType'])}
+                          options={LEAD_TYPE_OPTIONS}
+                          className="edit-context"
+                          ariaLabel="Type de demande"
+                        />
                       </div>
                       <div className="edit-field">
                         <label>Statut</label>
@@ -1540,14 +1723,13 @@ const AdminDashboard = () => {
                       </div>
                       <div className="edit-field">
                         <label>Rappel envoye</label>
-                        <select
-                          className="edit-select"
+                        <StatusDropdown
                           value={editForm.reminderSent ? 'true' : 'false'}
-                          onChange={(e) => handleEditChange('reminderSent', e.target.value === 'true')}
-                        >
-                          <option value="true">Oui</option>
-                          <option value="false">Non</option>
-                        </select>
+                          onChange={(value) => handleEditChange('reminderSent', value === 'true')}
+                          options={REMINDER_OPTIONS}
+                          className="edit-context"
+                          ariaLabel="État du rappel"
+                        />
                       </div>
                       <div className="edit-field">
                         <label>Valeur de cette visite (CAD)</label>
@@ -1646,15 +1828,13 @@ const AdminDashboard = () => {
                   </div>
                   <div className="edit-field">
                     <label>Type de demande</label>
-                    <select
-                      className="edit-select"
+                    <StatusDropdown
                       value={addLeadForm.leadType}
-                      onChange={(e) => handleAddLeadChange('leadType', e.target.value)}
-                    >
-                      <option value="appointment">rendez-vous</option>
-                      <option value="emergency">urgence</option>
-                      <option value="question">question</option>
-                    </select>
+                      onChange={(value) => handleAddLeadChange('leadType', value)}
+                      options={LEAD_TYPE_OPTIONS}
+                      className="edit-context"
+                      ariaLabel="Type de demande"
+                    />
                   </div>
                   <div className="edit-field">
                     <label>Statut</label>
@@ -1680,14 +1860,13 @@ const AdminDashboard = () => {
                   </div>
                   <div className="edit-field">
                     <label>Rappel envoyé</label>
-                    <select
-                      className="edit-select"
+                    <StatusDropdown
                       value={addLeadForm.reminderSent ? 'true' : 'false'}
-                      onChange={(e) => handleAddLeadChange('reminderSent', e.target.value === 'true')}
-                    >
-                      <option value="false">Non</option>
-                      <option value="true">Oui</option>
-                    </select>
+                      onChange={(value) => handleAddLeadChange('reminderSent', value === 'true')}
+                      options={REMINDER_OPTIONS}
+                      className="edit-context"
+                      ariaLabel="État du rappel"
+                    />
                   </div>
                   <div className="edit-field">
                     <label>Valeur de cette visite (CAD)</label>

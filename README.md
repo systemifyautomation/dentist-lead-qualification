@@ -1,4 +1,4 @@
-# DENTIRO — Stratégie & Blueprint de Workflow IA Réceptionniste
+# ReactivationFlow — Intelligent Lead Reactivation Platform
 
 Ce README est la version documentation de la page **Stratégie** de l’application, avec les mêmes sections clés, captures de workflows et diagrammes.
 
@@ -17,21 +17,21 @@ This project uses environment variables to secure webhook URLs. Follow these ste
 2. **Update `.env` with your webhook URLs:**
    ```env
    # Leads management webhook (CRUD operations)
-   VITE_WEBHOOK_LEADS=https://your-n8n-instance.com/webhook/dentist-leads
+   VITE_WEBHOOK_LEADS=https://your-n8n-instance.com/webhook/reactivationflow-leads
 
    # Chatbot webhook
-   VITE_WEBHOOK_CHATBOT=https://your-n8n-instance.com/webhook/scalint-chatbot
+   VITE_WEBHOOK_CHATBOT=https://your-n8n-instance.com/webhook/reactivationflow-chatbot
 
    # Authentication webhook
-   VITE_WEBHOOK_LOGIN=https://your-n8n-instance.com/webhook/dentisto-new-user-login
+   VITE_WEBHOOK_LOGIN=https://your-n8n-instance.com/webhook/reactivationflow-new-user-login
 
    # Availability check webhook
-   VITE_WEBHOOK_CHECK_AVAILABILITY=https://your-n8n-instance.com/webhook/scalint-check-availability
+   VITE_WEBHOOK_CHECK_AVAILABILITY=https://your-n8n-instance.com/webhook/reactivationflow-check-availability
 
    # Meeting management webhooks
-   VITE_WEBHOOK_CANCEL_MEETING=https://your-n8n-instance.com/webhook/scalint-cancel-meeting
-   VITE_WEBHOOK_RESCHEDULE_MEETING=https://your-n8n-instance.com/webhook/scalint-lead-reschedule
-   VITE_WEBHOOK_RESCHEDULED_CONFIRMATION=https://your-n8n-instance.com/webhook/scalint-lead-rescheduled
+   VITE_WEBHOOK_CANCEL_MEETING=https://your-n8n-instance.com/webhook/reactivationflow-cancel-meeting
+   VITE_WEBHOOK_RESCHEDULE_MEETING=https://your-n8n-instance.com/webhook/reactivationflow-lead-reschedule
+   VITE_WEBHOOK_RESCHEDULED_CONFIRMATION=https://your-n8n-instance.com/webhook/reactivationflow-lead-rescheduled
    ```
 
 3. **Install dependencies:**
@@ -109,7 +109,7 @@ flowchart LR
 
 ### JSON envoyé à n8n
 
-**Webhook POST →** `https://n8n.systemifyautomation.com/webhook/dentist-leads`
+**Webhook POST →** `https://n8n.systemifyautomation.com/webhook/reactivationflow-leads`
 
 ```json
 {
@@ -154,7 +154,7 @@ flowchart TD
 
 ### Capture workflow
 
-![Workflow n8n complet](public/Scalint%20-%20Leads%20Workflow.png)
+![Workflow n8n complet](public/ReactivationFlow%20-%20Leads%20Workflow.png)
 
 ✅ Workflow testé et publié
 
@@ -183,7 +183,7 @@ flowchart TD
 
 ### Capture workflow
 
-![Workflow disponibilités mensuelles](public/Scalint%20-%20Get%20Booked%20Slots.png)
+![Workflow disponibilités mensuelles](public/ReactivationFlow%20-%20Get%20Booked%20Slots.png)
 
 ✅ Workflow publié pour l'API de disponibilités
 
@@ -228,7 +228,7 @@ flowchart TD
 
 ### Capture workflow
 
-![Workflow rappel WhatsApp 24h](public/Scalint%20-%20Reminder%20workflow.png)
+![Workflow rappel WhatsApp 24h](public/ReactivationFlow%20-%20Reminder%20workflow.png)
 
 ✅ Workflow publié pour les rappels automatiques
 
@@ -275,7 +275,7 @@ flowchart TD
 
 ### Capture workflow
 
-![Workflow no-shows](public/Scalint%20-%20No-shows%20workflow.png)
+![Workflow no-shows](public/ReactivationFlow%20-%20No-shows%20workflow.png)
 
 ✅ Workflow publié pour la relance no-show
 
@@ -293,19 +293,19 @@ Notifier automatiquement l'equipe quand un workflow n8n echoue, avec un lien dir
 
 ### Capture workflow
 
-![Workflow n8n error trigger vers Telegram](public/Scalint%20-%20Error%20workflow.png)
+![Workflow n8n error trigger vers Telegram](public/ReactivationFlow%20-%20Error%20workflow.png)
 
 ### Exemple de message Telegram
 
 ```text
-Something went wrong with a SCALINT workflow:
+Something went wrong with a ReactivationFlow workflow:
 - Error: Your request is invalid or could not be processed by the service
 - URL: https://n8n.systemifyautomation.com/workflow/VF2652DIzg3E3E0naCZsX/executions/3123
 ```
 
 ### Capture du message reçu
 
-![Message Telegram d'alerte erreur workflow](public/Scalint%20-%20Error%20Message.png)
+![Message Telegram d'alerte erreur workflow](public/ReactivationFlow%20-%20Error%20Message.png)
 
 ✅ Les erreurs workflows sont notifiees en temps reel via Telegram Bot
 

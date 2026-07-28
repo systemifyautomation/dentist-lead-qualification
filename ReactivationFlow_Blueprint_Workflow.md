@@ -1,23 +1,23 @@
-# DENTIRO - Blueprint Détaillé du Workflow d'Agent IA Réceptionniste
+# ReactivationFlow - Blueprint Détaillé du Workflow d'Agent IA Réceptionniste
 ## Solution de Gestion des Leads et Automatisation des Rappels pour Clinique Dentaire
 
 **Date:** Février 2026  
 **Version:** 1.0  
-**Auteur:** Équipe DENTIRO
+**Auteur:** Équipe ReactivationFlow
 
 ---
 
 ## Résumé Exécutif
 
-DENTIRO est une solution intégrée d'automatisation destinée aux cliniques dentaires, capable de qualifier les leads entrants, de gérer les rappels de rendez-vous par SMS, et de relancer proactivement les "no-show" (patients qui ne se présentent pas). Cette solution combine une application web intelligent avec un workflow d'automatisation via Make.com ou n8n.
+ReactivationFlow est une solution intégrée d'automatisation destinée aux cliniques dentaires, capable de qualifier les leads entrants, de gérer les rappels de rendez-vous par SMS, et de relancer proactivement les "no-show" (patients qui ne se présentent pas). Cette solution combine une application web intelligent avec un workflow d'automatisation via Make.com ou n8n.
 
 ---
 
-## 1. Description du Workflow DENTIRO
+## 1. Description du Workflow ReactivationFlow
 
 ### 1.1 Architecture Générale
 
-Le système DENTIRO fonctionne selon trois piliers principaux :
+Le système ReactivationFlow fonctionne selon trois piliers principaux :
 
 1. **Réception et Qualification des Leads**
 2. **Gestion Proactive des Rendez-vous**
@@ -26,7 +26,7 @@ Le système DENTIRO fonctionne selon trois piliers principaux :
 ### 1.2 Flux de Traitement des Leads
 
 #### Étape 1 : Capture du Lead
-- Le patient remplit le formulaire d'admission sur l'application DENTIRO
+- Le patient remplit le formulaire d'admission sur l'application ReactivationFlow
 - Les informations collectées : nom, email, téléphone, type de demande (RDV, urgence, question)
 - Urgency level pour les urgences dentaires
 - Description détaillée du besoin
@@ -122,7 +122,7 @@ Le système DENTIRO fonctionne selon trois piliers principaux :
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      NOUVEAU LEAD ARRIVE                        │
-│         (Formulaire patient DENTIRO ou API externe)            │
+│         (Formulaire patient ReactivationFlow ou API externe)            │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
@@ -205,25 +205,25 @@ Votre rendez-vous dentaire est confirmé:
 
 Veuillez arriver 10 minutes avant.
 Répondez OUI pour confirmer.
-DENTIRO Clinique +1-555-123-4567
+ReactivationFlow Clinique +1-555-123-4567
 ```
 
 ### 4.2 SMS de Rappel 24h Avant
 
 ```
-🦷 Rappel DENTIRO
+🦷 Rappel ReactivationFlow
 Votre RDV est demain à 14:00 avec Dr. Martinez
 📍 Cabinet Dentaire, 123 Rue de la Paix
 
 Vous êtes confirmé? Répondez YES
 Besoin d'annuler? Répondez CANCEL
-Info: www.dentiro.clinic/rdv/ABC123
+Info: www.reactivationflow.com/rdv/ABC123
 ```
 
 ### 4.3 SMS No-Show (15 minutes après RDV manqué)
 
 ```
-⚠️ DENTIRO - Nous vous avons attendu!
+⚠️ ReactivationFlow - Nous vous avons attendu!
 
 Nous avons remarqué que vous n'êtes pas venu à votre rendez-vous de 14:00 aujourd'hui.
 
@@ -236,13 +236,13 @@ Options rapides:
 ### 4.4 SMS de Relance No-Show (Après 1 heure sans réponse)
 
 ```
-🚨 DENTIRO - URGENT
+🚨 ReactivationFlow - URGENT
 Vous avez manqué votre RDV d'aujourd'hui à 14:00.
 Votre créneau a été libéré pour d'autres patients.
 
 ⏰ Réagissez maintenant (100% gratuit):
 👉 Cliquez pour replanifier: 
-   www.dentiro.clinic/reschedule/ABC123
+   www.reactivationflow.com/reschedule/ABC123
 
 Questions? Appelez: +1-555-123-4567 (option 2)
 ```
@@ -250,7 +250,7 @@ Questions? Appelez: +1-555-123-4567 (option 2)
 ### 4.5 SMS - Urgence Dentaire Détectée
 
 ```
-🆘 DENTIRO URGENCE
+🆘 ReactivationFlow URGENCE
 Douleur dentaire sévère? Nous avons des créneaux d'urgence AUJOURD'HUI!
 
 📞 Appelez immédiatement: +1-555-911-DENT
@@ -266,7 +266,7 @@ Clinique ouverte jusqu'à 20:00 aujourd'hui.
 ### 5.1 Module 1 : Réception & Qualification du Lead
 
 ```yaml
-Trigger: Webhook (nouvelle soumission formulaire DENTIRO)
+Trigger: Webhook (nouvelle soumission formulaire ReactivationFlow)
 ├── Input: {name, email, phone, leadType, urgency, description, notes}
 │
 ├── Action 1 : Parse JSON
@@ -438,12 +438,12 @@ KPI Secondaires:
 
 ## Conclusion
 
-DENTIRO représente une solution robuste et cost-effective pour les cliniques dentaires souhaitant automatiser leur gestion des leads et des rendez-vous. Par l'intégration d'une IA réceptionniste avec des workflows Make.com et des rappels SMS via Twilio, la solution offre une réduction de ~40% des no-shows et une qualification lead 10x plus rapide.
+ReactivationFlow représente une solution robuste et cost-effective pour les cliniques dentaires souhaitant automatiser leur gestion des leads et des rendez-vous. Par l'intégration d'une IA réceptionniste avec des workflows Make.com et des rappels SMS via Twilio, la solution offre une réduction de ~40% des no-shows et une qualification lead 10x plus rapide.
 
 La solution est scalable, conforme RGPD, et peut être déployée en 4-5 semaines.
 
 ---
 
 **Version 1.0 - Février 2026**  
-Document confidentiel - Équipe DENTIRO  
-Pour toute question : team@dentiro.clinic
+Document confidentiel - Équipe ReactivationFlow  
+Pour toute question : team@reactivationflow.com

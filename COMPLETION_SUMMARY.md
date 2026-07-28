@@ -1,4 +1,4 @@
-# ✅ DENTIRO Mobile Optimization & Strategy Update - COMPLETE
+# ✅ ReactivationFlow Mobile Optimization & Strategy Update - COMPLETE
 
 ## Summary of Work Completed
 
@@ -37,7 +37,7 @@
 
 ### 2. ✅ Strategy Document Update
 
-**Created: `DENTIRO_UPDATED_BLUEPRINT.md` (28,486 bytes)**
+**Created: `ReactivationFlow_UPDATED_BLUEPRINT.md` (28,486 bytes)**
 
 #### Section 1: DateTimePicker Premium Component (NEW)
 - Full component documentation
@@ -176,7 +176,7 @@ Prior changes integrated:
 | DateTimePicker.tsx | Verified | All features working (month nav, date selection, time slots) |
 | LeadForm.tsx | Verified | Using DateTimePicker component successfully |
 | AdminDashboard.tsx | Verified | Using DateTimePicker component successfully |
-| **DENTIRO_UPDATED_BLUEPRINT.md** | **CREATED** | **Comprehensive strategy doc (28KB)** |
+| **ReactivationFlow_UPDATED_BLUEPRINT.md** | **CREATED** | **Comprehensive strategy doc (28KB)** |
 
 ---
 
@@ -243,7 +243,7 @@ A detailed 14-section blueprint including:
 
 ## Next Steps (If Needed)
 
-1. **Deploy Strategy Document**: Share DENTIRO_UPDATED_BLUEPRINT.md with stakeholders
+1. **Deploy Strategy Document**: Share ReactivationFlow_UPDATED_BLUEPRINT.md with stakeholders
 2. **Set up Make.com**: Use workflow specs in Section 6 of blueprint
 3. **Configure Twilio**: Install SMS provider with auth keys
 4. **Setup Airtable**: Create base structure for patient/RDV records
@@ -253,7 +253,7 @@ A detailed 14-section blueprint including:
 
 ## Quick Links
 
-- **Updated Blueprint**: `./DENTIRO_UPDATED_BLUEPRINT.md` (28KB, 14 sections)
+- **Updated Blueprint**: `./ReactivationFlow_UPDATED_BLUEPRINT.md` (28KB, 14 sections)
 - **DateTimePicker Component**: `src/components/DateTimePicker.tsx`
 - **Component Styles**: `src/components/DateTimePicker.css` (703 lines, responsive)
 - **Integration**: Used in `LeadForm.tsx` & `AdminDashboard.tsx`

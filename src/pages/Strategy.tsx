@@ -31,11 +31,11 @@ Livrables Attendus :
         <div className="header-content">
           <div className="header-left">
             <img
-              src="/Dentisto Logo.png"
-              alt="Dentisto"
+              src="/reactivationflow-logo.svg"
+              alt="ReactivationFlow"
               className="brand-logo"
             />
-            <h1>DENTIRO</h1>
+            <h1>ReactivationFlow</h1>
           </div>
           <div className="header-center">
             <div className="header-search">
@@ -138,7 +138,7 @@ Livrables Attendus :
 
             <h3>JSON Envoyé à n8n</h3>
             <div className="json-example">
-              <p className="json-label">Webhook POST → https://n8n.systemifyautomation.com/webhook/dentist-leads</p>
+              <p className="json-label">Webhook POST → https://n8n.systemifyautomation.com/webhook/reactivationflow-leads</p>
               <pre className="json-code">{`{
   "nom": "Jean Dupont",
   "email": "jean@email.com",
@@ -215,7 +215,7 @@ Livrables Attendus :
             <div className="n8n-diagram">
               <p className="diagram-label">Workflow complet en n8n.systemifyautomation.com</p>
               <img 
-                src="/Scalint - Leads Workflow.png" 
+                src="/ReactivationFlow - Leads Workflow.png" 
                 alt="n8n Workflow Diagram" 
                 className="workflow-diagram-image"
                 style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}
@@ -246,7 +246,7 @@ Livrables Attendus :
             <div className="n8n-diagram">
               <p className="diagram-label">Workflow disponibilites mensuelles</p>
               <img
-                src="/Scalint - Get Booked Slots.png"
+                src="/ReactivationFlow - Get Booked Slots.png"
                 alt="Workflow n8n pour recuperer les creneaux reserves"
                 className="workflow-diagram-image"
                 style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}
@@ -354,7 +354,7 @@ Si tu dois annuler ou reprogrammer, réponds à ce message.
             <div className="n8n-diagram">
               <p className="diagram-label">Workflow rappel WhatsApp 24h</p>
               <img
-                src="/Scalint - Reminder workflow.png"
+                src="/ReactivationFlow - Reminder workflow.png"
                 alt="Workflow n8n pour envoyer les rappels WhatsApp 24h"
                 className="workflow-diagram-image"
                 style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}
@@ -464,7 +464,7 @@ A bientot! 😊`}</pre>
             <div className="n8n-diagram">
               <p className="diagram-label">Workflow no-shows</p>
               <img
-                src="/Scalint - No-shows workflow.png"
+                src="/ReactivationFlow - No-shows workflow.png"
                 alt="Workflow n8n pour gerer les no-shows"
                 className="workflow-diagram-image"
                 style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}
@@ -493,7 +493,7 @@ A bientot! 😊`}</pre>
 
             <h3>Message Telegram (exemple)</h3>
             <div className="json-example">
-              <pre className="json-code">{`Something went wrong with a DENTISTO workflow:
+              <pre className="json-code">{`Something went wrong with a ReactivationFlow workflow:
 - Error: Your request is invalid or could not be processed by the service
 - URL: https://n8n.systemifyautomation.com/workflow/VF2652DIzg3E3E0naCZsX/executions/3123`}</pre>
             </div>
@@ -501,7 +501,7 @@ A bientot! 😊`}</pre>
             <div className="n8n-diagram">
               <p className="diagram-label">Workflow n8n d'alerte d'erreur vers Telegram</p>
               <img
-                src="/Scalint - Error workflow.png"
+                src="/ReactivationFlow - Error workflow.png"
                 alt="Workflow n8n Error Trigger vers Telegram"
                 className="workflow-diagram-image"
                 style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}
@@ -511,7 +511,7 @@ A bientot! 😊`}</pre>
             <div className="n8n-diagram">
               <p className="diagram-label">Exemple de notification reçue dans Telegram</p>
               <img
-                src="/Scalint - Error Message.png"
+                src="/ReactivationFlow - Error Message.png"
                 alt="Message Telegram d'alerte erreur workflow"
                 className="workflow-diagram-image"
                 style={{ width: '100%', maxWidth: '900px', height: 'auto', borderRadius: '8px' }}

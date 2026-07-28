@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { format, setHours, setMinutes, startOfDay, startOfMonth, isBefore, addDays, addMonths, subMonths, addMinutes } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { ar, enCA, fr } from 'date-fns/locale';
 import { Calendar, Clock, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import 'react-day-picker/dist/style.css';
 import './DateTimePicker.css';
+import { useI18n } from '../i18n/I18nContext';
 
 interface DateTimePickerProps {
   selected: Date | null;
@@ -22,7 +23,7 @@ interface DateTimePickerProps {
 const DateTimePicker = ({
   selected,
   onChange,
-  placeholder = 'Sélectionner une date et heure',
+  placeholder,
   isClearable = false,
   minDate = new Date(),
   bookedSlots = [],
@@ -30,6 +31,9 @@ const DateTimePicker = ({
   availabilityError = null,
   showTimeSelect = true,
 }: DateTimePickerProps) => {
+  const { locale, messages } = useI18n();
+  const dateLocale = locale === 'ar' ? ar : locale === 'en' ? enCA : fr;
+  const resolvedPlaceholder = placeholder ?? messages.dateTime.defaultPlaceholder;
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(selected || undefined);
   const [selectedTime, setSelectedTime] = useState<string>(
@@ -166,11 +170,11 @@ const DateTimePicker = ({
   };
 
   const formatDisplayValue = () => {
-    if (!selected) return placeholder;
+    if (!selected) return resolvedPlaceholder;
     if (!showTimeSelect) {
-      return format(selected, 'EEEE d MMMM yyyy', { locale: fr });
+      return format(selected, 'EEEE d MMMM yyyy', { locale: dateLocale });
     }
-    return format(selected, "EEEE d MMMM yyyy 'à' HH:mm", { locale: fr });
+    return format(selected, 'EEEE d MMMM yyyy HH:mm', { locale: dateLocale });
   };
 
   return (
@@ -186,7 +190,7 @@ const DateTimePicker = ({
               type="button"
               className="clear-button"
               onClick={handleClear}
-              aria-label="Clear date"
+              aria-label={messages.dateTime.clear}
             >
               <X size={16} />
             </button>
@@ -209,19 +213,19 @@ const DateTimePicker = ({
                     className="month-nav-button" 
                     onClick={handlePrevMonth}
                     disabled={isPrevMonthDisabled()}
-                    aria-label="Mois précédent"
+                    aria-label={messages.dateTime.previousMonth}
                   >
                     <ChevronLeft size={24} />
                   </button>
                   <h2 className="month-year-display">
                     {selectedDate && `${format(selectedDate, 'd')} `}
-                    {format(displayMonth, 'MMMM yyyy', { locale: fr })}
+                    {format(displayMonth, 'MMMM yyyy', { locale: dateLocale })}
                   </h2>
                   <button 
                     type="button"
                     className="month-nav-button" 
                     onClick={handleNextMonth}
-                    aria-label="Mois suivant"
+                    aria-label={messages.dateTime.nextMonth}
                   >
                     <ChevronRight size={24} />
                   </button>
@@ -243,7 +247,7 @@ const DateTimePicker = ({
                     disabled: 'disabled-day',
                     past: 'past-day',
                   }}
-                  locale={fr}
+                  locale={dateLocale}
                   showOutsideDays={false}
                   className="custom-day-picker"
                 />
@@ -253,11 +257,11 @@ const DateTimePicker = ({
                 <div className="time-section">
                   <div className="time-header">
                     <Clock size={16} />
-                    <span>Heure</span>
+                    <span>{messages.dateTime.time}</span>
                   </div>
                   {(availabilityLoading || availabilityError) && (
                     <div className={`availability-status ${availabilityError ? 'error' : ''}`}>
-                      {availabilityLoading ? 'Chargement des disponibilites...' : availabilityError}
+                      {availabilityLoading ? messages.dateTime.loading : availabilityError}
                     </div>
                   )}
                   <div className="time-list">

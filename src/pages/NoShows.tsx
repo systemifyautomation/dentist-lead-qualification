@@ -157,7 +157,9 @@ const NoShows = () => {
       }
       
       const data = await response.json();
-      let rawLeads = Array.isArray(data) ? data : data.leads || [];
+      let rawLeads = Array.isArray(data)
+        ? data
+        : data.value ?? data.leads ?? [];
       // Filter out empty objects (e.g., [{}]) that indicate no leads
       rawLeads = rawLeads.filter((lead: any) => 
         lead && (lead.id || lead.nom || lead.name || lead.email || lead.telephone || lead.phone)
@@ -478,11 +480,11 @@ const NoShows = () => {
         <div className="header-content">
           <div className="header-left">
             <img
-              src="/Dentisto Logo.png"
-              alt="Dentisto"
+              src="/reactivationflow-logo.svg"
+              alt="ReactivationFlow"
               className="brand-logo"
             />
-            <h1>DENTISTO</h1>
+            <h1>ReactivationFlow</h1>
           </div>
           <div className="header-center">
             <div className="header-search">

@@ -15,11 +15,13 @@ import Cancel from './pages/Cancel';
 import Verify from './pages/Verify';
 import NotFound from './pages/NotFound';
 import './App.css';
+import { I18nProvider } from './i18n/I18nContext';
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <I18nProvider>
+      <AuthProvider>
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/formulaire" replace />} />
           <Route path="/formulaire" element={<LeadForm />} />
@@ -71,8 +73,9 @@ function App() {
           <Route path="/verify" element={<Verify />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+        </BrowserRouter>
+      </AuthProvider>
+    </I18nProvider>
   );
 }
 

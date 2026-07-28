@@ -1,15 +1,15 @@
-# DENTIRO - Stratégie Actualisée & Implémentation Finale
+# ReactivationFlow - Stratégie Actualisée & Implémentation Finale
 ## Application Web de Gestion des Leads + Automatisation WhatsApp/n8n
 
 **Date:** 18 Février 2026  
 **Version:** 2.0 - Production Ready  
-**Équipe:** DENTIRO
+**Équipe:** ReactivationFlow
 
 ---
 
 ## Résumé Exécutif
 
-DENTIRO est désormais une application web complète de gestion de leads pour cliniques dentaires, déployée sur Vercel et intégrée avec n8n pour l'automatisation des workflows WhatsApp. Cette version 2.0 représente l'implémentation finale, prête pour la production.
+ReactivationFlow est désormais une application web complète de gestion de leads pour cliniques dentaires, déployée sur Vercel et intégrée avec n8n pour l'automatisation des workflows WhatsApp. Cette version 2.0 représente l'implémentation finale, prête pour la production.
 
 ### Ce qui a été construit
 
@@ -17,7 +17,7 @@ DENTIRO est désormais une application web complète de gestion de leads pour cl
 - Interface moderne et responsive (mobile-first)
 - 4 pages principales : Accueil, Stratégie, Formulaire, Admin Dashboard
 - Design Shopify-inspired avec header noir
-- Chatbot intégré (Scalint)
+- Chatbot intégré (ReactivationFlow)
 
 ✅ **Système de Gestion des Leads (CRM)**
 - Dashboard admin complet avec filtres et recherche
@@ -29,7 +29,7 @@ DENTIRO est désormais une application web complète de gestion de leads pour cl
 
 ✅ **Intégration n8n via Webhooks**
 - Webhook principal : Gestion CRUD des leads
-- Webhook secondaire : Chatbot Scalint
+- Webhook secondaire : Chatbot ReactivationFlow
 - Support complet GET, POST, PUT, DELETE
 
 ✅ **Design & UX**
@@ -75,7 +75,7 @@ Hosting:
 ### 1.2 Structure de l'Application
 
 ```
-dentist-lead-qualification/
+reactivationflow/
 ├── src/
 │   ├── pages/
 │   │   ├── Home.tsx              # Page d'accueil
@@ -83,7 +83,7 @@ dentist-lead-qualification/
 │   │   ├── LeadForm.tsx          # Formulaire de capture leads
 │   │   └── AdminDashboard.tsx    # CRM admin (1119 lignes)
 │   ├── components/
-│   │   ├── Chatbot.tsx           # Chatbot Scalint intégré
+│   │   ├── Chatbot.tsx           # Chatbot ReactivationFlow intégré
 │   │   └── DateTimePicker.tsx    # Date picker personnalisé
 │   ├── types.ts                  # Types TypeScript (Lead interface)
 │   ├── App.tsx                   # Router principal
@@ -105,7 +105,7 @@ dentist-lead-qualification/
 **Route:** `/`
 
 **Contenu:**
-- Hero section avec présentation DENTIRO
+- Hero section avec présentation ReactivationFlow
 - Call-to-action vers formulaire de lead
 - Valeurs ajoutées de la solution
 - Design responsive avec animations
@@ -120,7 +120,7 @@ dentist-lead-qualification/
 **Route:** `/strategy`
 
 **Contenu:**
-- Documentation complète du workflow DENTIRO
+- Documentation complète du workflow ReactivationFlow
 - Architecture technique
 - Workflows d'automatisation
 - Métriques de succès
@@ -250,7 +250,7 @@ interface Lead {
 
 #### Workflow 1: Gestion CRUD des Leads
 
-**Déclencheur:** Webhook `https://your-n8n.com/webhook/dentist-leads`
+**Déclencheur:** Webhook `https://your-n8n.com/webhook/reactivationflow-leads`
 
 **Nœuds:**
 
@@ -287,7 +287,7 @@ interface Lead {
 **Message WhatsApp de verification:**
 ```
 Salut {{ prénom}}! 👋  
-Nous avons reçu ta demande pour un rendez-vous chez Dentiro.
+Nous avons reçu ta demande pour un rendez-vous chez ReactivationFlow.
 ```
 
 #### Workflow 2: Rappel WhatsApp 24h Avant RDV
@@ -318,13 +318,13 @@ Nous avons reçu ta demande pour un rendez-vous chez Dentiro.
 
 **Message WhatsApp Template:**
 ```
-⏰ Rappel Dentiro
+⏰ Rappel ReactivationFlow
 
 Salut {{name}}! 👋
 
 Petit rappel: ton rendez-vous est dans 24h.
 📅 {{visitDate}}
-📍 Clinique DENTIRO
+📍 Clinique ReactivationFlow
 
 Si tu dois annuler ou reprogrammer, réponds à ce message.
 
@@ -362,7 +362,7 @@ Si tu dois annuler ou reprogrammer, réponds à ce message.
 
 **Message WhatsApp No-Show:**
 ```
-⚠️ DENTIRO - Nous vous avons attendu!
+⚠️ ReactivationFlow - Nous vous avons attendu!
 
 Bonjour {{name}},
 
@@ -372,14 +372,14 @@ Vous n'êtes pas venu à votre RDV de {{visitDate}}.
 👉 Options:
 1️⃣ REPLAN - Replanifier
 2️⃣ RAPPEL - Dans 48h
-3️⃣ URGENT - Appeler +1-555-DENTIRO
+3️⃣ URGENT - Appeler +1-555-ReactivationFlow
 
 Répondez avec le numéro de votre choix.
 ```
 
-#### Workflow 4: Chatbot Scalint WhatsApp
+#### Workflow 4: Chatbot ReactivationFlow WhatsApp
 
-**Déclencheur:** Webhook `https://your-n8n.com/webhook/scalint-chatbot`
+**Déclencheur:** Webhook `https://your-n8n.com/webhook/reactivationflow-chatbot`
 
 **Logique:**
 
@@ -389,7 +389,7 @@ Répondez avec le numéro de votre choix.
 
 2. **OpenAI Node** (ou autre LLM)
    - Model: GPT-4
-   - System Prompt: [See SCALINT_SYSTEM_PROMPT.md - ready to copy-paste]
+   - System Prompt: [See ReactivationFlow_SYSTEM_PROMPT.md - ready to copy-paste]
    - User Message: `{{message}}`
    - Max Tokens: 150
 
@@ -436,7 +436,7 @@ WhatsApp Response (Send back)
 
 **Complete System Prompt & Configuration:**
 
-See **[SCALINT_CHATBOT_PROMPT.md](SCALINT_CHATBOT_PROMPT.md)** for:
+See **[ReactivationFlow_CHATBOT_PROMPT.md](ReactivationFlow_CHATBOT_PROMPT.md)** for:
 - Full system prompt for GPT-4
 - Conversation flow templates
 - All response templates
@@ -472,8 +472,8 @@ See **[SCALINT_CHATBOT_PROMPT.md](SCALINT_CHATBOT_PROMPT.md)** for:
 
 | Variable | Valeur | Description |
 |----------|--------|-------------|
-| `VITE_WEBHOOK_LEADS` | `https://n8n.domain.com/webhook/dentist-leads` | Endpoint n8n CRUD |
-| `VITE_WEBHOOK_CHATBOT` | `https://n8n.domain.com/webhook/scalint-chatbot` | Endpoint chatbot |
+| `VITE_WEBHOOK_LEADS` | `https://n8n.domain.com/webhook/reactivationflow-leads` | Endpoint n8n CRUD |
+| `VITE_WEBHOOK_CHATBOT` | `https://n8n.domain.com/webhook/reactivationflow-chatbot` | Endpoint chatbot |
 
 ### 4.2 Commandes de Déploiement
 
@@ -502,8 +502,8 @@ vercel --prod
 ### 4.3 Post-Déploiement
 
 **URLs attendues:**
-- **Production:** `https://dentiro.vercel.app`
-- **Preview:** `https://dentiro-git-{branch}.vercel.app`
+- **Production:** `https://reactivationflow.vercel.app`
+- **Preview:** `https://reactivationflow-git-{branch}.vercel.app`
 
 **Tests de validation:**
 1. Navigation entre pages
@@ -663,7 +663,7 @@ font-weight: 600;
 | **WhatsApp Business API** | 200 messages/mois | 10€/mois |
 | **OpenAI API** | 500 requests (GPT-4) | 8€/mois |
 | **Database** | Airtable Free / Sheets | 0€ |
-| **Domaine personnalisé** | dentiro.clinic | 12€/an (1€/mois) |
+| **Domaine personnalisé** | reactivationflow.com | 12€/an (1€/mois) |
 | **TOTAL** | | **~34€/mois** |
 
 ### 8.2 Scaling (1000 patients/mois)
@@ -709,10 +709,10 @@ font-weight: 600;
 
 1. **README.md** - Introduction & setup local
 2. **DEPLOYMENT.md** - Guide déploiement Vercel complet
-3. **DENTIRO_Blueprint_Workflow.md** - Stratégie initiale (v1.0)
-4. **DENTIRO_STRATEGY_v2.md** - Ce document (v2.0)
-5. **SCALINT_SYSTEM_PROMPT.md** - OpenAI GPT-4 prompt (copy-paste à n8n)
-6. **SCALINT_CHATBOT_PROMPT.md** - Configuration complète chatbot WhatsApp
+3. **ReactivationFlow_Blueprint_Workflow.md** - Stratégie initiale (v1.0)
+4. **ReactivationFlow_STRATEGY_v2.md** - Ce document (v2.0)
+5. **ReactivationFlow_SYSTEM_PROMPT.md** - OpenAI GPT-4 prompt (copy-paste à n8n)
+6. **ReactivationFlow_CHATBOT_PROMPT.md** - Configuration complète chatbot WhatsApp
 7. **data/CSV_GUIDE.md** - Format import/export CSV
 
 ### 10.2 Ressources Externes
@@ -727,14 +727,14 @@ font-weight: 600;
 
 **Pour questions d'implémentation:**
 - Repository GitHub: Issues tab
-- Email: team@dentiro.clinic (si applicable)
+- Email: team@reactivationflow.com (si applicable)
 - Documentation inline dans le code
 
 ---
 
 ## Conclusion
 
-L'application DENTIRO est maintenant **production-ready** avec:
+L'application ReactivationFlow est maintenant **production-ready** avec:
 
 ✅ **Frontend complet** - React/Vite déployé sur Vercel  
 ✅ **Backend automatisé** - Webhooks n8n configurables  

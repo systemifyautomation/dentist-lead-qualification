@@ -1,6 +1,6 @@
-# DENTIRO - Système de Gestion des Demandes Dentaires
+# ReactivationFlow - Système de Gestion des Demandes Dentaires
 
-DENTIRO est une application web complète conçue pour les cliniques dentaires de Montréal. Elle permet de qualifier les demandes de patients, de gérer les rendez-vous et de relancer automatiquement les absents.
+ReactivationFlow est une application web complète conçue pour les cliniques dentaires de Montréal. Elle permet de qualifier les demandes de patients, de gérer les rendez-vous et de relancer automatiquement les absents.
 
 ## Caractéristiques Principales
 
@@ -12,7 +12,7 @@ DENTIRO est une application web complète conçue pour les cliniques dentaires d
 
 ## Types de Demandes
 
-DENTIRO accepte trois types de demandes:
+ReactivationFlow accepte trois types de demandes:
 - **RDV** - Demande de rendez-vous
 - **Urgence** - Urgence dentaire (traitement prioritaire)
 - **Question Générale** - Questions sur les services
@@ -57,7 +57,7 @@ src/
 ├── types.ts                     # Définitions des types TypeScript
 └── main.tsx                     # Point d'entrée
 
-DENTIRO_Blueprint_Workflow.md    # Documentation détaillée du workflow
+ReactivationFlow_Blueprint_Workflow.md    # Documentation détaillée du workflow
 README_FR.md                     # Ce fichier
 ```
 
@@ -98,7 +98,7 @@ Actuellement utilise le localStorage du navigateur pour la persistance des donn�
 
 ## Utilisation du Chatbot
 
-Le chatbot DENTIRO reconnaît les mots-clés en français et en anglais pour répondre aux questions courantes:
+Le chatbot ReactivationFlow reconnaît les mots-clés en français et en anglais pour répondre aux questions courantes:
 - Rendez-vous / Appointment
 - Urgence / Emergency
 - Heures / Hours
@@ -130,18 +130,18 @@ Raison de votre demande * (RDV, Urgence, Question)
 - Paiement en ligne
 - Multilingue (anglais/français)
 
-## Structure du Workflow DENTIRO
+## Structure du Workflow ReactivationFlow
 
 ```
 Patient → Formulaire → Qualification IA → Admin Dashboard → Gestion RDV → SMS Rappels
                           (Automat.)         (Manuel)
 ```
 
-Pour plus de détails sur l'architecture du workflow et la vision à long terme, consultez le document `DENTIRO_Blueprint_Workflow.md`.
+Pour plus de détails sur l'architecture du workflow et la vision à long terme, consultez le document `ReactivationFlow_Blueprint_Workflow.md`.
 
 ## Documentation du Workflow
 
-Le document `DENTIRO_Blueprint_Workflow.md` contient:
+Le document `ReactivationFlow_Blueprint_Workflow.md` contient:
 - Description complète du workflow
 - Recommendations d'outils (Make.com, n8n, Zapier, Twilio, Airtable)
 - Diagramme de flux détaillé
@@ -186,7 +186,7 @@ npm run lint
 
 ## Support et Développement
 
-Pour toute question ou contribution, veuillez contacter l'équipe DENTIRO.
+Pour toute question ou contribution, veuillez contacter l'équipe ReactivationFlow.
 
 ---
 

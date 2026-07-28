@@ -85,7 +85,7 @@ const Promotions = () => {
       };
 
       // Send to webhook
-      const response = await fetch('https://n8n.systemifyautomation.com/webhook/dentisto-offers-and-promotions', {
+      const response = await fetch('https://n8n.systemifyautomation.com/webhook/reactivationflow-offers-and-promotions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -205,11 +205,11 @@ const Promotions = () => {
           <div className="header-content">
             <div className="header-left">
               <img
-                src="/Dentisto Logo.png"
-                alt="Dentisto"
+                src="/reactivationflow-logo.svg"
+                alt="ReactivationFlow"
                 className="brand-logo"
               />
-              <h1>DENTISTO</h1>
+              <h1>ReactivationFlow</h1>
             </div>
             <div className="header-center">
             </div>

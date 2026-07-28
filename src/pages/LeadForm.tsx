@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import PhoneInput, { isValidPhoneNumber, parsePhoneNumber } from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import './LeadForm.css';
+import { useI18n } from '../i18n/I18nContext';
 
 type BookedSlot = {
   start: string;
@@ -13,6 +14,7 @@ type BookedSlot = {
 };
 
 const LeadForm = () => {
+  const { messages } = useI18n();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -225,7 +227,7 @@ const LeadForm = () => {
     }
 
     // 3. Rate limiting - max 3 submissions per IP per hour (using localStorage as proxy)
-    const submissionKey = 'dentisto_form_submissions';
+    const submissionKey = 'reactivationflow_form_submissions';
     const submissions = JSON.parse(localStorage.getItem(submissionKey) || '[]');
     const oneHourAgo = Date.now() - (60 * 60 * 1000);
     const recentSubmissions = submissions.filter((time: number) => time > oneHourAgo);
@@ -310,8 +312,8 @@ const LeadForm = () => {
           {submitted ? (
             <div className="success-message">
               <div className="success-icon">✓</div>
-              <h2>Merci!</h2>
-              <p>Votre demande a été reçue. Notre équipe vous contactera très bientôt.</p>
+              <h2>{messages.form.thanks}</h2>
+              <p>{messages.form.received}</p>
             </div>
           ) : (
             <>
@@ -319,18 +321,18 @@ const LeadForm = () => {
               <div className="progress-indicator">
                 <div className={`progress-step ${currentStep >= 1 ? 'active' : ''}`}>
                   <div className="step-number">1</div>
-                  <div className="step-label">Informations</div>
+                  <div className="step-label">{messages.form.information}</div>
                 </div>
                 <div className="progress-line"></div>
                 <div className={`progress-step ${currentStep >= 2 ? 'active' : ''}`}>
                   <div className="step-number">2</div>
-                  <div className="step-label">Rendez-vous</div>
+                  <div className="step-label">{messages.form.appointment}</div>
                 </div>
               </div>
 
               {currentStep === 1 ? (
                 <form onSubmit={handleNextStep} className="lead-form">
-                  <h2>Vos Informations</h2>
+                  <h2>{messages.form.yourInformation}</h2>
 
                   {/* Honeypot field - hidden from users, bots will fill it */}
                   <input
@@ -346,7 +348,7 @@ const LeadForm = () => {
               
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="name">Nom Complet *</label>
+                  <label htmlFor="name">{messages.form.fullName}</label>
                   <input
                     type="text"
                     id="name"
@@ -359,23 +361,23 @@ const LeadForm = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="phone">Numéro de Téléphone *</label>
+                  <label htmlFor="phone">{messages.form.phone}</label>
                   <PhoneInput
                     international
                     defaultCountry="CA"
                     value={formData.phone}
                     onChange={handlePhoneChange}
-                    placeholder="Enter phone number"
+                    placeholder={messages.form.phonePlaceholder}
                     className={phoneError ? 'phone-input-error' : ''}
                   />
                   {phoneError && <small className="form-error">{phoneError}</small>}
-                  {!phoneError && <small className="form-hint">Vous recevrez un message WhatsApp pour confirmer vos informations</small>}
+                  {!phoneError && <small className="form-hint">{messages.form.whatsappHint}</small>}
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="email">Adresse Email *</label>
+                  <label htmlFor="email">{messages.form.email}</label>
                   <input
                     type="email"
                     id="email"
@@ -385,11 +387,11 @@ const LeadForm = () => {
                     required
                     placeholder="jean@email.com"
                   />
-                  <small className="form-hint">Requis - utilise pour planifier via Google Calendar</small>
+                  <small className="form-hint">{messages.form.emailHint}</small>
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="leadType">Raison de votre demande *</label>
+                  <label htmlFor="leadType">{messages.form.requestReason}</label>
                   <select
                     id="leadType"
                     name="leadType"
@@ -397,53 +399,53 @@ const LeadForm = () => {
                     onChange={handleChange}
                     required
                   >
-                    <option value="appointment">Prendre un rendez-vous</option>
-                    <option value="emergency">Urgence dentaire</option>
-                    <option value="question">Question générale</option>
+                    <option value="appointment">{messages.form.makeAppointment}</option>
+                    <option value="emergency">{messages.form.urgentRequest}</option>
+                    <option value="question">{messages.form.generalQuestion}</option>
                   </select>
                 </div>
               </div>
 
               <div className="form-group">
-                <label htmlFor="description">Description de votre visite</label>
+                <label htmlFor="description">{messages.form.description}</label>
                 <textarea
                   id="description"
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="Décrivez brièvement la raison de votre visite (ex: nettoyage de routine, douleur dentaire, blanchiment, etc.)"
+                  placeholder={messages.form.descriptionPlaceholder}
                   rows={3}
                 />
-                <small className="form-hint">Optionnel - aidez-nous à mieux vous servir</small>
+                <small className="form-hint">{messages.form.optionalHint}</small>
               </div>
 
               <button type="submit" className="submit-button">
-                Suivant
+                {messages.form.next}
               </button>
             </form>
               ) : (
                 <form onSubmit={handleSubmit} className="lead-form step-2-form">
-                  <h2>Choisir une Disponibilité</h2>
+                  <h2>{messages.form.chooseAvailability}</h2>
                   
                   <div className="form-group">
-                    <label htmlFor="dateVisite">Date et heure souhaitées *</label>
+                    <label htmlFor="dateVisite">{messages.form.desiredDate}</label>
                     <DateTimePicker
                       selected={selectedDate}
                       onChange={handleDateChange}
-                      placeholder="Cliquez pour sélectionner une date"
+                      placeholder={messages.form.selectDate}
                       bookedSlots={bookedSlots}
                       availabilityLoading={availabilityLoading}
                       availabilityError={availabilityError}
                     />
-                    <small className="form-hint">Disponibilités: Lundi au Vendredi, 8h00 à 18h00</small>
+                    <small className="form-hint">{messages.form.availability}</small>
                   </div>
 
                   <div className="form-actions">
                     <button type="button" className="back-button" onClick={handlePreviousStep}>
-                      Retour
+                      {messages.form.back}
                     </button>
                     <button type="submit" className="submit-button">
-                      Confirmer le Rendez-vous
+                      {messages.form.confirm}
                     </button>
                   </div>
                 </form>
@@ -453,7 +455,7 @@ const LeadForm = () => {
         </div>
 
         <div className="form-info">
-          <p>Pour toute information ou question, appelez-nous au <a href="tel:+17787447690" className="phone-link"><strong>+17787447690</strong></a> ou utilisez notre chatbot ci-dessous.</p>
+          <p>{messages.form.contact} <a href="tel:+17787447690" className="phone-link"><strong>+17787447690</strong></a> {messages.form.contactEnd}</p>
         </div>
       </div>
 
@@ -461,7 +463,7 @@ const LeadForm = () => {
       <button 
         className="chatbot-toggle"
         onClick={() => setShowChatbot(!showChatbot)}
-        aria-label="Toggle chatbot"
+        aria-label={messages.form.toggleChatbot}
       >
         {showChatbot ? '✕' : (
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 41 41" fill="none" className="chatgpt-logo">

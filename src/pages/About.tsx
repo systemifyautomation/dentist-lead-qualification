@@ -12,11 +12,11 @@ const About: React.FC = () => {
             <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
               <div className="brand-mark">
                 <img
-                  src="/Dentisto Logo.png"
-                  alt="Dentisto"
+                  src="/reactivationflow-logo.svg"
+                  alt="ReactivationFlow"
                   className="brand-logo"
                 />
-                <h1>DENTIRO</h1>
+                <h1>ReactivationFlow</h1>
               </div>
             </Link>
           </div>
@@ -47,12 +47,12 @@ const About: React.FC = () => {
 
       <div className="about-content">
         <section className="about-section">
-          <h2>À Propos de DENTIRO</h2>
+          <h2>À Propos de ReactivationFlow</h2>
           <div className="content-block">
             <p>
-              DENTIRO est une solution complète d'automatisation pour cliniques dentaires, conçue
-              pour optimiser la gestion des leads, les rappels de rendez-vous et la communication
-              avec les patients.
+              ReactivationFlow est une solution complète d'automatisation conçue pour réactiver les
+              contacts inactifs, optimiser la gestion des leads et transformer les conversations en
+              rendez-vous.
             </p>
           </div>
         </section>
@@ -61,9 +61,9 @@ const About: React.FC = () => {
           <h2>Notre Mission</h2>
           <div className="content-block">
             <p>
-              Simplifier la gestion administrative des cabinets dentaires en automatisant les tâches
-              répétitives, permettant ainsi aux professionnels de se concentrer sur l'essentiel :
-              le soin des patients.
+              Simplifier la croissance des entreprises en automatisant les tâches de suivi
+              répétitives, afin que les équipes puissent se concentrer sur les relations et les
+              opportunités qui comptent.
             </p>
           </div>
         </section>
@@ -74,22 +74,22 @@ const About: React.FC = () => {
             <ul>
               <li>
                 <strong>Capture de Leads:</strong> Formulaire web intelligent pour collecter les
-                demandes de rendez-vous
+                demandes et opportunités
               </li>
               <li>
                 <strong>CRM Intégré:</strong> Dashboard admin complet pour gérer tous vos leads et
-                rendez-vous
+                contacts et rendez-vous
               </li>
               <li>
                 <strong>Rappels Automatiques:</strong> Notifications WhatsApp 24h avant chaque
                 rendez-vous
               </li>
               <li>
-                <strong>Gestion No-Shows:</strong> Relance automatique des patients absents avec
+                <strong>Gestion No-Shows:</strong> Relance automatique des contacts absents avec
                 proposition de reprogrammation
               </li>
               <li>
-                <strong>Chatbot IA:</strong> Assistant virtuel Dentisto pour répondre aux questions
+                <strong>Chatbot IA:</strong> Assistant virtuel ReactivationFlow pour répondre aux questions
                 courantes
               </li>
               <li>

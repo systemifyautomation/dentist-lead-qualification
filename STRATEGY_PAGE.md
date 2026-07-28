@@ -1,4 +1,4 @@
-# DENTIRO - Strategy
+# ReactivationFlow - Strategy
 
 ## Specification du projet
 
@@ -40,7 +40,7 @@ Livrables attendus :
 
 ### JSON envoye a n8n
 
-Webhook POST -> https://n8n.systemifyautomation.com/webhook/dentist-leads
+Webhook POST -> https://n8n.systemifyautomation.com/webhook/reactivationflow-leads
 
 ```json
 {
@@ -80,7 +80,7 @@ Etapes:
 5. WhatsApp Business API (envoi WhatsApp au patient)
 
 Image:
-- /Scalint - Leads Workflow.png
+- /ReactivationFlow - Leads Workflow.png
 
 ## Workflow n8n - Disponibilites mensuelles
 
@@ -96,7 +96,7 @@ Recuperer les disponibilites du mois depuis Google Calendar afin de desactiver l
 - Frontend: bloque les creneaux correspondants dans le calendrier
 
 Image:
-- /Scalint - Get Booked Slots.png
+- /ReactivationFlow - Get Booked Slots.png
 
 ## Workflow n8n - Rappel WhatsApp 24h
 
@@ -127,7 +127,7 @@ A bientot! 😊
 ```
 
 Image:
-- /Scalint - Reminder workflow.png
+- /ReactivationFlow - Reminder workflow.png
 
 ## Workflow n8n - Gestion no-show
 
@@ -157,7 +157,7 @@ A bientot! 😊
 ```
 
 Image:
-- /Scalint - No-shows workflow.png
+- /ReactivationFlow - No-shows workflow.png
 
 ## Alternative: Retell AI Voice Service
 

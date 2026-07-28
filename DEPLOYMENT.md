@@ -1,8 +1,8 @@
-# DENTIRO - Guide de Déploiement sur Vercel
+# ReactivationFlow - Guide de Déploiement sur Vercel
 
 ## Vue d'Ensemble
 
-Ce guide vous accompagne dans le déploiement de l'application DENTIRO sur Vercel, de la configuration des webhooks n8n jusqu'à la mise en production.
+Ce guide vous accompagne dans le déploiement de l'application ReactivationFlow sur Vercel, de la configuration des webhooks n8n jusqu'à la mise en production.
 
 ---
 
@@ -13,7 +13,7 @@ Ce guide vous accompagne dans le déploiement de l'application DENTIRO sur Verce
 - [ ] Compte GitHub avec accès au repository
 - [ ] Webhooks n8n configurés pour:
   - Gestion des leads (`VITE_WEBHOOK_LEADS`)
-  - Chatbot Scalint (`VITE_WEBHOOK_CHATBOT`)
+  - Chatbot ReactivationFlow (`VITE_WEBHOOK_CHATBOT`)
 
 ---
 
@@ -23,7 +23,7 @@ Ce guide vous accompagne dans le déploiement de l'application DENTIRO sur Verce
 
 Créez un workflow n8n avec les endpoints suivants:
 
-**Endpoint:** `https://your-n8n-instance.com/webhook/dentist-leads`
+**Endpoint:** `https://your-n8n-instance.com/webhook/reactivationflow-leads`
 
 **Méthodes supportées:**
 - `GET` - Récupération de tous les leads
@@ -48,9 +48,9 @@ Créez un workflow n8n avec les endpoints suivants:
 }
 ```
 
-### 1.2 Webhook pour le Chatbot Scalint
+### 1.2 Webhook pour le Chatbot ReactivationFlow
 
-**Endpoint:** `https://your-n8n-instance.com/webhook/scalint-chatbot`
+**Endpoint:** `https://your-n8n-instance.com/webhook/reactivationflow-chatbot`
 
 **Méthode:** `POST`
 
@@ -82,7 +82,7 @@ Créez un workflow n8n avec les endpoints suivants:
 1. **Connectez votre repository GitHub:**
    - Allez sur [vercel.com](https://vercel.com)
    - Cliquez sur "Add New Project"
-   - Importez le repository `dentist-lead-qualification`
+   - Importez le repository `reactivationflow`
 
 2. **Configuration du projet:**
    - **Framework Preset:** Vite
@@ -96,8 +96,8 @@ Créez un workflow n8n avec les endpoints suivants:
    
    | Variable | Valeur | Description |
    |----------|--------|-------------|
-   | `VITE_WEBHOOK_LEADS` | `https://your-n8n.com/webhook/dentist-leads` | Endpoint n8n pour les leads |
-   | `VITE_WEBHOOK_CHATBOT` | `https://your-n8n.com/webhook/scalint-chatbot` | Endpoint n8n pour le chatbot |
+   | `VITE_WEBHOOK_LEADS` | `https://your-n8n.com/webhook/reactivationflow-leads` | Endpoint n8n pour les leads |
+   | `VITE_WEBHOOK_CHATBOT` | `https://your-n8n.com/webhook/reactivationflow-chatbot` | Endpoint n8n pour le chatbot |
 
 4. **Déploiement:**
    - Cliquez sur "Deploy"
@@ -111,7 +111,7 @@ Créez un workflow n8n avec les endpoints suivants:
 npm install -g vercel
 
 # Déploiement depuis le terminal
-cd dentist-lead-qualification
+cd reactivationflow
 vercel
 
 # Suivez les instructions:
@@ -135,7 +135,7 @@ vercel --prod
 
 1. Allez dans les paramètres du projet sur Vercel
 2. Section "Domains"
-3. Ajoutez votre domaine personnalisé (ex: `dentiro.votreclinique.com`)
+3. Ajoutez votre domaine personnalisé (ex: `reactivationflow.votreclinique.com`)
 4. Suivez les instructions pour configurer les DNS
 
 ### 3.2 Test du Déploiement
@@ -196,7 +196,7 @@ Si vous rencontrez des erreurs CORS, configurez votre workflow n8n:
 
 ### 4.3 Workflow de Qualification Automatique
 
-**Déclencheur:** Webhook `POST /dentist-leads`
+**Déclencheur:** Webhook `POST /reactivationflow-leads`
 
 **Logique:**
 1. Recevoir le nouveau lead
@@ -278,7 +278,7 @@ npm run lint
 - Vérifiez que l'URL du webhook est correcte
 - Testez le webhook directement avec curl:
 ```bash
-curl -X GET https://your-n8n.com/webhook/dentist-leads
+curl -X GET https://your-n8n.com/webhook/reactivationflow-leads
 ```
 - Vérifiez les paramètres CORS sur n8n
 
@@ -318,7 +318,7 @@ Avant de considérer le déploiement comme terminé:
 [Utilisateur Web/Mobile]
        |
        v
-[Vercel CDN] (dentiro.vercel.app)
+[Vercel CDN] (reactivationflow.vercel.app)
        |
        v
 [Application React/Vite]

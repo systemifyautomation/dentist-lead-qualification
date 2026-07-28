@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './NotFound.css';
+import { useI18n } from '../i18n/I18nContext';
 
 const NotFound = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [countdown, setCountdown] = useState(5);
+  const { messages } = useI18n();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -36,15 +38,16 @@ const NotFound = () => {
           <AlertCircle size={80} />
         </div>
         <h1>404</h1>
-        <h2>Page non trouvée</h2>
-        <p>La page que vous recherchez n'existe pas ou a été déplacée.</p>
+        <h2>{messages.notFound.title}</h2>
+        <p>{messages.notFound.description}</p>
         
         <div className="notfound-redirect">
           <p>
-            Redirection automatique vers {user ? 'le CRM' : 'le formulaire'} dans <strong>{countdown}</strong> seconde{countdown > 1 ? 's' : ''}...
+            {messages.notFound.redirect} {user ? messages.notFound.crm : messages.notFound.form}{' '}
+            {messages.notFound.in} <strong>{countdown}</strong> {messages.notFound.seconds}...
           </p>
           <button onClick={handleRedirectNow} className="btn-redirect">
-            Rediriger maintenant
+            {messages.notFound.now}
           </button>
         </div>
       </div>

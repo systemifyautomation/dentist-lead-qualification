@@ -1,15 +1,15 @@
-# DENTIRO - Blueprint Détaillé du Workflow d'Agent IA Réceptionniste
+# ReactivationFlow - Blueprint Détaillé du Workflow d'Agent IA Réceptionniste
 ## Solution de Gestion des Leads et Automatisation des Rappels pour Clinique Dentaire
 
 **Date:** Février 2026  
 **Version:** 2.0 (Avec composant DateTimePicker premium)  
-**Auteur:** Équipe DENTIRO
+**Auteur:** Équipe ReactivationFlow
 
 ---
 
 ## Résumé Exécutif
 
-DENTIRO est une solution intégrée d'automatisation destinée aux cliniques dentaires, capable de qualifier les leads entrants, de gérer les rappels de rendez-vous par SMS, et de relancer proactivement les "no-show" (patients qui ne se présentent pas). 
+ReactivationFlow est une solution intégrée d'automatisation destinée aux cliniques dentaires, capable de qualifier les leads entrants, de gérer les rappels de rendez-vous par SMS, et de relancer proactivement les "no-show" (patients qui ne se présentent pas). 
 
 **NOUVEAUTÉ v2.0:** Cette version inclut un **composant DateTimePicker premium** de classe SaaS, conçu pour offrir une expérience de réservation fluide sur mobile et desktop, intégré directement dans le formulaire de demande initiale et le tableau de bord administrateur.
 
@@ -19,7 +19,7 @@ DENTIRO est une solution intégrée d'automatisation destinée aux cliniques den
 
 ### 1.1 Présentation & Objectif
 
-Le composant **DateTimePicker** est l'interface centrale pour la sélection de rendez-vous dans DENTIRO. Conçu comme un produit SaaS premium, il offre une expérience utilisateur irréprochable sur tous les appareils.
+Le composant **DateTimePicker** est l'interface centrale pour la sélection de rendez-vous dans ReactivationFlow. Conçu comme un produit SaaS premium, il offre une expérience utilisateur irréprochable sur tous les appareils.
 
 **Caractéristiques principales:**
 
@@ -132,11 +132,11 @@ interface DateTimePickerProps {
 
 ---
 
-## 2. Description du Workflow DENTIRO
+## 2. Description du Workflow ReactivationFlow
 
 ### 2.1 Architecture Générale
 
-Le système DENTIRO fonctionne selon trois piliers principaux :
+Le système ReactivationFlow fonctionne selon trois piliers principaux :
 
 1. **Réception et Qualification des Leads**
 2. **Gestion Proactive des Rendez-vous**
@@ -145,7 +145,7 @@ Le système DENTIRO fonctionne selon trois piliers principaux :
 ### 2.2 Flux de Traitement des Leads
 
 #### Étape 1 : Capture du Lead
-- Le patient remplit le formulaire d'admission sur l'application DENTIRO
+- Le patient remplit le formulaire d'admission sur l'application ReactivationFlow
 - Utilise le composant **DateTimePicker** pour sélectionner rendez-vous souhaité
 - Les informations collectées : nom, email, téléphone, type de demande, date/heure, description du besoin
 - Urgency level pour les urgences dentaires
@@ -268,7 +268,7 @@ Coût mensuel estimé:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│               PATIENT REMPLIT FORMULAIRE DENTIRO                │
+│               PATIENT REMPLIT FORMULAIRE ReactivationFlow                │
 │  - Nom, Email, Téléphone                                       │
 │  - Type de demande (RDV/Urgence/Question)                      │
 │  - **SÉLECTIONNE DATE/HEURE via DateTimePicker** ← NOUVEAU    │
@@ -357,25 +357,25 @@ Cabinet Dentaire, 123 Rue de la Paix
 
 Veuillez arriver 10 minutes avant.
 Répondez OUI pour confirmer ou appelez +1-555-123-4567
-DENTIRO Clinic
+ReactivationFlow Clinic
 ```
 
 ### 5.2 SMS de Rappel 24h Avant
 
 ```
-🦷 RAPPEL DENTIRO
+🦷 RAPPEL ReactivationFlow
 Votre rendez-vous est demain à 14:00 avec Dr. Martinez
 📍 Cabinet Dentaire, 123 Rue de la Paix
 
 Confirmez votre venue: Répondez OUI
 Besoin d'annuler? Répondez CANCEL
-Info RDV: www.dentiro.clinic/rdv/ABC123
+Info RDV: www.reactivationflow.com/rdv/ABC123
 ```
 
 ### 5.3 SMS No-Show (15 minutes après RDV manqué)
 
 ```
-⚠️ DENTIRO - Nous vous avons attendu aujourd'hui!
+⚠️ ReactivationFlow - Nous vous avons attendu aujourd'hui!
 
 Rendez-vous manqué: 14:00 avec Dr. Martinez
 Votre créneau a été libéré pour d'autres patients.
@@ -389,11 +389,11 @@ Options:
 ### 5.4 SMS de Relance No-Show (1h après)
 
 ```
-🚨 DENTIRO URGENT
+🚨 ReactivationFlow URGENT
 Vous avez manqué votre RDV d'aujourd'hui à 14:00.
 
 Souhaitez-vous replanifier rapidement?
-👉 Cliquer ici: www.dentiro.clinic/reschedule/ABC123
+👉 Cliquer ici: www.reactivationflow.com/reschedule/ABC123
 
 Questions? Appelez: +1-555-123-4567 (menu option 2)
 ```
@@ -401,7 +401,7 @@ Questions? Appelez: +1-555-123-4567 (menu option 2)
 ### 5.5 SMS - Urgence Dentaire Détectée
 
 ```
-🆘 DENTIRO URGENCE DENTAIRE
+🆘 ReactivationFlow URGENCE DENTAIRE
 Douleur dentaire sévère? Nous avons créneaux AUJOURD'HUI!
 
 📞 Appelez immédiatement: +1-555-DENT-911
@@ -417,7 +417,7 @@ Clinique ouverte jusqu'à 20:00 aujourd'hui.
 ### 6.1 Module 1 : Réception & Qualification du Lead
 
 ```
-Webhook Trigger: POST https://make.com/hook/dentiro-lead
+Webhook Trigger: POST https://make.com/hook/reactivationflow-lead
 ├── Input JSON:
 │   {
 │     "name": "Jean Dupont",
@@ -702,8 +702,8 @@ CI/CD:
 
 ```bash
 # 1. Clone & setup
-git clone https://github.com/dentiro/dentist-lead-qualification
-cd dentist-lead-qualification
+git clone https://github.com/reactivationflow/reactivationflow
+cd reactivationflow
 npm install
 
 # 2. Configure .env
@@ -727,13 +727,13 @@ npm run build
 1. Recevoir lien déploiement live
 2. Partager avec patients (SMS/Email/QR code)
 3. Dashboard admin pour monitoring RDV
-4. Support technique: team@dentiro.clinic
+4. Support technique: team@reactivationflow.com
 
 ---
 
 ## Conclusion
 
-**DENTIRO v2.0** représente une solution complète et production-ready pour automatiser la réservation de rendez-vous dentaires. Le composant **DateTimePicker premium** offre une UX first-class sur tous appareils, tandis que l'orchestration Make.com + IA garantit qualification et rappels fiables.
+**ReactivationFlow v2.0** représente une solution complète et production-ready pour automatiser la réservation de rendez-vous dentaires. Le composant **DateTimePicker premium** offre une UX first-class sur tous appareils, tandis que l'orchestration Make.com + IA garantit qualification et rappels fiables.
 
 **Résultats attendus:**
 - ✅ -40% no-shows via rappels SMS
@@ -748,5 +748,5 @@ npm run build
 
 **Version 2.0 - Février 2026**  
 Avec composant DateTimePicker premium (v1.0)  
-Document confidentiel - Équipe DENTIRO  
-Pour plus d'info: team@dentiro.clinic | www.dentiro.clinic
+Document confidentiel - Équipe ReactivationFlow  
+Pour plus d'info: team@reactivationflow.com | www.reactivationflow.com
