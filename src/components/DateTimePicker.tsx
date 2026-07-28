@@ -79,7 +79,7 @@ const DateTimePicker = ({
       startMs < range.endMs && endMs > range.startMs
     ).length;
     
-    // Block only if 6 or more patients are booked in this slot
+    // Block only if 6 or more contacts are booked in this slot
     return overlappingCount >= 6;
   };
 

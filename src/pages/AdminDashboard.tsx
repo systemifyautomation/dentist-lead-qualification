@@ -935,7 +935,7 @@ const AdminDashboard = () => {
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <Link to="/CRM" className="sidebar-brand" aria-label="ReactivationFlow CRM">
+        <Link to="/" className="sidebar-brand" aria-label="ReactivationFlow CRM">
           <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
           {!sidebarCollapsed && <span>ReactivationFlow</span>}
         </Link>
@@ -948,7 +948,7 @@ const AdminDashboard = () => {
         </button>
         
         <nav className="sidebar-nav">
-          <Link to="/CRM" className={`sidebar-link ${location.pathname === '/CRM' ? 'active' : ''}`}>
+          <Link to="/" className={`sidebar-link ${location.pathname === '/' ? 'active' : ''}`}>
             <LayoutDashboard size={20} />
             {!sidebarCollapsed && <span>CRM</span>}
           </Link>
@@ -956,9 +956,9 @@ const AdminDashboard = () => {
             <UserX size={20} />
             {!sidebarCollapsed && <span>NO-SHOWS</span>}
           </Link>
-          <Link to="/patients-passes" className={`sidebar-link ${location.pathname === '/patients-passes' ? 'active' : ''}`}>
+          <Link to="/contacts-passes" className={`sidebar-link ${location.pathname === '/contacts-passes' ? 'active' : ''}`}>
             <CheckCircle size={20} />
-            {!sidebarCollapsed && <span>PATIENTS PASSÉS</span>}
+            {!sidebarCollapsed && <span>CONTACTS PASSÉS</span>}
           </Link>
           {(user?.role === 'admin' || user?.role === 'super-admin') && (
             <Link to="/promotions" className={`sidebar-link ${location.pathname === '/promotions' ? 'active' : ''}`}>
@@ -1021,17 +1021,6 @@ const AdminDashboard = () => {
                 </button>
               )}
             </div>
-          </div>
-          <div className="header-right">
-            <a
-              className="header-text-button"
-              href="/formulaire"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Ouvrir le formulaire"
-            >
-              Formulaire
-            </a>
           </div>
         </div>
       </header>
@@ -1149,7 +1138,7 @@ const AdminDashboard = () => {
           <div className="leads-list">
             <div className="leads-list-header">
               <div>
-                <h2>{viewMode === 'pipeline' ? 'Pipeline des Leads' : 'Demandes Patients'} ({sortedLeads.length})</h2>
+                <h2>{viewMode === 'pipeline' ? 'Pipeline des Leads' : 'Demandes des contacts'} ({sortedLeads.length})</h2>
                 {viewMode === 'pipeline' && (
                   <p className="pipeline-helper">Glissez une carte vers une autre colonne pour modifier son statut.</p>
                 )}
@@ -1460,7 +1449,7 @@ const AdminDashboard = () => {
                     {(selectedLead.name || '?').trim().charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <span className="details-eyebrow">Fiche patient</span>
+                    <span className="details-eyebrow">Fiche contact</span>
                     <h2 id="lead-details-title">{selectedLead.name || 'Détails de la demande'}</h2>
                     <div className="details-subtitle">
                       <span>{getLeadTypeLabel(selectedLead.leadType)}</span>

@@ -20,7 +20,7 @@ const Login = () => {
   // Redirect to CRM if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      navigate('/CRM', { replace: true });
+      navigate('/', { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate]);
 
@@ -40,7 +40,7 @@ const Login = () => {
       if (result.success) {
         setVerificationMessage('Login successful! Redirecting...');
         setTimeout(() => {
-          navigate('/CRM');
+          navigate('/');
         }, 1000);
       } else {
         setError(result.error || 'Login failed');

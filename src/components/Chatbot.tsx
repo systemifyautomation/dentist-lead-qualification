@@ -88,7 +88,7 @@ const Chatbot = ({ onClose }: ChatbotProps) => {
       };
       
       setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
+    } catch {
       // Fallback error message
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),

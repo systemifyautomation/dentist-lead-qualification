@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import LeadForm from './pages/LeadForm';
 import AdminDashboard from './pages/AdminDashboard';
 import NoShows from './pages/NoShows';
 import PastPatients from './pages/PastPatients';
@@ -23,17 +22,16 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/formulaire" replace />} />
-          <Route path="/formulaire" element={<LeadForm />} />
-          <Route path="/login" element={<Login />} />
-          <Route 
-            path="/CRM" 
+          <Route
+            path="/"
             element={
               <ProtectedRoute>
                 <AdminDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
+          <Route path="/login" element={<Login />} />
+          <Route path="/CRM" element={<Navigate to="/" replace />} />
           <Route 
             path="/no-shows" 
             element={
@@ -43,13 +41,14 @@ function App() {
             } 
           />
           <Route 
-            path="/patients-passes" 
+            path="/contacts-passes"
             element={
               <ProtectedRoute>
                 <PastPatients />
               </ProtectedRoute>
             } 
           />
+          <Route path="/patients-passes" element={<Navigate to="/contacts-passes" replace />} />
           <Route 
             path="/promotions" 
             element={

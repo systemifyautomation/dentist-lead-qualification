@@ -35,10 +35,7 @@ const About: React.FC = () => {
             <Link className="header-text-button" to="/strategy">
               Stratégie
             </Link>
-            <Link className="header-text-button" to="/formulaire">
-              Formulaire
-            </Link>
-            <Link className="header-text-button" to="/CRM">
+            <Link className="header-text-button" to="/">
               CRM
             </Link>
           </div>

@@ -162,7 +162,7 @@ const PastPatients = () => {
         ? data
         : data.value ?? data.leads ?? [];
       // Filter out empty objects (e.g., [{}]) that indicate no leads
-      rawLeads = rawLeads.filter((lead: any) => 
+      rawLeads = rawLeads.filter((lead: ApiLead) =>
         lead && (lead.id || lead.nom || lead.name || lead.email || lead.telephone || lead.phone)
       );
       setLeads(normalizeLeads(rawLeads));
@@ -417,7 +417,7 @@ const PastPatients = () => {
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <Link to="/CRM" className="sidebar-brand" aria-label="ReactivationFlow CRM">
+        <Link to="/" className="sidebar-brand" aria-label="ReactivationFlow CRM">
           <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
           {!sidebarCollapsed && <span>ReactivationFlow</span>}
         </Link>
@@ -430,7 +430,7 @@ const PastPatients = () => {
         </button>
         
         <nav className="sidebar-nav">
-          <Link to="/CRM" className={`sidebar-link ${location.pathname === '/CRM' ? 'active' : ''}`}>
+          <Link to="/" className={`sidebar-link ${location.pathname === '/' ? 'active' : ''}`}>
             <LayoutDashboard size={20} />
             {!sidebarCollapsed && <span>CRM</span>}
           </Link>
@@ -438,9 +438,9 @@ const PastPatients = () => {
             <UserX size={20} />
             {!sidebarCollapsed && <span>NO-SHOWS</span>}
           </Link>
-          <Link to="/patients-passes" className={`sidebar-link ${location.pathname === '/patients-passes' ? 'active' : ''}`}>
+          <Link to="/contacts-passes" className={`sidebar-link ${location.pathname === '/contacts-passes' ? 'active' : ''}`}>
             <CheckCircle size={20} />
-            {!sidebarCollapsed && <span>PATIENTS PASSÉS</span>}
+            {!sidebarCollapsed && <span>CONTACTS PASSÉS</span>}
           </Link>
           {(user?.role === 'admin' || user?.role === 'super-admin') && (
             <Link to="/promotions" className={`sidebar-link ${location.pathname === '/promotions' ? 'active' : ''}`}>
@@ -504,22 +504,11 @@ const PastPatients = () => {
               )}
             </div>
           </div>
-          <div className="header-right">
-            <a
-              className="header-text-button"
-              href="/formulaire"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Ouvrir le formulaire"
-            >
-              Formulaire
-            </a>
-          </div>
         </div>
       </header>
 
       {loading && (
-        <LoadingScreen message="Chargement des patients passés..." />
+        <LoadingScreen message="Chargement des contacts passés..." />
       )}
 
       {error && (
@@ -562,7 +551,7 @@ const PastPatients = () => {
                     <option value="dateVisiteDesc">Dernières visites</option>
                     <option value="dateVisiteAsc">Prochaines visites</option>
                   </optgroup>
-                  <optgroup label="Nom du patient">
+                  <optgroup label="Nom du contact">
                     <option value="nameAsc">A → Z</option>
                     <option value="nameDesc">Z → A</option>
                   </optgroup>
@@ -576,11 +565,11 @@ const PastPatients = () => {
           </div>
           <div className="leads-list">
             <div className="leads-list-header">
-              <h2>Patients Passés ({sortedLeads.length})</h2>
+              <h2>Contacts passés ({sortedLeads.length})</h2>
             </div>
             {sortedLeads.length === 0 ? (
               <div className="empty-state">
-                <p>Aucun patient passé trouvé.</p>
+                <p>Aucun contact passé trouvé.</p>
               </div>
             ) : (
               <div className="leads-grid">

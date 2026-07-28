@@ -348,7 +348,7 @@ const Users = () => {
   return (
     <div className={`users-page ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <Link to="/CRM" className="sidebar-brand" aria-label="ReactivationFlow CRM">
+        <Link to="/" className="sidebar-brand" aria-label="ReactivationFlow CRM">
           <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
           {!sidebarCollapsed && <span>ReactivationFlow</span>}
         </Link>
@@ -361,7 +361,7 @@ const Users = () => {
         </button>
         
         <nav className="sidebar-nav">
-          <Link to="/CRM" className={`sidebar-link ${location.pathname === '/CRM' ? 'active' : ''}`}>
+          <Link to="/" className={`sidebar-link ${location.pathname === '/' ? 'active' : ''}`}>
             <LayoutDashboard size={20} />
             {!sidebarCollapsed && <span>CRM</span>}
           </Link>
@@ -369,9 +369,9 @@ const Users = () => {
             <UserX size={20} />
             {!sidebarCollapsed && <span>NO-SHOWS</span>}
           </Link>
-          <Link to="/patients-passes" className={`sidebar-link ${location.pathname === '/patients-passes' ? 'active' : ''}`}>
+          <Link to="/contacts-passes" className={`sidebar-link ${location.pathname === '/contacts-passes' ? 'active' : ''}`}>
             <CheckCircle size={20} />
-            {!sidebarCollapsed && <span>PATIENTS PASSÉS</span>}
+            {!sidebarCollapsed && <span>CONTACTS PASSÉS</span>}
           </Link>
           {(user?.role === 'admin' || user?.role === 'super-admin') && (
             <Link to="/promotions" className={`sidebar-link ${location.pathname === '/promotions' ? 'active' : ''}`}>
@@ -415,17 +415,6 @@ const Users = () => {
         <header className="admin-header">
           <div className="header-content">
             <div className="header-center">
-            </div>
-            <div className="header-right">
-              <a
-                className="header-text-button"
-                href="/formulaire"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Ouvrir le formulaire"
-              >
-                Formulaire
-              </a>
             </div>
           </div>
         </header>

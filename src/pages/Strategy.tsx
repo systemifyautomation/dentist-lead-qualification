@@ -6,11 +6,11 @@ import './Strategy.css';
 const Strategy: React.FC = () => {
   const [expandedJob, setExpandedJob] = useState(false);
 
-  const jobDescription = `Conception & Blueprint de Workflow d'Agent IA Réceptionniste Simplifié pour Clinique Dentaire
+  const jobDescription = `Conception et blueprint d'un workflow d'agent IA pour entreprise de services
 
 Objectif : Développer un blueprint détaillé pour un workflow automatisé capable de qualifier un nouveau lead, envoyer des rappels RDV personnalisés et relancer les no-shows.`;
 
-  const jobDescriptionFull = `Conception & Blueprint de Workflow d'Agent IA Réceptionniste Simplifié pour Clinique Dentaire
+  const jobDescriptionFull = `Conception et blueprint d'un workflow d'agent IA pour entreprise de services
 
 Objectif : Développer un blueprint détaillé pour un workflow automatisé capable de :
 - Qualifier un nouveau lead venant d'un formulaire web (nom, tel, e-mail, besoin principal)
@@ -51,14 +51,7 @@ Livrables Attendus :
           <div className="header-right">
             <Link
               className="header-text-button"
-              to="/formulaire"
-              title="Nouveau lead"
-            >
-              Formulaire
-            </Link>
-            <Link
-              className="header-text-button"
-              to="/CRM"
+              to="/"
               title="Admin CRM"
             >
               CRM
@@ -105,7 +98,7 @@ Livrables Attendus :
               </div>
               <div className="tool-card">
                 <h3>WhatsApp Business API</h3>
-                <p>Envoi de messages WhatsApp/SMS automatisés aux patients</p>
+                <p>Envoi de messages WhatsApp/SMS automatisés aux contacts</p>
               </div>
             </div>
           </div>
@@ -145,7 +138,7 @@ Livrables Attendus :
   "téléphone": "+1 (514) 123-4567",
   "typeDemande": "appointment",
   "statut": "phone-unconfirmed",
-  "description": "Nettoyage dentaire",
+  "description": "Consultation initiale",
   "dateVisite": "2025-02-25T14:30:00.000Z",
   "url_calendrier": "https://calendar.google.com/calendar/event?eid=evt-001",
   "id_calendrier": "cal_001",
@@ -207,7 +200,7 @@ Livrables Attendus :
 
               <div className="workflow-step step-5">
                 <div className="step-title">5. WhatsApp Business API</div>
-                <p>Envoi WhatsApp au patient</p>
+                <p>Envoi WhatsApp au contact</p>
                 <small>Message généré par OpenAI</small>
               </div>
             </div>
@@ -272,7 +265,7 @@ Livrables Attendus :
               <li><strong>Get row(s):</strong> recupere les leads planifies</li>
               <li><strong>Date & Time:</strong> calcule la difference avec la date de visite</li>
               <li><strong>Filter:</strong> garde uniquement les RDV a moins de 24h</li>
-              <li><strong>Send WhatsApp DM:</strong> envoie le rappel au patient</li>
+              <li><strong>Send WhatsApp DM:</strong> envoie le rappel au contact</li>
             </ul>
 
             <h3>Message WhatsApp</h3>
@@ -370,7 +363,7 @@ Si tu dois annuler ou reprogrammer, réponds à ce message.
           <div className="content-block">
             <h3>Objectif</h3>
             <p>
-              Ce workflow detecte les rendez-vous manques, notifie le patient et met a jour les
+              Ce workflow détecte les rendez-vous manqués, notifie le contact et met à jour les
               enregistrements pour relancer ou reprogrammer.
             </p>
 
@@ -528,7 +521,7 @@ A bientot! 😊`}</pre>
             <div className="voice-ai-container">
               <div className="voice-ai-card">
                 <h3>🎤 Pourquoi une voix IA?</h3>
-                <p>Tous les patients n'ont pas WhatsApp, notamment les personnes âgées qui constituent une part importante de la clientèle dentaire. Une solution de communication vocale élargit la couverture.</p>
+                <p>Tous les contacts n'utilisent pas WhatsApp. Une solution de communication vocale élargit la couverture et rend les rappels accessibles à davantage d'audiences.</p>
               </div>
 
               <div className="voice-ai-card">
@@ -549,7 +542,7 @@ A bientot! 😊`}</pre>
                 <ul>
                   <li>Détection: Lead n'a pas WhatsApp? → Utiliser Retell AI</li>
                   <li>Appel automatisé avec message personnalisé (généré OpenAI)</li>
-                  <li>Patient confirme/annule RDV par voix</li>
+                  <li>Le contact confirme ou annule le rendez-vous par voix</li>
                   <li>Réponse enregistrée → sauvegardée dans base de données</li>
                   <li>CRM mis à jour avec statut de confirmation</li>
                 </ul>
@@ -558,7 +551,7 @@ A bientot! 😊`}</pre>
               <div className="voice-ai-card">
                 <h3>✅ Bénéfices</h3>
                 <ul>
-                  <li><strong>Couverture 100%:</strong> Tous les patients, quelque soit leur technologie</li>
+                  <li><strong>Couverture élargie :</strong> contacts joignables même sans application de messagerie</li>
                   <li><strong>Taux de confirmation ↑:</strong> Les appels vocaux ont meilleur taux de confirmation</li>
                   <li><strong>Réduction no-shows:</strong> Contact direct + rappel vocal = moins d'absences</li>
                   <li><strong>Expérience premium:</strong> Service personnalisé + voix naturelle</li>
@@ -590,10 +583,10 @@ A bientot! 😊`}</pre>
               </li>
               <li>
                 Au lieu de WhatsApp, on peut aussi utiliser Infobip ou Twilio pour les SMS. Toutefois,
-                WhatsApp reste plus interactif et plus user-friendly pour l'expérience patient.
+                WhatsApp reste plus interactif et convivial pour l'expérience du contact.
               </li>
               <li>
-                Cette application utilise Google Calendar côté backend, mais un cabinet dentaire peut
+                Cette application utilise Google Calendar côté backend, mais une entreprise peut
                 utiliser un autre logiciel de planification.
               </li>
               <li>
