@@ -10,16 +10,21 @@ interface I18nValue {
   locale: AppLocale;
   intlLocale: string;
   messages: Messages;
+  setLocale: (locale: AppLocale) => void;
 }
 
 const I18nContext = createContext<I18nValue | null>(null);
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
-  const [locale] = useState<AppLocale>(() => {
+  const [locale, setLocaleState] = useState<AppLocale>(() => {
     const savedLocale = localStorage.getItem('reactivationflow_locale') as AppLocale | null;
     return savedLocale && savedLocale in localeSettings ? savedLocale : appLocale;
   });
   const settings = localeSettings[locale];
+  const setLocale = (nextLocale: AppLocale) => {
+    localStorage.setItem('reactivationflow_locale', nextLocale);
+    setLocaleState(nextLocale);
+  };
 
   useEffect(() => {
     document.documentElement.lang = settings.htmlLang;
@@ -102,10 +107,11 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   }, [locale, settings.direction, settings.htmlLang]);
 
   return (
-    <I18nContext.Provider value={{
+    <I18nContext.Provider key={locale} value={{
       locale,
       intlLocale: settings.intlLocale,
       messages: translations[locale] as Messages,
+      setLocale,
     }}>
       {children}
     </I18nContext.Provider>

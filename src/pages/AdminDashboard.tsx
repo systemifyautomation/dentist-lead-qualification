@@ -666,6 +666,34 @@ const AdminDashboard = () => {
     }
 
     const createdAt = formatMontrealDateTime(new Date());
+    let automationSettings = {
+      appointmentReminders: true,
+      reminderDelay: 24,
+      reminderUnit: 'hours',
+      reviewRequests: true,
+      reviewDelay: 2,
+      reviewUnit: 'hours',
+    };
+    try {
+      automationSettings = {
+        ...automationSettings,
+        ...JSON.parse(localStorage.getItem('reactivationflow_settings') || '{}'),
+      };
+    } catch {
+      // Retain safe automation defaults when device-local settings are invalid.
+    }
+    const unitMilliseconds: Record<string, number> = {
+      minutes: 60_000,
+      hours: 3_600_000,
+      days: 86_400_000,
+    };
+    const reminderDate =
+      automationSettings.appointmentReminders && addLeadSelectedDate
+        ? new Date(
+            addLeadSelectedDate.getTime() -
+              automationSettings.reminderDelay * (unitMilliseconds[automationSettings.reminderUnit] || unitMilliseconds.hours),
+          ).toISOString()
+        : undefined;
     const newLead: Lead = {
       id: Date.now().toString(),
       name: addLeadForm.name,
@@ -679,6 +707,7 @@ const AdminDashboard = () => {
       rescheduleUrl: addLeadForm.rescheduleUrl || undefined,
       cancelUrl: addLeadForm.cancelUrl || undefined,
       reminderSent: addLeadForm.reminderSent,
+      reminderDate,
       dateVisite: addLeadForm.dateVisite || undefined,
       visitValue: addLeadForm.visitValue,
       lifetimeValue: addLeadForm.lifetimeValue,
@@ -698,6 +727,17 @@ const AdminDashboard = () => {
         reschedule_url: newLead.rescheduleUrl,
         cancel_url: newLead.cancelUrl,
         rappelEnvoye: newLead.reminderSent,
+        dateRappel: newLead.reminderDate,
+        configurationRappel: {
+          actif: automationSettings.appointmentReminders,
+          delai: automationSettings.reminderDelay,
+          unite: automationSettings.reminderUnit,
+        },
+        demandeAvis: {
+          actif: automationSettings.reviewRequests,
+          delai: automationSettings.reviewDelay,
+          unite: automationSettings.reviewUnit,
+        },
         dateVisite: newLead.dateVisite,
         valeurVisite: newLead.visitValue,
         valeurAVie: newLead.lifetimeValue,

@@ -59,7 +59,7 @@
   top: 0;
   height: 100vh;
   width: 240px;
-  background: #1a1a1a;
+  background: var(--color-dark-gray);
   border-right: 1px solid #303030;
   display: flex;
   flex-direction: column;
@@ -256,7 +256,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #1a1a1a;
+  background: var(--color-dark-gray);
   color: var(--color-white);
   border-bottom: 1px solid #303030;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);

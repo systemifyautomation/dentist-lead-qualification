@@ -22,6 +22,7 @@ import {
   UserX,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n/I18nContext';
 import { appLocale } from '../config/localization';
 import type { AppLocale } from '../config/localization';
 import './AdminDashboard.css';
@@ -71,6 +72,7 @@ const Settings = () => {
   const [settings, setSettings] = useState<AppSettings>(readSettings);
   const [saved, setSaved] = useState(false);
   const { user, logout } = useAuth();
+  const { setLocale } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -86,11 +88,10 @@ const Settings = () => {
   };
 
   const saveSettings = () => {
-    const previousLanguage = readSettings().language;
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-    localStorage.setItem('reactivationflow_locale', settings.language);
+    setLocale(settings.language);
+    window.dispatchEvent(new CustomEvent('reactivationflow:settings-changed', { detail: settings }));
     setSaved(true);
-    if (previousLanguage !== settings.language) window.location.reload();
   };
 
   const resetColors = () => {
