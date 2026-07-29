@@ -2,11 +2,15 @@ export const supportedLocales = ['fr', 'en', 'ar'] as const;
 
 export type AppLocale = (typeof supportedLocales)[number];
 
+const configuredLocale = import.meta.env.VITE_APP_LOCALE;
+
 /**
- * Application language. Change this value and rebuild the app.
- * Language selection is intentionally not exposed in the user interface.
+ * Application language, configured through VITE_APP_LOCALE in .env.
+ * Unsupported or missing values fall back to English.
  */
-export const appLocale: AppLocale = 'en';
+export const appLocale: AppLocale = supportedLocales.includes(configuredLocale as AppLocale)
+  ? configuredLocale as AppLocale
+  : 'en';
 
 export const localeSettings: Record<AppLocale, { htmlLang: string; direction: 'ltr' | 'rtl'; intlLocale: string }> = {
   fr: { htmlLang: 'fr', direction: 'ltr', intlLocale: 'fr-CA' },

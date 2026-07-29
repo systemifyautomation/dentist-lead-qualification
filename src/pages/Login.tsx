@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Phone, AlertCircle } from 'lucide-react';
+import { Lock, Phone, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import './Login.css';
@@ -10,6 +10,7 @@ import { useI18n } from '../i18n/I18nContext';
 const Login = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState('');
@@ -101,16 +102,29 @@ const Login = () => {
               <Lock size={18} />
               {messages.login.password}
             </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={messages.login.passwordPlaceholder}
-              required
-              autoComplete="current-password"
-              disabled={loading}
-            />
+            <div className="login-password-input">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={messages.login.passwordPlaceholder}
+                required
+                autoComplete="current-password"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                className="login-password-toggle"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
+                title={showPassword ? 'Hide password' : 'Show password'}
+                disabled={loading}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="login-button" disabled={loading}>

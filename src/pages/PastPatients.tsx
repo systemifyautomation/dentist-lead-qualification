@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, LogOut, UserX, CheckCircle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, Megaphone } from 'lucide-react';
+import { Phone, LogOut, UserX, CheckCircle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, Megaphone, Headphones } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import Footer from '../components/Footer';
@@ -182,7 +182,7 @@ const PastPatients = () => {
       case 'phone-confirmed': return 'Confirmé';
       case 'canceled': return 'Annulé';
       case 'no-show': return 'absent';
-      case 'completed': return 'Visite complétée';
+      case 'completed': return 'Complété';
       default: return 'Non confirmé';
     }
   };
@@ -451,6 +451,10 @@ const PastPatients = () => {
           <Link to="/utilisateurs" className={`sidebar-link ${location.pathname === '/utilisateurs' ? 'active' : ''}`}>
             <Users size={20} />
             {!sidebarCollapsed && <span>UTILISATEURS</span>}
+          </Link>
+          <Link to="/support" className={`sidebar-link ${location.pathname === '/support' ? 'active' : ''}`}>
+            <Headphones size={20} />
+            {!sidebarCollapsed && <span>SUPPORT</span>}
           </Link>
         </nav>
         

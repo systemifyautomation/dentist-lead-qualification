@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogOut, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, UserX, CheckCircle, Mail, MessageSquare, Smartphone, Send, Megaphone, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { LogOut, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, UserX, CheckCircle, Mail, MessageSquare, Smartphone, Send, Megaphone, AlertCircle, CheckCircle2, Headphones } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import './AdminDashboard.css';
@@ -175,6 +175,10 @@ const Promotions = () => {
           <Link to="/utilisateurs" className={`sidebar-link ${location.pathname === '/utilisateurs' ? 'active' : ''}`}>
             <Users size={20} />
             {!sidebarCollapsed && <span>UTILISATEURS</span>}
+          </Link>
+          <Link to="/support" className={`sidebar-link ${location.pathname === '/support' ? 'active' : ''}`}>
+            <Headphones size={20} />
+            {!sidebarCollapsed && <span>SUPPORT</span>}
           </Link>
         </nav>
         

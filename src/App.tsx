@@ -6,6 +6,7 @@ import NoShows from './pages/NoShows';
 import PastPatients from './pages/PastPatients';
 import Promotions from './pages/Promotions';
 import Users from './pages/Users';
+import Support from './pages/Support';
 import Login from './pages/Login';
 import Strategy from './pages/Strategy';
 import About from './pages/About';
@@ -64,6 +65,14 @@ function App() {
                 <Users />
               </ProtectedRoute>
             } 
+          />
+          <Route
+            path="/support"
+            element={
+              <ProtectedRoute>
+                <Support />
+              </ProtectedRoute>
+            }
           />
           <Route path="/strategy" element={<Strategy />} />
           <Route path="/about" element={<About />} />

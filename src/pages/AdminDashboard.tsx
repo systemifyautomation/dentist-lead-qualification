@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { DragEvent } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone, GripVertical, EyeOff, Columns3 } from 'lucide-react';
+import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone, GripVertical, EyeOff, Columns3, Headphones } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import DateTimePicker from '../components/DateTimePicker';
@@ -57,7 +57,7 @@ const STATUS_OPTIONS = [
   { value: 'phone-confirmed', label: 'Confirmé', color: '#3b82f6' },
   { value: 'canceled', label: 'Annulé', color: '#9b9b9b' },
   { value: 'no-show', label: 'Absent', color: '#e74c3c' },
-  { value: 'completed', label: 'Visite complétée', color: '#27ae60' }
+  { value: 'completed', label: 'Complété', color: '#27ae60' }
 ];
 
 const STATUS_OPTIONS_WITHOUT_ALL = STATUS_OPTIONS.filter(opt => opt.value !== 'all');
@@ -366,7 +366,7 @@ const AdminDashboard = () => {
       case 'phone-confirmed': return 'Confirmé';
       case 'canceled': return 'Annulé';
       case 'no-show': return 'absent';
-      case 'completed': return 'Visite complétée';
+      case 'completed': return 'Complété';
       default: return 'Non confirmé';
     }
   };
@@ -969,6 +969,10 @@ const AdminDashboard = () => {
           <Link to="/utilisateurs" className={`sidebar-link ${location.pathname === '/utilisateurs' ? 'active' : ''}`}>
             <Users size={20} />
             {!sidebarCollapsed && <span>UTILISATEURS</span>}
+          </Link>
+          <Link to="/support" className={`sidebar-link ${location.pathname === '/support' ? 'active' : ''}`}>
+            <Headphones size={20} />
+            {!sidebarCollapsed && <span>SUPPORT</span>}
           </Link>
         </nav>
         
@@ -1762,7 +1766,7 @@ const AdminDashboard = () => {
             className="modal-backdrop"
             onClick={handleCloseAddLeadModal}
           ></div>
-          <div className="details-modal">
+          <div className="details-modal add-lead-modal">
             <div className="details-header">
               <h2>Ajouter un Lead</h2>
               <div className="details-actions">
@@ -1880,7 +1884,7 @@ const AdminDashboard = () => {
                       value={addLeadForm.description}
                       onChange={(e) => handleAddLeadChange('description', e.target.value)}
                       placeholder="Description de la visite..."
-                      rows={4}
+                      rows={3}
                       style={{ resize: 'vertical', fontFamily: 'inherit' }}
                     />
                   </div>
