@@ -15,6 +15,7 @@ import {
   Paperclip,
   Search,
   Send,
+  Settings,
   UserCircle,
   Users,
   UserX,
@@ -229,6 +230,9 @@ const Support = () => {
           <Link to="/utilisateurs" className="sidebar-link"><Users size={20} />{!sidebarCollapsed && <span>UTILISATEURS</span>}</Link>
           <Link to="/support" className={`sidebar-link ${location.pathname === '/support' ? 'active' : ''}`}>
             <Headphones size={20} />{!sidebarCollapsed && <span>SUPPORT</span>}
+          </Link>
+          <Link to="/settings" className={`sidebar-link ${location.pathname === '/settings' ? 'active' : ''}`}>
+            <Settings size={20} />{!sidebarCollapsed && <span>PARAMÈTRES</span>}
           </Link>
         </nav>
 

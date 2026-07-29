@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { appLocale, localeSettings } from '../config/localization';
 import type { AppLocale } from '../config/localization';
@@ -15,12 +15,16 @@ interface I18nValue {
 const I18nContext = createContext<I18nValue | null>(null);
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
-  const settings = localeSettings[appLocale];
+  const [locale] = useState<AppLocale>(() => {
+    const savedLocale = localStorage.getItem('reactivationflow_locale') as AppLocale | null;
+    return savedLocale && savedLocale in localeSettings ? savedLocale : appLocale;
+  });
+  const settings = localeSettings[locale];
 
   useEffect(() => {
     document.documentElement.lang = settings.htmlLang;
     document.documentElement.dir = settings.direction;
-    const dictionary = uiTranslations[appLocale] as Record<string, string>;
+    const dictionary = uiTranslations[locale] as Record<string, string>;
     const translatableAttributes = ['aria-label', 'alt', 'placeholder', 'title'] as const;
 
     const translateValue = (value: string) => {
@@ -95,13 +99,13 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => observer.disconnect();
-  }, [settings.direction, settings.htmlLang]);
+  }, [locale, settings.direction, settings.htmlLang]);
 
   return (
     <I18nContext.Provider value={{
-      locale: appLocale,
+      locale,
       intlLocale: settings.intlLocale,
-      messages: translations[appLocale] as Messages,
+      messages: translations[locale] as Messages,
     }}>
       {children}
     </I18nContext.Provider>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { DragEvent } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone, GripVertical, EyeOff, Columns3, Headphones } from 'lucide-react';
+import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone, GripVertical, EyeOff, Columns3, Headphones, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import DateTimePicker from '../components/DateTimePicker';
@@ -973,6 +973,10 @@ const AdminDashboard = () => {
           <Link to="/support" className={`sidebar-link ${location.pathname === '/support' ? 'active' : ''}`}>
             <Headphones size={20} />
             {!sidebarCollapsed && <span>SUPPORT</span>}
+          </Link>
+          <Link to="/settings" className={`sidebar-link ${location.pathname === '/settings' ? 'active' : ''}`}>
+            <Settings size={20} />
+            {!sidebarCollapsed && <span>PARAMÈTRES</span>}
           </Link>
         </nav>
         

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, LogOut, UserX, CheckCircle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, Megaphone, Headphones } from 'lucide-react';
+import { Phone, LogOut, UserX, CheckCircle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, Megaphone, Headphones, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import Footer from '../components/Footer';
@@ -455,6 +455,10 @@ const NoShows = () => {
           <Link to="/support" className={`sidebar-link ${location.pathname === '/support' ? 'active' : ''}`}>
             <Headphones size={20} />
             {!sidebarCollapsed && <span>SUPPORT</span>}
+          </Link>
+          <Link to="/settings" className={`sidebar-link ${location.pathname === '/settings' ? 'active' : ''}`}>
+            <Settings size={20} />
+            {!sidebarCollapsed && <span>PARAMÈTRES</span>}
           </Link>
         </nav>
         

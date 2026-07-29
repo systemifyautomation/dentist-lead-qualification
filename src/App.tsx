@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -7,6 +8,7 @@ import PastPatients from './pages/PastPatients';
 import Promotions from './pages/Promotions';
 import Users from './pages/Users';
 import Support from './pages/Support';
+import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Strategy from './pages/Strategy';
 import About from './pages/About';
@@ -18,6 +20,17 @@ import './App.css';
 import { I18nProvider } from './i18n/I18nContext';
 
 function App() {
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('reactivationflow_settings') || '{}');
+      if (saved.primaryColor) document.documentElement.style.setProperty('--color-gold', saved.primaryColor);
+      if (saved.accentColor) document.documentElement.style.setProperty('--color-dark-gray', saved.accentColor);
+      if (saved.backgroundColor) document.documentElement.style.setProperty('--color-light-gray', saved.backgroundColor);
+    } catch {
+      // Ignore invalid device-local preferences and retain the default theme.
+    }
+  }, []);
+
   return (
     <I18nProvider>
       <AuthProvider>
@@ -71,6 +84,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Support />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
               </ProtectedRoute>
             }
           />
