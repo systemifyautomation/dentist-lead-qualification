@@ -2118,8 +2118,10 @@
 
 /* Compact add-lead dialog */
 .add-lead-modal {
+  display: flex;
+  flex-direction: column;
   width: min(720px, calc(100vw - 2rem));
-  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   padding: 0;
   overflow: hidden;
   border: 1px solid #e5e7eb;
@@ -2141,10 +2143,13 @@
 
 .add-lead-modal .details-content {
   display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
   grid-template-columns: minmax(0, 1fr);
-  max-height: calc(100vh - 78px);
+  max-height: none;
   padding: 1.15rem 1.35rem 1.25rem;
   overflow-y: auto;
+  overscroll-behavior: contain;
   gap: 1rem;
   background: #f8f9fb;
 }
@@ -2199,7 +2204,7 @@
 @media (max-width: 600px) {
   .add-lead-modal {
     width: calc(100vw - 1rem);
-    max-height: calc(100vh - 1rem);
+    max-height: calc(100dvh - 1rem);
   }
 
   .add-lead-modal .details-header {
@@ -2207,7 +2212,7 @@
   }
 
   .add-lead-modal .details-content {
-    max-height: calc(100vh - 66px);
+    max-height: none;
     padding: 0.85rem;
   }
 

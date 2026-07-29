@@ -100,7 +100,10 @@
 }
 
 .ticket-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
+  min-height: 0;
   border-right: 1px solid #e6e6e6;
   background: #fbfbfb;
   overflow: hidden;
@@ -169,8 +172,11 @@
 }
 
 .ticket-list {
-  height: calc(100% - 125px);
+  min-height: 0;
+  padding-bottom: 16px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-bottom: 16px;
 }
 
 .ticket-card {
@@ -321,7 +327,9 @@
 .conversation-panel {
   display: grid;
   min-width: 0;
-  grid-template-rows: auto 1fr auto;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
   background: #fff;
 }
 
@@ -412,6 +420,22 @@
   flex: 1;
   background: #ededed;
   content: '';
+}
+
+.conversation-empty {
+  display: grid;
+  max-width: 360px;
+  place-items: center;
+  gap: 10px;
+  margin: 56px auto;
+  color: #999;
+  text-align: center;
+}
+
+.conversation-empty p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
 }
 
 .message-row {
@@ -642,6 +666,8 @@
   .sidebar-collapsed .support-main,
   [dir="rtl"] .support-main,
   [dir="rtl"] .sidebar-collapsed .support-main {
+    display: grid;
+    grid-template-rows: 68px minmax(0, 1fr);
     width: 100%;
     height: 100dvh;
     min-height: 100dvh;
@@ -661,7 +687,8 @@
   }
 
   .support-workspace {
-    height: calc(100dvh - 134px - env(safe-area-inset-bottom));
+    height: auto;
+    min-height: 0;
   }
 
   .ticket-card {
@@ -671,10 +698,6 @@
 
   .ticket-panel-header {
     padding: 15px;
-  }
-
-  .ticket-list {
-    height: calc(100% - 116px);
   }
 
   .conversation-header {

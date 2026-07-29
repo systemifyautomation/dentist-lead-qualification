@@ -140,6 +140,40 @@ const Support = () => {
     );
   };
 
+  const createTicket = () => {
+    const nextTicketNumber =
+      Math.max(
+        ...tickets.map((ticket) => Number(ticket.id.replace(/\D/g, '')) || 0),
+        1000,
+      ) + 1;
+    const contact = user?.name?.trim() || 'Nouvelle demande';
+    const initials =
+      contact
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join('')
+        .toUpperCase() || 'ND';
+    const ticket: Ticket = {
+      id: `SUP-${nextTicketNumber}`,
+      subject: 'Nouvelle demande de support',
+      contact,
+      initials,
+      preview: 'Décrivez votre demande…',
+      updatedAt: 'À l’instant',
+      status: 'Ouvert',
+      priority: 'Normale',
+      unread: 0,
+      messages: [],
+    };
+
+    setTickets((current) => [ticket, ...current]);
+    setSelectedId(ticket.id);
+    setQuery('');
+    setReply('');
+    setShowConversation(true);
+  };
+
   const sendReply = (event: React.FormEvent) => {
     event.preventDefault();
     const body = reply.trim();
@@ -220,7 +254,7 @@ const Support = () => {
             <p className="support-eyebrow">CENTRE D’AIDE</p>
             <h1>Support</h1>
           </div>
-          <button className="support-new-ticket">
+          <button type="button" className="support-new-ticket" onClick={createTicket}>
             <MessageCircle size={18} />
             Nouveau ticket
           </button>
@@ -306,6 +340,12 @@ const Support = () => {
 
             <div className="conversation-messages" aria-live="polite">
               <div className="conversation-date"><span>Aujourd’hui</span></div>
+              {selectedTicket.messages.length === 0 && (
+                <div className="conversation-empty">
+                  <MessageCircle size={24} />
+                  <p>Écrivez un premier message pour démarrer cette conversation.</p>
+                </div>
+              )}
               {selectedTicket.messages.map((message) => (
                 <div key={message.id} className={`message-row ${message.sender}`}>
                   <div className="message-avatar">
