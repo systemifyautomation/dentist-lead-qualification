@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, LogOut, UserX, CheckCircle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, Megaphone, Headphones, Settings } from 'lucide-react';
+import { Phone, LogOut, CheckCircle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, Megaphone, Headphones, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import Footer from '../components/Footer';
@@ -151,21 +151,30 @@ const PastPatients = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${import.meta.env.VITE_WEBHOOK_LEADS}?statut=completed`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch leads: ${response.statusText}`);
+      const statuses = ['completed', 'no-show'];
+      const responses = await Promise.all(
+        statuses.map((status) =>
+          fetch(`${import.meta.env.VITE_WEBHOOK_LEADS}?statut=${encodeURIComponent(status)}`),
+        ),
+      );
+
+      const failedResponse = responses.find((response) => !response.ok);
+      if (failedResponse) {
+        throw new Error(`Failed to fetch leads: ${failedResponse.statusText}`);
       }
-      
-      const data = await response.json();
-      let rawLeads = Array.isArray(data)
-        ? data
-        : data.value ?? data.leads ?? [];
+
+      const payloads = await Promise.all(responses.map((response) => response.json()));
+      let rawLeads = payloads.flatMap((data) =>
+        Array.isArray(data) ? data : data.value ?? data.leads ?? [],
+      );
       // Filter out empty objects (e.g., [{}]) that indicate no leads
       rawLeads = rawLeads.filter((lead: ApiLead) =>
         lead && (lead.id || lead.nom || lead.name || lead.email || lead.telephone || lead.phone)
       );
-      setLeads(normalizeLeads(rawLeads));
+      const uniqueLeads = Array.from(
+        new Map(rawLeads.map((lead: ApiLead) => [String(lead.id), lead])).values(),
+      );
+      setLeads(normalizeLeads(uniqueLeads));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch leads';
       setError(errorMessage);
@@ -433,10 +442,6 @@ const PastPatients = () => {
           <Link to="/" className={`sidebar-link ${location.pathname === '/' ? 'active' : ''}`}>
             <LayoutDashboard size={20} />
             {!sidebarCollapsed && <span>CRM</span>}
-          </Link>
-          <Link to="/no-shows" className={`sidebar-link ${location.pathname === '/no-shows' ? 'active' : ''}`}>
-            <UserX size={20} />
-            {!sidebarCollapsed && <span>NO-SHOWS</span>}
           </Link>
           <Link to="/contacts-passes" className={`sidebar-link ${location.pathname === '/contacts-passes' ? 'active' : ''}`}>
             <CheckCircle size={20} />

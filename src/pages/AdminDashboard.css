@@ -1214,6 +1214,10 @@
 }
 
 .view-switcher button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   padding: 0.55rem 0.85rem;
   border: 0;
   border-radius: 6px;
@@ -1486,6 +1490,74 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
+}
+
+.leads-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: var(--color-white);
+}
+
+.leads-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.leads-table th {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8f9fa;
+  color: #667085;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.leads-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #eef0f2;
+  color: var(--color-black);
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.leads-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+
+.leads-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.leads-table tbody tr:hover,
+.leads-table tbody tr:focus-visible {
+  outline: none;
+  background: #fff9f0;
+}
+
+.leads-table tbody tr.selected {
+  background: #fff4df;
+}
+
+.leads-table td:first-child strong,
+.leads-table td:first-child span {
+  display: block;
+}
+
+.leads-table td:first-child span {
+  max-width: 260px;
+  margin-top: 0.2rem;
+  overflow: hidden;
+  color: var(--color-medium-gray);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .lead-card {

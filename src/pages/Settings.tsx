@@ -19,7 +19,6 @@ import {
   Star,
   UserCircle,
   Users,
-  UserX,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useI18n } from '../i18n/I18nContext';
@@ -117,7 +116,6 @@ const Settings = () => {
 
         <nav className="sidebar-nav">
           <Link to="/" className="sidebar-link"><LayoutDashboard size={20} />{!sidebarCollapsed && <span>CRM</span>}</Link>
-          <Link to="/no-shows" className="sidebar-link"><UserX size={20} />{!sidebarCollapsed && <span>NO-SHOWS</span>}</Link>
           <Link to="/contacts-passes" className="sidebar-link"><CheckCircle size={20} />{!sidebarCollapsed && <span>CONTACTS PASSÉS</span>}</Link>
           {(user?.role === 'admin' || user?.role === 'super-admin') && (
             <Link to="/promotions" className="sidebar-link"><Megaphone size={20} />{!sidebarCollapsed && <span>PROMOTIONS</span>}</Link>

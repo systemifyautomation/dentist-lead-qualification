@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { DragEvent } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone, GripVertical, EyeOff, Columns3, Headphones, Settings } from 'lucide-react';
+import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone, GripVertical, EyeOff, Columns3, Headphones, Settings, LayoutGrid, List } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import DateTimePicker from '../components/DateTimePicker';
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [viewMode, setViewMode] = useState<'list' | 'pipeline'>('pipeline');
+  const [viewMode, setViewMode] = useState<'cards' | 'list' | 'pipeline'>('pipeline');
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<Lead['status'] | null>(null);
   const [pipelineColumnOrder, setPipelineColumnOrder] = useState<string[]>(loadPipelineColumnOrder);
@@ -320,7 +320,7 @@ const AdminDashboard = () => {
     }));
   };
 
-  const fetchLeads = async (mode: 'list' | 'pipeline' = viewMode) => {
+  const fetchLeads = async (mode: 'cards' | 'list' | 'pipeline' = viewMode) => {
     try {
       setLoading(true);
       setError(null);
@@ -992,10 +992,6 @@ const AdminDashboard = () => {
             <LayoutDashboard size={20} />
             {!sidebarCollapsed && <span>CRM</span>}
           </Link>
-          <Link to="/no-shows" className={`sidebar-link ${location.pathname === '/no-shows' ? 'active' : ''}`}>
-            <UserX size={20} />
-            {!sidebarCollapsed && <span>NO-SHOWS</span>}
-          </Link>
           <Link to="/contacts-passes" className={`sidebar-link ${location.pathname === '/contacts-passes' ? 'active' : ''}`}>
             <CheckCircle size={20} />
             {!sidebarCollapsed && <span>CONTACTS PASSÉS</span>}
@@ -1147,7 +1143,7 @@ const AdminDashboard = () => {
         <main className="main-content">
           <div className="leads-toolbar">
             <div className="filters-top">
-              {viewMode === 'list' && (
+              {viewMode !== 'pipeline' && (
                 <div className="filter-group">
                   <label htmlFor="status-filter" className="filter-label">Filtrer par statut</label>
                   <StatusDropdown
@@ -1223,6 +1219,18 @@ const AdminDashboard = () => {
                 <div className="view-switcher" role="group" aria-label="Mode d’affichage">
                   <button
                     type="button"
+                    className={viewMode === 'cards' ? 'active' : ''}
+                    aria-pressed={viewMode === 'cards'}
+                    onClick={() => {
+                      setViewMode('cards');
+                      void fetchLeads('cards');
+                    }}
+                  >
+                    <LayoutGrid size={15} aria-hidden="true" />
+                    Cartes
+                  </button>
+                  <button
+                    type="button"
                     className={viewMode === 'list' ? 'active' : ''}
                     aria-pressed={viewMode === 'list'}
                     onClick={() => {
@@ -1230,6 +1238,7 @@ const AdminDashboard = () => {
                       void fetchLeads('list');
                     }}
                   >
+                    <List size={15} aria-hidden="true" />
                     Liste
                   </button>
                   <button
@@ -1258,7 +1267,7 @@ const AdminDashboard = () => {
               <div className="empty-state">
                 <p>Aucune demande trouvée. Ajustez votre recherche ou votre filtre.</p>
               </div>
-            ) : viewMode === 'list' ? (
+            ) : viewMode === 'cards' ? (
               <div className="leads-grid">
                 {paginatedLeads.map((lead) => (
                   <div
@@ -1313,6 +1322,60 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            ) : viewMode === 'list' ? (
+              <div className="leads-table-wrap">
+                <table className="leads-table">
+                  <thead>
+                    <tr>
+                      <th>Contact</th>
+                      <th>Type</th>
+                      <th>Statut</th>
+                      <th>Visite</th>
+                      <th>Valeur</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedLeads.map((lead) => (
+                      <tr
+                        key={lead.id}
+                        className={selectedLead?.id === lead.id ? 'selected' : ''}
+                        onClick={() => {
+                          setSelectedLead(lead);
+                          setIsEditing(false);
+                          setEditForm(null);
+                          setEditOriginalId(null);
+                        }}
+                        tabIndex={0}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            setSelectedLead(lead);
+                            setIsEditing(false);
+                            setEditForm(null);
+                            setEditOriginalId(null);
+                          }
+                        }}
+                      >
+                        <td>
+                          <strong>{lead.name || 'Sans nom'}</strong>
+                          <span>{lead.email || lead.phone || 'Aucun contact'}</span>
+                        </td>
+                        <td>{getLeadTypeLabel(lead.leadType)}</td>
+                        <td>
+                          <span
+                            className="status-badge"
+                            style={{ backgroundColor: getStatusColor(lead.status) }}
+                          >
+                            {getStatusLabel(lead.status)}
+                          </span>
+                        </td>
+                        <td>{formatMaybeDate(lead.dateVisite)}</td>
+                        <td>{formatCurrency(lead.visitValue)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ) : (
               <div className="pipeline-board" aria-label="Pipeline des leads">
@@ -1451,7 +1514,7 @@ const AdminDashboard = () => {
             )}
           </div>
 
-          {viewMode === 'list' && sortedLeads.length > 0 && (
+          {viewMode !== 'pipeline' && sortedLeads.length > 0 && (
             <div className="pagination">
               <button
                 className="pagination-button"

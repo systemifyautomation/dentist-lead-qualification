@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogOut, Menu, Users as UsersIcon, LayoutDashboard, ChevronLeft, UserCircle, UserPlus, Trash2, Shield, ShieldOff, AlertCircle, Loader2, Key, Eye, EyeOff, UserX, CheckCircle, Megaphone, Headphones, Settings } from 'lucide-react';
+import { LogOut, Menu, Users as UsersIcon, LayoutDashboard, ChevronLeft, UserCircle, UserPlus, Trash2, Shield, ShieldOff, AlertCircle, Loader2, Key, Eye, EyeOff, CheckCircle, Megaphone, Headphones, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import LoadingScreen from '../components/LoadingScreen';
@@ -364,10 +364,6 @@ const Users = () => {
           <Link to="/" className={`sidebar-link ${location.pathname === '/' ? 'active' : ''}`}>
             <LayoutDashboard size={20} />
             {!sidebarCollapsed && <span>CRM</span>}
-          </Link>
-          <Link to="/no-shows" className={`sidebar-link ${location.pathname === '/no-shows' ? 'active' : ''}`}>
-            <UserX size={20} />
-            {!sidebarCollapsed && <span>NO-SHOWS</span>}
           </Link>
           <Link to="/contacts-passes" className={`sidebar-link ${location.pathname === '/contacts-passes' ? 'active' : ''}`}>
             <CheckCircle size={20} />

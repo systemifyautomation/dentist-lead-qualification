@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from './pages/AdminDashboard';
-import NoShows from './pages/NoShows';
 import PastPatients from './pages/PastPatients';
 import Promotions from './pages/Promotions';
 import Users from './pages/Users';
@@ -46,14 +45,7 @@ function App() {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/CRM" element={<Navigate to="/" replace />} />
-          <Route 
-            path="/no-shows" 
-            element={
-              <ProtectedRoute>
-                <NoShows />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/no-shows" element={<Navigate to="/contacts-passes" replace />} />
           <Route 
             path="/contacts-passes"
             element={
