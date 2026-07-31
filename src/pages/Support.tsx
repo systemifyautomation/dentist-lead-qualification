@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import StatusDropdown from '../components/StatusDropdown';
+import SidebarBrand from '../components/SidebarBrand';
 import './AdminDashboard.css';
 import './Support.css';
 
@@ -622,10 +623,7 @@ const Support = () => {
   return (
     <div className={`admin-dashboard support-page ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <Link to="/" className="sidebar-brand" aria-label="ReactivationFlow CRM">
-          <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
-          {!sidebarCollapsed && <span>ReactivationFlow</span>}
-        </Link>
+        <SidebarBrand />
         <button
           className="sidebar-toggle"
           onClick={() => setSidebarCollapsed((collapsed) => !collapsed)}

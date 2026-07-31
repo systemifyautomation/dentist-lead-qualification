@@ -4,6 +4,7 @@ import {
   Bell,
   Check,
   CheckCircle,
+  ChevronDown,
   ChevronLeft,
   Clock3,
   Headphones,
@@ -24,6 +25,7 @@ import { useAuth } from '../context/AuthContext';
 import { useI18n } from '../i18n/I18nContext';
 import { appLocale } from '../config/localization';
 import type { AppLocale } from '../config/localization';
+import SidebarBrand from '../components/SidebarBrand';
 import './AdminDashboard.css';
 import './Settings.css';
 
@@ -102,10 +104,7 @@ const Settings = () => {
   return (
     <div className={`admin-dashboard settings-page ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <Link to="/" className="sidebar-brand" aria-label="ReactivationFlow CRM">
-          <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
-          {!sidebarCollapsed && <span>ReactivationFlow</span>}
-        </Link>
+        <SidebarBrand />
         <button
           className="sidebar-toggle"
           onClick={() => setSidebarCollapsed((collapsed) => !collapsed)}
@@ -164,11 +163,14 @@ const Settings = () => {
             </div>
             <label className="settings-field">
               <span>Langue de l’interface</span>
-              <select value={settings.language} onChange={(event) => update('language', event.target.value as AppLocale)}>
-                <option value="fr">Français</option>
-                <option value="en">English</option>
-                <option value="ar">العربية</option>
-              </select>
+              <span className="settings-select">
+                <select value={settings.language} onChange={(event) => update('language', event.target.value as AppLocale)}>
+                  <option value="fr">Français</option>
+                  <option value="en">English</option>
+                  <option value="ar">العربية</option>
+                </select>
+                <ChevronDown size={17} aria-hidden="true" />
+              </span>
             </label>
           </section>
 
@@ -185,11 +187,14 @@ const Settings = () => {
               <Clock3 size={18} />
               <span>Envoyer</span>
               <input type="number" min="1" value={settings.reminderDelay} disabled={!settings.appointmentReminders} onChange={(event) => update('reminderDelay', Math.max(1, Number(event.target.value)))} />
-              <select value={settings.reminderUnit} disabled={!settings.appointmentReminders} onChange={(event) => update('reminderUnit', event.target.value as TimeUnit)}>
-                <option value="minutes">minutes</option>
-                <option value="hours">heures</option>
-                <option value="days">jours</option>
-              </select>
+              <span className="settings-select compact">
+                <select value={settings.reminderUnit} disabled={!settings.appointmentReminders} onChange={(event) => update('reminderUnit', event.target.value as TimeUnit)}>
+                  <option value="minutes">minutes</option>
+                  <option value="hours">heures</option>
+                  <option value="days">jours</option>
+                </select>
+                <ChevronDown size={15} aria-hidden="true" />
+              </span>
               <span>avant</span>
             </div>
           </section>
@@ -207,11 +212,14 @@ const Settings = () => {
               <Clock3 size={18} />
               <span>Envoyer</span>
               <input type="number" min="1" value={settings.reviewDelay} disabled={!settings.reviewRequests} onChange={(event) => update('reviewDelay', Math.max(1, Number(event.target.value)))} />
-              <select value={settings.reviewUnit} disabled={!settings.reviewRequests} onChange={(event) => update('reviewUnit', event.target.value as TimeUnit)}>
-                <option value="minutes">minutes</option>
-                <option value="hours">heures</option>
-                <option value="days">jours</option>
-              </select>
+              <span className="settings-select compact">
+                <select value={settings.reviewUnit} disabled={!settings.reviewRequests} onChange={(event) => update('reviewUnit', event.target.value as TimeUnit)}>
+                  <option value="minutes">minutes</option>
+                  <option value="hours">heures</option>
+                  <option value="days">jours</option>
+                </select>
+                <ChevronDown size={15} aria-hidden="true" />
+              </span>
               <span>après</span>
             </div>
           </section>

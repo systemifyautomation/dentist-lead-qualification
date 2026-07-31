@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  AlertCircle, Check, CheckCircle, CheckCircle2, ChevronLeft, Headphones,
+  AlertCircle, Check, CheckCircle, CheckCircle2, ChevronDown, ChevronLeft, Headphones,
   LayoutDashboard, LogOut, Mail, Megaphone, Menu, MessageSquare, Send,
   Settings, Smartphone, Sparkles, UserCircle, Users
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useI18n } from '../i18n/I18nContext';
 import Footer from '../components/Footer';
+import SidebarBrand from '../components/SidebarBrand';
 import './AdminDashboard.css';
 
 const Promotions = () => {
@@ -26,6 +27,24 @@ const Promotions = () => {
     { id: 'no-shows', name: p.noShows, description: p.noShowsDescription, icon: AlertCircle },
     { id: 'past-patients', name: p.pastPatients, description: p.pastPatientsDescription, icon: Users },
   ];
+  const campaignVariables = [
+    { token: '{{Prénom}}', label: p.variableFirstName, preview: p.variableFirstNameExample },
+    { token: '{{Nom}}', label: p.variableFullName, preview: p.variableFullNameExample },
+    { token: '{{Email}}', label: p.variableEmail, preview: 'jean@email.com' },
+    { token: '{{Téléphone}}', label: p.variablePhone, preview: '+1 514 555 1234' },
+    { token: '{{DateDernierRDV}}', label: p.variableLastAppointment, preview: p.variableLastAppointmentExample },
+    { token: '{{TypeDemande}}', label: p.variableRequestType, preview: p.variableRequestTypeExample },
+  ];
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+  const [previewChannel, setPreviewChannel] = useState<'email' | 'whatsapp' | 'sms'>('whatsapp');
+  const [isPreviewMenuOpen, setIsPreviewMenuOpen] = useState(false);
+  const previewChannels = [
+    { id: 'email' as const, name: p.email, description: p.emailDescription, icon: Mail, tone: 'blue' },
+    { id: 'whatsapp' as const, name: p.whatsapp, description: p.whatsappDescription, icon: MessageSquare, tone: 'green' },
+    { id: 'sms' as const, name: p.sms, description: p.smsDescription, icon: Smartphone, tone: 'violet' },
+  ];
+  const activePreviewChannel = previewChannels.find(channel => channel.id === previewChannel) ?? previewChannels[1];
+  const ActivePreviewIcon = activePreviewChannel.icon;
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedCampaignTypes, setSelectedCampaignTypes] = useState<string[]>([]);
   const [selectedAudiences, setSelectedAudiences] = useState<string[]>([]);
@@ -58,6 +77,23 @@ const Promotions = () => {
     setModalMessage('');
     setPendingAction(null);
   };
+
+  const insertCampaignVariable = (token: string) => {
+    const textarea = messageRef.current;
+    const start = textarea?.selectionStart ?? campaignBody.length;
+    const end = textarea?.selectionEnd ?? campaignBody.length;
+    const nextBody = `${campaignBody.slice(0, start)}${token}${campaignBody.slice(end)}`;
+    setCampaignBody(nextBody);
+    requestAnimationFrame(() => {
+      textarea?.focus();
+      textarea?.setSelectionRange(start + token.length, start + token.length);
+    });
+  };
+
+  const previewBody = campaignVariables.reduce(
+    (message, variable) => message.replaceAll(variable.token, variable.preview),
+    campaignBody
+  );
 
   const executeSendCampaign = async () => {
     setIsSending(true);
@@ -108,10 +144,7 @@ const Promotions = () => {
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <Link to="/" className="sidebar-brand" aria-label="ReactivationFlow CRM">
-          <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
-          {!sidebarCollapsed && <span>ReactivationFlow</span>}
-        </Link>
+        <SidebarBrand />
         <button className="sidebar-toggle" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           title={sidebarCollapsed ? p.openSidebar : p.closeSidebar}>
           {sidebarCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
@@ -183,7 +216,17 @@ const Promotions = () => {
                   </div>
                   <div className="form-section">
                     <div className="field-label"><label htmlFor="campaign-message">{p.message}</label><span>{campaignBody.length} {p.characters}</span></div>
-                    <textarea id="campaign-message" className="campaign-textarea" value={campaignBody} onChange={e => setCampaignBody(e.target.value)} placeholder={p.messagePlaceholder} rows={7} />
+                    <textarea ref={messageRef} id="campaign-message" className="campaign-textarea" value={campaignBody} onChange={e => setCampaignBody(e.target.value)} placeholder={p.messagePlaceholder} rows={7} />
+                    <div className="campaign-variables" aria-label={p.availableVariables}>
+                      <div className="campaign-variables-heading"><Sparkles size={14} /><span>{p.availableVariables}</span><small>{p.insertVariableHint}</small></div>
+                      <div className="campaign-variable-list">
+                        {campaignVariables.map(variable => (
+                          <button key={variable.token} type="button" title={variable.label} onClick={() => insertCampaignVariable(variable.token)}>
+                            {variable.token}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                     <p className="personalization-hint"><Sparkles size={14} /> {p.personalizationHint}</p>
                   </div>
                 </section>
@@ -192,18 +235,49 @@ const Promotions = () => {
               <aside className="campaign-preview-column">
                 <div className="preview-card">
                   <div className="preview-heading"><span>{p.livePreview}</span><span className="preview-live"><i /> {p.live}</span></div>
-                  <div className="phone-frame">
-                    <div className="phone-top"><span /><span /><span /></div>
-                    <div className="phone-appbar"><span className="preview-avatar">RF</span><div><strong>{p.clinic}</strong><small>{p.online}</small></div></div>
-                    <div className="phone-content">
-                      <div className="message-bubble">
-                        <strong>{campaignHeader || p.previewTitle}</strong>
-                        <p>{p.hello} <span>{`{{${p.firstName}}}`}</span>,</p>
-                        <p>{campaignBody || p.previewMessage}</p>
-                        <time>10:42 ✓✓</time>
+                  <div className="preview-channel-picker" onBlur={event => {
+                    if (!event.currentTarget.contains(event.relatedTarget as Node)) setIsPreviewMenuOpen(false);
+                  }}>
+                    <span className="preview-picker-label">{p.previewChannel}</span>
+                    <button type="button" className={`preview-picker-trigger ${isPreviewMenuOpen ? 'open' : ''}`} aria-haspopup="listbox" aria-expanded={isPreviewMenuOpen} onClick={() => setIsPreviewMenuOpen(open => !open)}>
+                      <span className={`preview-picker-icon ${activePreviewChannel.tone}`}><ActivePreviewIcon size={17} /></span>
+                      <span className="preview-picker-copy"><strong>{activePreviewChannel.name}</strong><small>{activePreviewChannel.description}</small></span>
+                      <ChevronDown className="preview-picker-chevron" size={17} />
+                    </button>
+                    {isPreviewMenuOpen && <div className="preview-picker-menu" role="listbox" aria-label={p.previewChannel}>
+                      {previewChannels.map(({ id, name, description, icon: Icon, tone }) => (
+                        <button key={id} type="button" role="option" aria-selected={previewChannel === id} className={previewChannel === id ? 'selected' : ''} onClick={() => { setPreviewChannel(id); setIsPreviewMenuOpen(false); }}>
+                          <span className={`preview-picker-icon ${tone}`}><Icon size={17} /></span>
+                          <span className="preview-picker-copy"><strong>{name}</strong><small>{description}</small></span>
+                          <span className="preview-picker-check">{previewChannel === id && <Check size={14} />}</span>
+                        </button>
+                      ))}
+                    </div>}
+                  </div>
+                  {previewChannel === 'email' ? (
+                    <div className="email-preview-frame">
+                      <div className="email-preview-toolbar"><Mail size={14} /><span>{p.emailInbox}</span></div>
+                      <div className="email-preview-meta"><span className="preview-avatar">RF</span><div><strong>{p.clinic}</strong><small>{p.toRecipient.replace('{name}', campaignVariables[0].preview)}</small></div></div>
+                      <div className="email-preview-content">
+                        <h3>{campaignHeader || p.previewTitle}</h3>
+                        <p>{p.hello} <strong>{campaignVariables[0].preview}</strong>,</p>
+                        <p>{previewBody || p.previewMessage}</p>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className={`phone-frame ${previewChannel === 'sms' ? 'sms-preview' : 'whatsapp-preview'}`}>
+                      <div className="phone-top"><span /><span /><span /></div>
+                      <div className="phone-appbar"><span className="preview-avatar">RF</span><div><strong>{p.clinic}</strong><small>{previewChannel === 'sms' ? p.textMessage : p.online}</small></div></div>
+                      <div className="phone-content">
+                        <div className="message-bubble">
+                          {previewChannel === 'whatsapp' && <strong>{campaignHeader || p.previewTitle}</strong>}
+                          <p>{p.hello} <span>{campaignVariables[0].preview}</span>,</p>
+                          <p>{previewBody || p.previewMessage}</p>
+                          <time>10:42 {previewChannel === 'whatsapp' ? '✓✓' : ''}</time>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="campaign-summary">
                     <div><span>{p.channels}</span><strong>{selectedCampaignTypes.length || '—'}</strong></div>
                     <div><span>{p.audiences}</span><strong>{selectedAudiences.length || '—'}</strong></div>

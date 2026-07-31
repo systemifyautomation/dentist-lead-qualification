@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogOut, Menu, Users as UsersIcon, LayoutDashboard, ChevronLeft, UserCircle, UserPlus, Trash2, Shield, ShieldOff, AlertCircle, Loader2, Key, Eye, EyeOff, CheckCircle, Megaphone, Headphones, Settings } from 'lucide-react';
+import { LogOut, Menu, Users as UsersIcon, LayoutDashboard, ChevronLeft, UserCircle, UserPlus, UserCheck, Trash2, Shield, AlertCircle, Loader2, Key, Eye, EyeOff, CheckCircle, Megaphone, Headphones, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
 import LoadingScreen from '../components/LoadingScreen';
+import SidebarBrand from '../components/SidebarBrand';
 import './Users.css';
 
 interface User {
@@ -348,10 +349,7 @@ const Users = () => {
   return (
     <div className={`users-page ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <Link to="/" className="sidebar-brand" aria-label="ReactivationFlow CRM">
-          <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
-          {!sidebarCollapsed && <span>ReactivationFlow</span>}
-        </Link>
+        <SidebarBrand />
         <button 
           className="sidebar-toggle"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -457,7 +455,7 @@ const Users = () => {
                 </div>
               </div>
               <div className="stat-card">
-                <ShieldOff size={24} />
+                <UserCheck size={24} />
                 <div className="stat-info">
                   <div className="stat-label">Utilisateurs Standard</div>
                   <div className="stat-value">{users.filter(u => u.role === 'utilisateur').length}</div>
@@ -543,7 +541,7 @@ const Users = () => {
                 >
                   {actionLoading ? (
                     <>
-                      <Loader2 size={16} className="spinner" />
+                      <Loader2 className="users-action-spinner" />
                       <span>Création...</span>
                     </>
                   ) : (
@@ -572,7 +570,7 @@ const Users = () => {
                     <div className="td-phone">{userData.phone_number}</div>
                     <div className="td-role">
                       <span className={`role-badge ${userData.role}`}>
-                        {userData.role === 'super-admin' ? <Shield size={14} /> : userData.role === 'admin' ? <Shield size={14} /> : <ShieldOff size={14} />}
+                        {userData.role === 'super-admin' ? <Shield size={14} /> : userData.role === 'admin' ? <Shield size={14} /> : <UserCheck size={14} />}
                         {getRoleLabel(userData.role)}
                       </span>
                     </div>
@@ -584,7 +582,7 @@ const Users = () => {
                           title="Changer le mot de passe"
                           disabled={actionLoading}
                         >
-                          {actionLoading ? <Loader2 size={16} className="spinner" /> : <Key size={16} />}
+                          {actionLoading ? <Loader2 className="users-action-spinner" /> : <Key size={16} />}
                         </button>
                       )}
                       <button
@@ -593,7 +591,7 @@ const Users = () => {
                         title="Changer le rôle"
                         disabled={actionLoading}
                       >
-                        {actionLoading ? <Loader2 size={16} className="spinner" /> : <Shield size={16} />}
+                        {actionLoading ? <Loader2 className="users-action-spinner" /> : <Shield size={16} />}
                       </button>
                       {(user?.role === 'admin' || user?.role === 'super-admin') && (
                         <button
@@ -602,7 +600,7 @@ const Users = () => {
                           title="Supprimer l'utilisateur"
                           disabled={actionLoading}
                         >
-                          {actionLoading ? <Loader2 size={16} className="spinner" /> : <Trash2 size={16} />}
+                          {actionLoading ? <Loader2 className="users-action-spinner" /> : <Trash2 size={16} />}
                         </button>
                       )}
                     </div>
@@ -753,7 +751,7 @@ const Users = () => {
                 >
                   {actionLoading ? (
                     <>
-                      <Loader2 size={16} className="spinner" />
+                      <Loader2 className="users-action-spinner" />
                       <span>Mise à jour...</span>
                     </>
                   ) : (
@@ -827,7 +825,7 @@ const Users = () => {
                 >
                   {actionLoading ? (
                     <>
-                      <Loader2 size={16} className="spinner" />
+                      <Loader2 className="users-action-spinner" />
                       <span>Suppression...</span>
                     </>
                   ) : (
@@ -898,7 +896,7 @@ const Users = () => {
                 >
                   {actionLoading ? (
                     <>
-                      <Loader2 size={16} className="spinner" />
+                      <Loader2 className="users-action-spinner" />
                       <span>Vérification...</span>
                     </>
                   ) : (

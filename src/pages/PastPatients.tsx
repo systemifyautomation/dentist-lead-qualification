@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import type { Lead } from '../types';
 import Footer from '../components/Footer';
 import LoadingScreen from '../components/LoadingScreen';
+import SidebarBrand from '../components/SidebarBrand';
 import './AdminDashboard.css';
 
 type ApiLead = {
@@ -426,10 +427,7 @@ const PastPatients = () => {
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <Link to="/" className="sidebar-brand" aria-label="ReactivationFlow CRM">
-          <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
-          {!sidebarCollapsed && <span>ReactivationFlow</span>}
-        </Link>
+        <SidebarBrand />
         <button 
           className="sidebar-toggle"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}

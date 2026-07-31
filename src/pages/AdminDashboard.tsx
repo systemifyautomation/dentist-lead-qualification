@@ -9,6 +9,7 @@ import DateTimePicker from '../components/DateTimePicker';
 import StatusDropdown from '../components/StatusDropdown';
 import Footer from '../components/Footer';
 import LoadingScreen from '../components/LoadingScreen';
+import SidebarBrand from '../components/SidebarBrand';
 import './AdminDashboard.css';
 
 type ApiLead = {
@@ -109,6 +110,9 @@ const AdminDashboard = () => {
     { value: 'all', label: cardsText.all, color: '#6b7280' },
     { value: 'phone-unconfirmed', label: cardsText.unconfirmed, color: '#f59e0b' },
     { value: 'phone-confirmed', label: cardsText.confirmed, color: '#3b82f6' },
+    { value: 'canceled', label: cardsText.canceled, color: '#9b9b9b' },
+    { value: 'no-show', label: cardsText.absent, color: '#e74c3c' },
+    { value: 'completed', label: cardsText.completed, color: '#27ae60' },
   ];
   const dateFilterOptions = [
     { value: 'all', label: cardsText.allDates },
@@ -979,10 +983,7 @@ const AdminDashboard = () => {
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <Link to="/" className="sidebar-brand" aria-label="ReactivationFlow CRM">
-          <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
-          {!sidebarCollapsed && <span>ReactivationFlow</span>}
-        </Link>
+        <SidebarBrand />
         <button 
           className="sidebar-toggle"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -1382,7 +1383,7 @@ const AdminDashboard = () => {
                 </table>
               </div>
             ) : (
-              <div className="pipeline-board" aria-label="Pipeline des leads">
+              <div className="pipeline-board" aria-label={cardsText.pipelineTitle}>
                 {visiblePipelineColumns.map(column => {
                   const status = column.value as Lead['status'];
                   const columnLeads = sortedLeads.filter(lead => lead.status === status);

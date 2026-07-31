@@ -39,8 +39,12 @@
   color: #dc2626;
 }
 
-.spinner {
-  animation: spin 1s linear infinite;
+.users-action-spinner {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px;
+  border: 0 !important;
+  animation: spin 0.75s linear infinite;
 }
 
 @keyframes spin {
@@ -411,7 +415,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.52);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -420,9 +425,11 @@
 }
 
 .modal-content {
+  overflow: hidden;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px -18px rgba(15, 23, 42, 0.42);
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
@@ -512,8 +519,28 @@
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem 1.25rem;
   border-top: 1px solid #e2e8f0;
+  background: #fafbfc;
+}
+
+.modal-footer .btn-cancel,
+.modal-footer .btn-save {
+  min-height: 42px;
+  border-radius: 9px;
+}
+
+.modal-footer .btn-save {
+  min-width: 150px;
+  box-shadow: 0 5px 13px rgba(201, 157, 87, 0.2);
+}
+
+.modal-footer .btn-save:disabled {
+  box-shadow: none;
+}
+
+.modal-footer .btn-save .users-action-spinner {
+  color: currentColor;
 }
 
 /* Responsive design */

@@ -134,9 +134,8 @@
   font-weight: 650;
 }
 
-.settings-field select,
+.settings-select select,
 .settings-timing input,
-.settings-timing select,
 .color-field input[type="text"] {
   min-height: 42px;
   border: 1px solid #d9dce1;
@@ -146,13 +145,62 @@
   color: #252525;
 }
 
-.settings-field select {
-  padding: 0 11px;
+.settings-select {
+  position: relative;
+  display: block;
+  min-width: 0;
 }
 
-.settings-field select:focus,
+.settings-select select {
+  width: 100%;
+  padding: 0 42px 0 13px;
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.settings-select > svg {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  color: #8a8d93;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.settings-select:hover select:not(:disabled) {
+  border-color: #c9b181;
+  background: #fffdf8;
+}
+
+.settings-select:hover > svg,
+.settings-select:focus-within > svg {
+  color: #9a7333;
+}
+
+.settings-select:focus-within > svg {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.settings-select select:disabled {
+  cursor: not-allowed;
+}
+
+[dir="rtl"] .settings-select select {
+  padding-right: 13px;
+  padding-left: 42px;
+}
+
+[dir="rtl"] .settings-select > svg {
+  right: auto;
+  left: 13px;
+}
+
+.settings-select select:focus,
 .settings-timing input:focus,
-.settings-timing select:focus,
 .color-field input[type="text"]:focus {
   border-color: var(--color-gold);
   box-shadow: 0 0 0 3px rgba(210, 172, 103, 0.14);
@@ -217,9 +265,29 @@
   padding: 0 9px;
 }
 
-.settings-timing select {
+.settings-timing .settings-select {
   min-width: 92px;
-  padding: 0 9px;
+}
+
+.settings-select.compact select {
+  min-width: 112px;
+  padding-right: 34px;
+  padding-left: 10px;
+  font-size: 0.76rem;
+}
+
+.settings-select.compact > svg {
+  right: 10px;
+}
+
+[dir="rtl"] .settings-select.compact select {
+  padding-right: 10px;
+  padding-left: 34px;
+}
+
+[dir="rtl"] .settings-select.compact > svg {
+  right: auto;
+  left: 10px;
 }
 
 .settings-timing.disabled {
