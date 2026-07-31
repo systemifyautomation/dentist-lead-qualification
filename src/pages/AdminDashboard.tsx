@@ -3,6 +3,7 @@ import type { DragEvent } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone, GripVertical, EyeOff, Columns3, Headphones, Settings, LayoutGrid, List } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n/I18nContext';
 import type { Lead } from '../types';
 import DateTimePicker from '../components/DateTimePicker';
 import StatusDropdown from '../components/StatusDropdown';
@@ -45,12 +46,6 @@ type ApiLead = {
   visitDate?: string;
 };
 
-const STATUS_FILTER_OPTIONS = [
-  { value: 'all', label: 'Tous', color: '#6b7280' },
-  { value: 'phone-unconfirmed', label: 'Non confirmé', color: '#f59e0b' },
-  { value: 'phone-confirmed', label: 'Confirmé', color: '#3b82f6' }
-];
-
 const STATUS_OPTIONS = [
   { value: 'all', label: 'Toutes les demandes', color: '#6b7280' },
   { value: 'phone-unconfirmed', label: 'Non confirmé', color: '#f59e0b' },
@@ -61,19 +56,6 @@ const STATUS_OPTIONS = [
 ];
 
 const STATUS_OPTIONS_WITHOUT_ALL = STATUS_OPTIONS.filter(opt => opt.value !== 'all');
-const DATE_FILTER_OPTIONS = [
-  { value: 'all', label: 'Toutes les dates' },
-  { value: 'today', label: "Aujourd’hui" },
-  { value: 'tomorrow', label: 'Demain' },
-];
-const SORT_OPTIONS = [
-  { value: 'dateVisiteAsc', label: 'Visites à venir' },
-  { value: 'dateVisiteDesc', label: 'Visites les plus éloignées' },
-  { value: 'nameAsc', label: 'Nom — A à Z' },
-  { value: 'nameDesc', label: 'Nom — Z à A' },
-  { value: 'createdDesc', label: 'Création — plus récentes' },
-  { value: 'createdAsc', label: 'Création — plus anciennes' },
-];
 const LEAD_TYPE_OPTIONS = [
   { value: 'appointment', label: 'Rendez-vous' },
   { value: 'emergency', label: 'Urgence' },
@@ -121,6 +103,26 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
+  const { messages, intlLocale } = useI18n();
+  const cardsText = messages.crmCards;
+  const statusFilterOptions = [
+    { value: 'all', label: cardsText.all, color: '#6b7280' },
+    { value: 'phone-unconfirmed', label: cardsText.unconfirmed, color: '#f59e0b' },
+    { value: 'phone-confirmed', label: cardsText.confirmed, color: '#3b82f6' },
+  ];
+  const dateFilterOptions = [
+    { value: 'all', label: cardsText.allDates },
+    { value: 'today', label: cardsText.today },
+    { value: 'tomorrow', label: cardsText.tomorrow },
+  ];
+  const sortOptions = [
+    { value: 'dateVisiteAsc', label: cardsText.upcomingVisits },
+    { value: 'dateVisiteDesc', label: cardsText.distantVisits },
+    { value: 'nameAsc', label: cardsText.nameAZ },
+    { value: 'nameDesc', label: cardsText.nameZA },
+    { value: 'createdDesc', label: cardsText.newest },
+    { value: 'createdAsc', label: cardsText.oldest },
+  ];
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -362,12 +364,12 @@ const AdminDashboard = () => {
 
   const getStatusLabel = (status: Lead['status']) => {
     switch (status) {
-      case 'phone-unconfirmed': return 'Non confirmé';
-      case 'phone-confirmed': return 'Confirmé';
-      case 'canceled': return 'Annulé';
-      case 'no-show': return 'absent';
-      case 'completed': return 'Complété';
-      default: return 'Non confirmé';
+      case 'phone-unconfirmed': return cardsText.unconfirmed;
+      case 'phone-confirmed': return cardsText.confirmed;
+      case 'canceled': return cardsText.canceled;
+      case 'no-show': return cardsText.absent;
+      case 'completed': return cardsText.completed;
+      default: return cardsText.unconfirmed;
     }
   };
 
@@ -539,17 +541,19 @@ const AdminDashboard = () => {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const timeString = `${hours}:${minutes}`;
     
+    const relativeDays = new Intl.RelativeTimeFormat(intlLocale, { numeric: 'auto' });
+
     // Check if date is yesterday, today, or tomorrow
     if (dateOnly.getTime() === yesterdayOnly.getTime()) {
-      return `Hier à ${timeString}`;
+      return `${relativeDays.format(-1, 'day')} ${timeString}`;
     } else if (dateOnly.getTime() === todayOnly.getTime()) {
-      return `Aujourd'hui à ${timeString}`;
+      return `${relativeDays.format(0, 'day')} ${timeString}`;
     } else if (dateOnly.getTime() === tomorrowOnly.getTime()) {
-      return `Demain à ${timeString}`;
+      return `${relativeDays.format(1, 'day')} ${timeString}`;
     }
     
     // Default format for other dates
-    const dateStr = date.toLocaleDateString('fr-CA', {
+    const dateStr = date.toLocaleDateString(intlLocale, {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
@@ -565,12 +569,12 @@ const AdminDashboard = () => {
   };
 
   const getLeadTypeLabel = (leadType: Lead['leadType']) => {
-    return leadType === 'appointment' ? 'rendez-vous' : leadType === 'emergency' ? 'urgence' : 'question';
+    return leadType === 'appointment' ? cardsText.appointment : leadType === 'emergency' ? cardsText.emergency : cardsText.question;
   };
 
   const formatYesNo = (value?: boolean) => (value ? 'Oui' : 'Non');
 
-  const formatCurrency = (value?: number) => new Intl.NumberFormat('fr-CA', {
+  const formatCurrency = (value?: number) => new Intl.NumberFormat(intlLocale, {
     style: 'currency',
     currency: 'CAD'
   }).format(value ?? 0);
@@ -1050,7 +1054,7 @@ const AdminDashboard = () => {
               <span className="header-search-icon">⌕</span>
               <input
                 type="text"
-                placeholder="Rechercher..."
+                placeholder={cardsText.search}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="header-search-input"
@@ -1059,7 +1063,7 @@ const AdminDashboard = () => {
                 <button
                   className="header-search-clear"
                   onClick={() => setSearchQuery('')}
-                  aria-label="Effacer la recherche"
+                  aria-label={cardsText.clearSearch}
                 >
                   ×
                 </button>
@@ -1070,13 +1074,13 @@ const AdminDashboard = () => {
       </header>
 
       {loading && (
-        <LoadingScreen message="Chargement des demandes..." />
+        <LoadingScreen message={cardsText.loading} />
       )}
 
       {error && (
         <div className="error-container">
           <p>⚠️ {error}</p>
-          <button onClick={() => void fetchLeads(viewMode)} className="retry-button">Réessayer</button>
+          <button onClick={() => void fetchLeads(viewMode)} className="retry-button">{cardsText.retry}</button>
         </div>
       )}
 
@@ -1088,7 +1092,7 @@ const AdminDashboard = () => {
               <Calendar size={28} strokeWidth={2} />
             </div>
             <div className="kpi-content">
-              <div className="kpi-label">Visites Aujourd'hui</div>
+              <div className="kpi-label">{cardsText.visitsToday}</div>
               <div className="kpi-value">
                 {leads.filter(l => {
                   if (!l.dateVisite) return false;
@@ -1103,7 +1107,7 @@ const AdminDashboard = () => {
               <UserX size={28} strokeWidth={2} />
             </div>
             <div className="kpi-content">
-              <div className="kpi-label">No-Shows Aujourd'hui</div>
+              <div className="kpi-label">{cardsText.noShowsToday}</div>
               <div className="kpi-value">
                 {leads.filter(l => {
                   if (!l.dateVisite || l.status !== 'no-show') return false;
@@ -1118,7 +1122,7 @@ const AdminDashboard = () => {
               <AlertTriangle size={28} strokeWidth={2} />
             </div>
             <div className="kpi-content">
-              <div className="kpi-label">Urgences Aujourd'hui</div>
+              <div className="kpi-label">{cardsText.emergenciesToday}</div>
               <div className="kpi-value">
                 {leads.filter(l => {
                   if (l.leadType !== 'emergency') return false;
@@ -1145,36 +1149,36 @@ const AdminDashboard = () => {
             <div className="filters-top">
               {viewMode !== 'pipeline' && (
                 <div className="filter-group">
-                  <label htmlFor="status-filter" className="filter-label">Filtrer par statut</label>
+                  <label htmlFor="status-filter" className="filter-label">{cardsText.filterStatus}</label>
                   <StatusDropdown
                     value={filterStatus}
                     onChange={setFilterStatus}
-                    options={STATUS_FILTER_OPTIONS}
+                    options={statusFilterOptions}
                     className="filter-context white-variant"
                   />
                 </div>
               )}
               <div className="filter-group">
-                <label className="filter-label">Filtrer par date</label>
+                <label className="filter-label">{cardsText.filterDate}</label>
                 <StatusDropdown
                   value={dateFilter}
                   onChange={(value) => {
                     setDateFilter(value as typeof dateFilter);
                     setCurrentPage(1);
                   }}
-                  options={DATE_FILTER_OPTIONS}
+                  options={dateFilterOptions}
                   className="filter-context"
-                  ariaLabel="Filtrer par date"
+                  ariaLabel={cardsText.filterDate}
                 />
               </div>
               <div className="filter-group">
-                <label className="filter-label">Trier par</label>
+                <label className="filter-label">{cardsText.sortBy}</label>
                 <StatusDropdown
                   value={sortOrder}
                   onChange={(value) => setSortOrder(value as typeof sortOrder)}
-                  options={SORT_OPTIONS}
+                  options={sortOptions}
                   className="filter-context"
-                  ariaLabel="Trier les leads"
+                  ariaLabel={cardsText.sortLeads}
                 />
               </div>
             </div>
@@ -1182,7 +1186,7 @@ const AdminDashboard = () => {
           <div className="leads-list">
             <div className="leads-list-header">
               <div>
-                <h2>{viewMode === 'pipeline' ? 'Pipeline des Leads' : 'Demandes des contacts'} ({sortedLeads.length})</h2>
+                <h2>{viewMode === 'pipeline' ? cardsText.pipelineTitle : cardsText.requests} ({sortedLeads.length})</h2>
                 {viewMode === 'pipeline' && (
                   <p className="pipeline-helper">Glissez une carte vers une autre colonne pour modifier son statut.</p>
                 )}
@@ -1216,7 +1220,7 @@ const AdminDashboard = () => {
                     </div>
                   </details>
                 )}
-                <div className="view-switcher" role="group" aria-label="Mode d’affichage">
+                <div className="view-switcher" role="group" aria-label={cardsText.viewMode}>
                   <button
                     type="button"
                     className={viewMode === 'cards' ? 'active' : ''}
@@ -1227,7 +1231,7 @@ const AdminDashboard = () => {
                     }}
                   >
                     <LayoutGrid size={15} aria-hidden="true" />
-                    Cartes
+                    {cardsText.cards}
                   </button>
                   <button
                     type="button"
@@ -1239,7 +1243,7 @@ const AdminDashboard = () => {
                     }}
                   >
                     <List size={15} aria-hidden="true" />
-                    Liste
+                    {cardsText.list}
                   </button>
                   <button
                     type="button"
@@ -1251,7 +1255,7 @@ const AdminDashboard = () => {
                       void fetchLeads('pipeline');
                     }}
                   >
-                    Pipeline
+                    {cardsText.pipeline}
                   </button>
                 </div>
                 <button
@@ -1259,13 +1263,13 @@ const AdminDashboard = () => {
                   className="add-lead-button"
                   onClick={() => setShowAddLeadModal(true)}
                 >
-                  + Ajouter Lead
+                  {cardsText.addLead}
                 </button>
               </div>
             </div>
             {sortedLeads.length === 0 ? (
               <div className="empty-state">
-                <p>Aucune demande trouvée. Ajustez votre recherche ou votre filtre.</p>
+                <p>{cardsText.empty}</p>
               </div>
             ) : viewMode === 'cards' ? (
               <div className="leads-grid">
@@ -1290,15 +1294,15 @@ const AdminDashboard = () => {
                       </span>
                     </div>
                     <div className="lead-card-info">
-                      <p><strong>{lead.leadType === 'appointment' ? 'Demande RDV' : lead.leadType === 'emergency' ? 'Urgence' : 'Question'}</strong></p>
+                      <p><strong>{lead.leadType === 'appointment' ? cardsText.appointmentRequest : lead.leadType === 'emergency' ? cardsText.emergency : cardsText.question}</strong></p>
                       <div className="lead-meta-row">
                         <span className="lead-meta">{lead.email}</span>
                         <a
                           className="lead-icon-button"
                           href={`mailto:${lead.email}`}
                           onClick={(e) => e.stopPropagation()}
-                          aria-label={`Email ${lead.name}`}
-                          title="Envoyer un email"
+                          aria-label={`${cardsText.email} ${lead.name}`}
+                          title={cardsText.email}
                         >
                           <svg viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm0 2 8 5 8-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -1311,14 +1315,14 @@ const AdminDashboard = () => {
                           className="lead-icon-button"
                           href={`tel:${lead.phone}`}
                           onClick={(e) => e.stopPropagation()}
-                          aria-label={`Appeler ${lead.name}`}
-                          title="Appeler"
+                          aria-label={`${cardsText.call} ${lead.name}`}
+                          title={cardsText.call}
                         >
                           <Phone size={16} strokeWidth={1.6} aria-hidden="true" />
                         </a>
                       </div>
-                      <p className="lead-date">Visite: {formatMaybeDate(lead.dateVisite)}</p>
-                      <p className="lead-date">Valeur: {formatCurrency(lead.visitValue)}</p>
+                      <p className="lead-date">{cardsText.visit}: {formatMaybeDate(lead.dateVisite)}</p>
+                      <p className="lead-date">{cardsText.value}: {formatCurrency(lead.visitValue)}</p>
                     </div>
                   </div>
                 ))}
@@ -1521,17 +1525,17 @@ const AdminDashboard = () => {
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={safePage === 1}
               >
-                Precedent
+                {cardsText.previous}
               </button>
               <div className="pagination-info">
-                Page {safePage} sur {totalPages} · {startIndex + 1}-{Math.min(endIndex, sortedLeads.length)} sur {sortedLeads.length}
+                {cardsText.page} {safePage} {cardsText.of} {totalPages} · {startIndex + 1}-{Math.min(endIndex, sortedLeads.length)} {cardsText.of} {sortedLeads.length}
               </div>
               <button
                 className="pagination-button"
                 onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                 disabled={safePage === totalPages}
               >
-                Suivant
+                {cardsText.next}
               </button>
             </div>
           )}

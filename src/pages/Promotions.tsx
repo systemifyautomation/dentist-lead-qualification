@@ -1,7 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LogOut, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Mail, MessageSquare, Smartphone, Send, Megaphone, AlertCircle, CheckCircle2, Headphones, Settings } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  AlertCircle, Check, CheckCircle, CheckCircle2, ChevronLeft, Headphones,
+  LayoutDashboard, LogOut, Mail, Megaphone, Menu, MessageSquare, Send,
+  Settings, Smartphone, Sparkles, UserCircle, Users
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n/I18nContext';
 import Footer from '../components/Footer';
 import './AdminDashboard.css';
 
@@ -9,6 +14,18 @@ const Promotions = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
+  const { messages } = useI18n();
+  const p = messages.promotions;
+  const channels = [
+    { id: 'email', name: p.email, description: p.emailDescription, icon: Mail, tone: 'blue' },
+    { id: 'whatsapp', name: p.whatsapp, description: p.whatsappDescription, icon: MessageSquare, tone: 'green' },
+    { id: 'sms', name: p.sms, description: p.smsDescription, icon: Smartphone, tone: 'violet' },
+  ];
+  const audiences = [
+    { id: 'leads', name: p.leads, description: p.leadsDescription, icon: Sparkles },
+    { id: 'no-shows', name: p.noShows, description: p.noShowsDescription, icon: AlertCircle },
+    { id: 'past-patients', name: p.pastPatients, description: p.pastPatientsDescription, icon: Users },
+  ];
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedCampaignTypes, setSelectedCampaignTypes] = useState<string[]>([]);
   const [selectedAudiences, setSelectedAudiences] = useState<string[]>([]);
@@ -20,40 +37,19 @@ const Promotions = () => {
   const [modalMessage, setModalMessage] = useState('');
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  // Check if user has permission (admin or super-admin only)
   useEffect(() => {
-    if (user && user.role !== 'admin' && user.role !== 'super-admin') {
-      navigate('/');
-    }
+    if (user && user.role !== 'admin' && user.role !== 'super-admin') navigate('/');
   }, [user, navigate]);
 
-  const handleCampaignTypeToggle = (type: string) => {
-    setSelectedCampaignTypes(prev => {
-      if (prev.includes(type)) {
-        return prev.filter(t => t !== type);
-      } else {
-        return [...prev, type];
-      }
-    });
-  };
-
-  const handleAudienceToggle = (audience: string) => {
-    setSelectedAudiences(prev => {
-      if (prev.includes(audience)) {
-        return prev.filter(a => a !== audience);
-      } else {
-        return [...prev, audience];
-      }
-    });
+  const toggle = (value: string, values: string[], setter: React.Dispatch<React.SetStateAction<string[]>>) => {
+    setter(values.includes(value) ? values.filter(item => item !== value) : [...values, value]);
   };
 
   const showModalMessage = (type: 'error' | 'success' | 'confirm', message: string, action?: () => void) => {
     setModalType(type);
     setModalMessage(message);
     setShowModal(true);
-    if (action) {
-      setPendingAction(() => action);
-    }
+    setPendingAction(action ? () => action : null);
   };
 
   const closeModal = () => {
@@ -63,80 +59,51 @@ const Promotions = () => {
     setPendingAction(null);
   };
 
-  const confirmModal = () => {
-    if (pendingAction) {
-      pendingAction();
-    }
-    closeModal();
-  };
-
   const executeSendCampaign = async () => {
-
     setIsSending(true);
-
     try {
-      // Prepare campaign data
-      const campaignData = {
-        types: selectedCampaignTypes,
-        header: campaignHeader,
-        body: campaignBody,
-        audiences: selectedAudiences,
-        timestamp: new Date().toISOString()
-      };
-
-      // Send to webhook
       const response = await fetch('https://n8n.systemifyautomation.com/webhook/reactivationflow-offers-and-promotions', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(campaignData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          types: selectedCampaignTypes,
+          header: campaignHeader,
+          body: campaignBody,
+          audiences: selectedAudiences,
+          timestamp: new Date().toISOString()
+        })
       });
-
-      if (response.ok) {
-        const channelText = selectedCampaignTypes.join(', ');
-        showModalMessage('success', `Campagne(s) envoyée(s) avec succès via ${channelText}!`);
-        // Reset form
-        setCampaignHeader('');
-        setCampaignBody('');
-        setSelectedCampaignTypes([]);
-        setSelectedAudiences([]);
-      } else {
-        throw new Error('Failed to send campaign');
-      }
+      if (!response.ok) throw new Error('Failed to send campaign');
+      showModalMessage('success', p.sendSuccess.replace('{channels}', selectedCampaignTypes.join(', ')));
+      setCampaignHeader('');
+      setCampaignBody('');
+      setSelectedCampaignTypes([]);
+      setSelectedAudiences([]);
     } catch (error) {
       console.error('Campaign send error:', error);
-      showModalMessage('error', 'Erreur lors de l\'envoi de la campagne. Veuillez réessayer.');
+      showModalMessage('error', p.sendError);
     } finally {
       setIsSending(false);
     }
   };
 
   const handleSendCampaign = () => {
-    if (selectedCampaignTypes.length === 0) {
-      showModalMessage('error', 'Veuillez sélectionner au moins un canal de campagne');
-      return;
-    }
-
-    if (selectedAudiences.length === 0) {
-      showModalMessage('error', 'Veuillez sélectionner au moins une audience');
-      return;
-    }
-
-    if (!campaignHeader.trim()) {
-      showModalMessage('error', 'Veuillez entrer un en-tête');
-      return;
-    }
-
-    if (!campaignBody.trim()) {
-      showModalMessage('error', 'Veuillez entrer un message');
-      return;
-    }
-
-    const channelText = selectedCampaignTypes.join(', ');
-    const confirmMessage = `Êtes-vous sûr de vouloir envoyer cette campagne via ${channelText} ?`;
-    showModalMessage('confirm', confirmMessage, executeSendCampaign);
+    if (!selectedCampaignTypes.length) return showModalMessage('error', p.selectChannel);
+    if (!selectedAudiences.length) return showModalMessage('error', p.selectAudience);
+    if (!campaignHeader.trim()) return showModalMessage('error', p.addTitle);
+    if (!campaignBody.trim()) return showModalMessage('error', p.addMessage);
+    showModalMessage(
+      'confirm',
+      p.sendQuestion.replace('{channels}', selectedCampaignTypes.join(', ')),
+      executeSendCampaign
+    );
   };
+
+  const completedSteps = [
+    selectedCampaignTypes.length > 0,
+    selectedAudiences.length > 0,
+    Boolean(campaignHeader.trim() && campaignBody.trim())
+  ].filter(Boolean).length;
 
   return (
     <div className={`admin-dashboard ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
@@ -145,232 +112,127 @@ const Promotions = () => {
           <img src="/reactivationflow-logo.svg" alt="" className="sidebar-brand-logo" />
           {!sidebarCollapsed && <span>ReactivationFlow</span>}
         </Link>
-        <button 
-          className="sidebar-toggle"
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          title={sidebarCollapsed ? 'Ouvrir la barre latérale' : 'Fermer la barre latérale'}
-        >
+        <button className="sidebar-toggle" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          title={sidebarCollapsed ? p.openSidebar : p.closeSidebar}>
           {sidebarCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
         </button>
-        
         <nav className="sidebar-nav">
-          <Link to="/" className={`sidebar-link ${location.pathname === '/' ? 'active' : ''}`}>
-            <LayoutDashboard size={20} />
-            {!sidebarCollapsed && <span>CRM</span>}
-          </Link>
-          <Link to="/contacts-passes" className={`sidebar-link ${location.pathname === '/contacts-passes' ? 'active' : ''}`}>
-            <CheckCircle size={20} />
-            {!sidebarCollapsed && <span>CONTACTS PASSÉS</span>}
-          </Link>
-          {(user?.role === 'admin' || user?.role === 'super-admin') && (
-            <Link to="/promotions" className={`sidebar-link ${location.pathname === '/promotions' ? 'active' : ''}`}>
-              <Megaphone size={20} />
-              {!sidebarCollapsed && <span>PROMOTIONS</span>}
-            </Link>
-          )}
-          <Link to="/utilisateurs" className={`sidebar-link ${location.pathname === '/utilisateurs' ? 'active' : ''}`}>
-            <Users size={20} />
-            {!sidebarCollapsed && <span>UTILISATEURS</span>}
-          </Link>
-          <Link to="/support" className={`sidebar-link ${location.pathname === '/support' ? 'active' : ''}`}>
-            <Headphones size={20} />
-            {!sidebarCollapsed && <span>SUPPORT</span>}
-          </Link>
-          <Link to="/settings" className={`sidebar-link ${location.pathname === '/settings' ? 'active' : ''}`}>
-            <Settings size={20} />
-            {!sidebarCollapsed && <span>PARAMÈTRES</span>}
-          </Link>
+          <Link to="/" className={`sidebar-link ${location.pathname === '/' ? 'active' : ''}`}><LayoutDashboard size={20} />{!sidebarCollapsed && <span>CRM</span>}</Link>
+          <Link to="/contacts-passes" className={`sidebar-link ${location.pathname === '/contacts-passes' ? 'active' : ''}`}><CheckCircle size={20} />{!sidebarCollapsed && <span>{p.navPastContacts}</span>}</Link>
+          <Link to="/promotions" className="sidebar-link active"><Megaphone size={20} />{!sidebarCollapsed && <span>{p.navPromotions}</span>}</Link>
+          <Link to="/utilisateurs" className={`sidebar-link ${location.pathname === '/utilisateurs' ? 'active' : ''}`}><Users size={20} />{!sidebarCollapsed && <span>{p.navUsers}</span>}</Link>
+          <Link to="/support" className={`sidebar-link ${location.pathname === '/support' ? 'active' : ''}`}><Headphones size={20} />{!sidebarCollapsed && <span>{p.navSupport}</span>}</Link>
+          <Link to="/settings" className={`sidebar-link ${location.pathname === '/settings' ? 'active' : ''}`}><Settings size={20} />{!sidebarCollapsed && <span>{p.navSettings}</span>}</Link>
         </nav>
-        
         <div className="sidebar-footer">
-          {!sidebarCollapsed && (
-            <div className="sidebar-user-info">
-              <div className="sidebar-user-icon">
-                <UserCircle size={36} />
-              </div>
-              <div className="sidebar-user-details">
-                <div className="sidebar-user-name">{user?.name || 'Utilisateur'}</div>
-                <div className="sidebar-user-phone">{user?.phone || ''}</div>
-              </div>
-            </div>
-          )}
-          <button
-            className="sidebar-logout"
-            onClick={() => {
-              logout();
-              navigate('/login');
-            }}
-            title="Se déconnecter"
-          >
-            <LogOut size={20} />
-            {!sidebarCollapsed && <span>Déconnexion</span>}
-          </button>
+          {!sidebarCollapsed && <div className="sidebar-user-info"><div className="sidebar-user-icon"><UserCircle size={36} /></div><div className="sidebar-user-details"><div className="sidebar-user-name">{user?.name || 'Utilisateur'}</div><div className="sidebar-user-phone">{user?.phone || ''}</div></div></div>}
+          <button className="sidebar-logout" onClick={() => { logout(); navigate('/login'); }} title={p.logout}><LogOut size={20} />{!sidebarCollapsed && <span>{p.logout}</span>}</button>
         </div>
       </aside>
-      
+
       <div className="main-wrapper">
-        <header className="admin-header">
-          <div className="header-content">
-            <div className="header-center">
-            </div>
-          </div>
-        </header>
-
-        <div className="admin-content">
+        <header className="admin-header"><div className="header-content"><div className="header-center" /></div></header>
+        <main className="admin-content promotions-page">
           <div className="promotions-container">
-            <div className="promotions-header">
-              <h2>Créer une Campagne</h2>
-              <p>Sélectionnez un ou plusieurs canaux pour envoyer vos offres et promotions</p>
-            </div>
+            <section className="promotions-hero">
+              <div>
+                <span className="promotions-eyebrow"><Megaphone size={14} /> {p.eyebrow}</span>
+                <h1>{p.titleStart} <em>{p.titleEmphasis}</em></h1>
+                <p>{p.subtitle}</p>
+              </div>
+              <div className="campaign-progress" aria-label={p.progressLabel.replace('{completed}', String(completedSteps))}>
+                <strong>{completedSteps}/3</strong>
+                <span>{p.stepsCompleted}</span>
+                <div><i style={{ width: `${completedSteps * 33.34}%` }} /></div>
+              </div>
+            </section>
 
-                <div className="campaign-types">
-                  <button
-                    className={`campaign-type-card ${selectedCampaignTypes.includes('email') ? 'active' : ''}`}
-                    onClick={() => handleCampaignTypeToggle('email')}
-                  >
-                    <Mail size={32} />
-                    <h3>Campagne Email</h3>
-                    <p>Envoyez des emails personnalisés à vos contacts</p>
-                  </button>
+            <div className="campaign-workspace">
+              <div className="campaign-builder">
+                <section className="campaign-panel">
+                  <div className="section-heading"><span>1</span><div><h2>{p.stepChannels}</h2><p>{p.stepChannelsHint}</p></div></div>
+                  <div className="campaign-types">
+                    {channels.map(({ id, name, description, icon: Icon, tone }) => {
+                      const active = selectedCampaignTypes.includes(id);
+                      return <button key={id} type="button" aria-pressed={active} className={`campaign-type-card ${tone} ${active ? 'active' : ''}`} onClick={() => toggle(id, selectedCampaignTypes, setSelectedCampaignTypes)}>
+                        <span className="channel-check">{active && <Check size={14} />}</span>
+                        <span className="channel-icon"><Icon size={24} /></span>
+                        <strong>{name}</strong><small>{description}</small>
+                      </button>;
+                    })}
+                  </div>
+                </section>
 
-                  <button
-                    className={`campaign-type-card ${selectedCampaignTypes.includes('whatsapp') ? 'active' : ''}`}
-                    onClick={() => handleCampaignTypeToggle('whatsapp')}
-                  >
-                    <MessageSquare size={32} />
-                    <h3>Campagne WhatsApp</h3>
-                    <p>Contactez votre audience via WhatsApp</p>
-                  </button>
+                <section className="campaign-panel">
+                  <div className="section-heading"><span>2</span><div><h2>{p.stepAudience}</h2><p>{p.stepAudienceHint}</p></div></div>
+                  <div className="audience-selector">
+                    {audiences.map(({ id, name, description, icon: Icon }) => {
+                      const active = selectedAudiences.includes(id);
+                      return <button key={id} type="button" aria-pressed={active} className={`audience-card ${active ? 'active' : ''}`} onClick={() => toggle(id, selectedAudiences, setSelectedAudiences)}>
+                        <span className="audience-icon"><Icon size={20} /></span><span><strong>{name}</strong><small>{description}</small></span><span className="audience-check">{active && <Check size={14} />}</span>
+                      </button>;
+                    })}
+                  </div>
+                </section>
 
-                  <button
-                    className={`campaign-type-card ${selectedCampaignTypes.includes('sms') ? 'active' : ''}`}
-                    onClick={() => handleCampaignTypeToggle('sms')}
-                  >
-                    <Smartphone size={32} />
-                    <h3>Campagne SMS</h3>
-                    <p>Envoyez des messages SMS directs</p>
+                <section className="campaign-panel">
+                  <div className="section-heading"><span>3</span><div><h2>{p.stepMessage}</h2><p>{p.stepMessageHint}</p></div></div>
+                  <div className="form-section">
+                    <div className="field-label"><label htmlFor="campaign-title">{p.campaignTitle}</label><span>{campaignHeader.length}/80</span></div>
+                    <input id="campaign-title" type="text" maxLength={80} className="campaign-input" value={campaignHeader} onChange={e => setCampaignHeader(e.target.value)} placeholder={p.titlePlaceholder} />
+                  </div>
+                  <div className="form-section">
+                    <div className="field-label"><label htmlFor="campaign-message">{p.message}</label><span>{campaignBody.length} {p.characters}</span></div>
+                    <textarea id="campaign-message" className="campaign-textarea" value={campaignBody} onChange={e => setCampaignBody(e.target.value)} placeholder={p.messagePlaceholder} rows={7} />
+                    <p className="personalization-hint"><Sparkles size={14} /> {p.personalizationHint}</p>
+                  </div>
+                </section>
+              </div>
+
+              <aside className="campaign-preview-column">
+                <div className="preview-card">
+                  <div className="preview-heading"><span>{p.livePreview}</span><span className="preview-live"><i /> {p.live}</span></div>
+                  <div className="phone-frame">
+                    <div className="phone-top"><span /><span /><span /></div>
+                    <div className="phone-appbar"><span className="preview-avatar">RF</span><div><strong>{p.clinic}</strong><small>{p.online}</small></div></div>
+                    <div className="phone-content">
+                      <div className="message-bubble">
+                        <strong>{campaignHeader || p.previewTitle}</strong>
+                        <p>{p.hello} <span>{`{{${p.firstName}}}`}</span>,</p>
+                        <p>{campaignBody || p.previewMessage}</p>
+                        <time>10:42 ✓✓</time>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="campaign-summary">
+                    <div><span>{p.channels}</span><strong>{selectedCampaignTypes.length || '—'}</strong></div>
+                    <div><span>{p.audiences}</span><strong>{selectedAudiences.length || '—'}</strong></div>
+                  </div>
+                  <button className="send-campaign-button" onClick={handleSendCampaign} disabled={isSending}>
+                    {isSending ? <><span className="button-spinner" /> {p.sending}</> : <><Send size={18} /> {p.send}</>}
                   </button>
+                  <p className="send-note">{p.confirmationHint}</p>
                 </div>
-
-                {selectedCampaignTypes.length > 0 && (
-                  <div className="selected-channels-indicator">
-                    <p>✓ {selectedCampaignTypes.length} canal{selectedCampaignTypes.length > 1 ? 'aux' : ''} sélectionné{selectedCampaignTypes.length > 1 ? 's' : ''}: {selectedCampaignTypes.join(', ')}</p>
-                  </div>
-                )}
-
-                {selectedCampaignTypes.length > 0 && (
-                  <div className="campaign-form">
-                    <div className="form-section">
-                      <h3>Audience</h3>
-                      <div className="audience-selector">
-                        <label className="checkbox-option">
-                          <input
-                            type="checkbox"
-                            checked={selectedAudiences.includes('leads')}
-                            onChange={() => handleAudienceToggle('leads')}
-                          />
-                          <span>Leads</span>
-                        </label>
-                        <label className="checkbox-option">
-                          <input
-                            type="checkbox"
-                            checked={selectedAudiences.includes('no-shows')}
-                            onChange={() => handleAudienceToggle('no-shows')}
-                          />
-                          <span>No-shows</span>
-                        </label>
-                        <label className="checkbox-option">
-                          <input
-                            type="checkbox"
-                            checked={selectedAudiences.includes('past-patients')}
-                            onChange={() => handleAudienceToggle('past-patients')}
-                          />
-                          <span>Contacts passés</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="form-section">
-                      <label>En-tête</label>
-                      <input
-                        type="text"
-                        className="campaign-input"
-                        value={campaignHeader}
-                        onChange={(e) => setCampaignHeader(e.target.value)}
-                        placeholder="Entrez l'en-tête de votre campagne..."
-                      />
-                    </div>
-
-                    <div className="form-section">
-                      <label>Message</label>
-                      <div className="message-preview">
-                        <div className="static-greeting">Bonjour {`{{Prénom}}`}</div>
-                        <textarea
-                          className="campaign-textarea"
-                          value={campaignBody}
-                          onChange={(e) => setCampaignBody(e.target.value)}
-                          placeholder={`Entrez le corps de votre message...`}
-                          rows={8}
-                        />
-                      </div>
-                      <small className="char-count">{campaignBody.length} caractères</small>
-                    </div>
-
-                    <div className="form-actions">
-                      <button
-                        className="send-campaign-button"
-                        onClick={handleSendCampaign}
-                        disabled={isSending}
-                      >
-                        {isSending ? (
-                          <>Envoi en cours...</>
-                        ) : (
-                          <>
-                            <Send size={20} />
-                            Envoyer la campagne
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-        {showModal && (
-          <div className="modal-overlay" onClick={closeModal}>
-            <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-icon">
-                {modalType === 'error' && <AlertCircle size={48} color="#e74c3c" />}
-                {modalType === 'success' && <CheckCircle2 size={48} color="#27ae60" />}
-                {modalType === 'confirm' && <AlertCircle size={48} color="#f39c12" />}
-              </div>
-              <h3 className="modal-title">
-                {modalType === 'error' && 'Erreur'}
-                {modalType === 'success' && 'Succès'}
-                {modalType === 'confirm' && 'Confirmation'}
-              </h3>
-              <p className="modal-message">{modalMessage}</p>
-              <div className="modal-actions">
-                {modalType === 'confirm' ? (
-                  <>
-                    <button className="modal-button cancel" onClick={closeModal}>
-                      Annuler
-                    </button>
-                    <button className="modal-button confirm" onClick={confirmModal}>
-                      Confirmer
-                    </button>
-                  </>
-                ) : (
-                  <button className="modal-button confirm" onClick={closeModal}>
-                    OK
-                  </button>
-                )}
-              </div>
+              </aside>
             </div>
           </div>
-        )}
+        </main>
 
+        {showModal && <div className="modal-overlay" onClick={closeModal} role="presentation">
+          <div className="confirmation-modal" role="dialog" aria-modal="true" aria-labelledby="campaign-modal-title" onClick={e => e.stopPropagation()}>
+            <div className={`modal-icon ${modalType}`}>
+              {modalType === 'error' && <AlertCircle size={30} />}
+              {modalType === 'success' && <CheckCircle2 size={30} />}
+              {modalType === 'confirm' && <Send size={28} />}
+            </div>
+            <h3 id="campaign-modal-title" className="modal-title">{modalType === 'error' ? p.wait : modalType === 'success' ? p.sent : p.ready}</h3>
+            <p className="modal-message">{modalMessage}</p>
+            <div className="modal-actions">
+              {modalType === 'confirm' && <button className="modal-button cancel" onClick={closeModal}>{p.back}</button>}
+              <button className="modal-button confirm" onClick={modalType === 'confirm' ? () => { pendingAction?.(); closeModal(); } : closeModal}>{modalType === 'confirm' ? p.confirmSend : p.understood}</button>
+            </div>
+          </div>
+        </div>}
         <Footer />
       </div>
     </div>
