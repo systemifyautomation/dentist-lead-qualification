@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { DragEvent } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone, GripVertical, EyeOff, Columns3, Headphones, Settings, LayoutGrid, List } from 'lucide-react';
+import { Phone, Mail, ExternalLink, Pencil, Trash2, X, LogOut, Calendar, UserX, AlertTriangle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, CheckCircle, Megaphone, GripVertical, EyeOff, Columns3, Headphones, Settings, LayoutGrid, List } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useI18n } from '../i18n/I18nContext';
 import type { Lead } from '../types';
@@ -1646,6 +1646,14 @@ const AdminDashboard = () => {
                   )}
                 </div>
               </div>
+
+              {!isEditing && (
+                <div className="details-quick-actions" aria-label="Actions rapides">
+                  {selectedLead.phone && <a href={`tel:${selectedLead.phone}`}><Phone size={16} /><span>Appeler</span><small>{selectedLead.phone}</small></a>}
+                  {selectedLead.email && <a href={`mailto:${selectedLead.email}`}><Mail size={16} /><span>E-mail</span><small>{selectedLead.email}</small></a>}
+                  {selectedLead.calendarUrl && <a href={selectedLead.calendarUrl} target="_blank" rel="noreferrer"><Calendar size={16} /><span>Rendez-vous</span><small>Ouvrir le calendrier</small><ExternalLink size={13} className="quick-action-external" /></a>}
+                </div>
+              )}
 
               <div className="details-content">
               {!isEditing && (

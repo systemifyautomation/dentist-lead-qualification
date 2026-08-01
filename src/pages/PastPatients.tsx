@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, LogOut, CheckCircle, Menu, Users, LayoutDashboard, ChevronLeft, UserCircle, Megaphone, Headphones, Settings } from 'lucide-react';
+import { Calendar, Columns3, Phone, LogOut, CheckCircle, Menu, Users, LayoutDashboard, LayoutGrid, List, ChevronLeft, UserCircle, Megaphone, Headphones, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n/I18nContext';
 import type { Lead } from '../types';
 import Footer from '../components/Footer';
 import LoadingScreen from '../components/LoadingScreen';
 import SidebarBrand from '../components/SidebarBrand';
+import StatusDropdown from '../components/StatusDropdown';
 import './AdminDashboard.css';
 
 type ApiLead = {
@@ -41,6 +43,21 @@ const PastPatients = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
+  const { messages } = useI18n();
+  const cardsText = messages.crmCards;
+  const dateFilterOptions = [
+    { value: 'all', label: 'Toutes les dates' },
+    { value: 'today', label: "Aujourd'hui" },
+    { value: 'yesterday', label: 'Hier' },
+  ];
+  const sortOptions = [
+    { value: 'dateVisiteDesc', label: 'Dernières visites' },
+    { value: 'dateVisiteAsc', label: 'Prochaines visites' },
+    { value: 'nameAsc', label: 'Nom — A à Z' },
+    { value: 'nameDesc', label: 'Nom — Z à A' },
+    { value: 'createdDesc', label: 'Création — plus récentes' },
+    { value: 'createdAsc', label: 'Création — plus anciennes' },
+  ];
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +66,10 @@ const PastPatients = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState<'cards' | 'list' | 'board'>('cards');
+  const [pendingStatus, setPendingStatus] = useState<Lead['status'] | null>(null);
+  const [isStatusUpdating, setIsStatusUpdating] = useState(false);
+  const [statusUpdateError, setStatusUpdateError] = useState('');
   const [sortOrder, setSortOrder] = useState<'dateVisiteAsc' | 'dateVisiteDesc' | 'nameAsc' | 'nameDesc' | 'createdDesc' | 'createdAsc'>('dateVisiteDesc');
   const pageSize = 24;
 
@@ -422,6 +443,50 @@ const PastPatients = () => {
     return `${localIso}${sign}${offsetHours}:${offsetMins}`;
   };
 
+  const statusOptions = (['phone-unconfirmed', 'phone-confirmed', 'canceled', 'no-show', 'completed'] as const).map(status => ({
+    value: status,
+    label: getStatusLabel(status),
+    color: getStatusColor(status),
+  }));
+
+  const confirmStatusOverride = async () => {
+    if (!selectedLead || !pendingStatus || pendingStatus === selectedLead.status) return;
+    setIsStatusUpdating(true);
+    setStatusUpdateError('');
+    const updatedLead = { ...selectedLead, status: pendingStatus, updatedAt: formatMontrealDateTime(new Date()) };
+
+    try {
+      const endpoint = new URL(import.meta.env.VITE_WEBHOOK_LEADS);
+      endpoint.searchParams.set('id', updatedLead.id);
+      endpoint.searchParams.set('statut', updatedLead.status);
+      const response = await fetch(endpoint.toString(), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: updatedLead.id, nom: updatedLead.name, email: updatedLead.email,
+          telephone: updatedLead.phone, typeDemande: updatedLead.leadType,
+          statut: updatedLead.status, rappelEnvoye: updatedLead.reminderSent,
+          dateRappel: updatedLead.reminderDate, dateVisite: updatedLead.dateVisite,
+          calendar_url: updatedLead.calendarUrl, calendar_id: updatedLead.calendarId,
+          reschedule_url: updatedLead.rescheduleUrl, cancel_url: updatedLead.cancelUrl,
+          creeA: updatedLead.createdAt, modifieA: updatedLead.updatedAt,
+        }),
+      });
+      if (!response.ok) throw new Error(`Webhook error: ${response.status}`);
+
+      setLeads(current => ['completed', 'no-show'].includes(updatedLead.status)
+        ? current.map(lead => lead.id === updatedLead.id ? updatedLead : lead)
+        : current.filter(lead => lead.id !== updatedLead.id));
+      setSelectedLead(null);
+      setPendingStatus(null);
+    } catch (updateError) {
+      console.error('Failed to override past-contact status:', updateError);
+      setStatusUpdateError("Le statut n’a pas été modifié. Vérifiez la connexion au webhook et réessayez.");
+    } finally {
+      setIsStatusUpdating(false);
+    }
+  };
+
 
 
   return (
@@ -535,54 +600,50 @@ const PastPatients = () => {
           <div className="leads-toolbar">
             <div className="filters-top">
               <div className="filter-group">
-                <label htmlFor="date-filter" className="filter-label">Filtrer par date</label>
-                <select
-                  id="date-filter"
+                <label className="filter-label">Filtrer par date</label>
+                <StatusDropdown
                   value={dateFilter}
-                  onChange={(e) => {
-                    setDateFilter(e.target.value as typeof dateFilter);
+                  onChange={(value) => {
+                    setDateFilter(value as typeof dateFilter);
                     setCurrentPage(1);
                   }}
-                  className="filter-select"
-                >
-                  <option value="all">Toutes les dates</option>
-                  <option value="today">Aujourd'hui</option>
-                  <option value="yesterday">Hier</option>
-                </select>
+                  options={dateFilterOptions}
+                  className="filter-context"
+                  ariaLabel="Filtrer par date"
+                />
               </div>
               <div className="filter-group">
-                <label htmlFor="sort-select" className="filter-label">Trier par</label>
-                <select
-                  id="sort-select"
+                <label className="filter-label">Trier par</label>
+                <StatusDropdown
                   value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as typeof sortOrder)}
-                  className="filter-select"
-                >
-                  <optgroup label="Date de visite">
-                    <option value="dateVisiteDesc">Dernières visites</option>
-                    <option value="dateVisiteAsc">Prochaines visites</option>
-                  </optgroup>
-                  <optgroup label="Nom du contact">
-                    <option value="nameAsc">A → Z</option>
-                    <option value="nameDesc">Z → A</option>
-                  </optgroup>
-                  <optgroup label="Date de création">
-                    <option value="createdDesc">Plus récentes</option>
-                    <option value="createdAsc">Plus anciennes</option>
-                  </optgroup>
-                </select>
+                  onChange={(value) => setSortOrder(value as typeof sortOrder)}
+                  options={sortOptions}
+                  className="filter-context"
+                  ariaLabel="Trier les contacts"
+                />
               </div>
             </div>
           </div>
           <div className="leads-list">
             <div className="leads-list-header">
               <h2>Contacts passés ({sortedLeads.length})</h2>
+              <div className="view-switcher" role="group" aria-label={cardsText.viewMode}>
+                <button type="button" className={viewMode === 'cards' ? 'active' : ''} aria-pressed={viewMode === 'cards'} onClick={() => { setViewMode('cards'); setCurrentPage(1); }}>
+                  <LayoutGrid size={15} aria-hidden="true" />{cardsText.cards}
+                </button>
+                <button type="button" className={viewMode === 'list' ? 'active' : ''} aria-pressed={viewMode === 'list'} onClick={() => { setViewMode('list'); setCurrentPage(1); }}>
+                  <List size={15} aria-hidden="true" />{cardsText.list}
+                </button>
+                <button type="button" className={viewMode === 'board' ? 'active' : ''} aria-pressed={viewMode === 'board'} onClick={() => setViewMode('board')}>
+                  <Columns3 size={15} aria-hidden="true" />{cardsText.pipeline}
+                </button>
+              </div>
             </div>
             {sortedLeads.length === 0 ? (
               <div className="empty-state">
                 <p>Aucun contact passé trouvé.</p>
               </div>
-            ) : (
+            ) : viewMode === 'cards' ? (
               <div className="leads-grid">
                 {paginatedLeads.map((lead) => (
                   <div
@@ -634,10 +695,58 @@ const PastPatients = () => {
                   </div>
                 ))}
               </div>
+            ) : viewMode === 'list' ? (
+              <div className="leads-table-wrap">
+                <table className="leads-table">
+                  <thead><tr><th>Contact</th><th>Type</th><th>Statut</th><th>Dernière visite</th><th>Téléphone</th></tr></thead>
+                  <tbody>
+                    {paginatedLeads.map(lead => (
+                      <tr key={lead.id} className={selectedLead?.id === lead.id ? 'selected' : ''} onClick={() => setSelectedLead(lead)} tabIndex={0} onKeyDown={event => {
+                        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelectedLead(lead); }
+                      }}>
+                        <td><strong>{lead.name || 'Sans nom'}</strong><span>{lead.email || 'Aucun e-mail'}</span></td>
+                        <td>{getLeadTypeLabel(lead.leadType)}</td>
+                        <td><span className="status-badge" style={{ backgroundColor: getStatusColor(lead.status) }}>{getStatusLabel(lead.status)}</span></td>
+                        <td>{formatMaybeDate(lead.dateVisite)}</td>
+                        <td>{lead.phone || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="pipeline-board past-contacts-board" aria-label={cardsText.pipelineTitle}>
+                {([
+                  { status: 'completed' as const, label: cardsText.completed },
+                  { status: 'no-show' as const, label: cardsText.absent },
+                ]).map(column => {
+                  const columnLeads = sortedLeads.filter(lead => lead.status === column.status);
+                  return <section key={column.status} className="pipeline-column">
+                    <div className="pipeline-column-header">
+                      <div className="pipeline-column-title"><span className="pipeline-status-dot" style={{ backgroundColor: getStatusColor(column.status) }} /><h3>{column.label}</h3></div>
+                      <span className="pipeline-count">{columnLeads.length}</span>
+                    </div>
+                    <div className="pipeline-column-cards">
+                      {columnLeads.length === 0 ? <div className="pipeline-empty">Aucun contact</div> : columnLeads.map(lead => (
+                        <article key={lead.id} className="pipeline-card" onClick={() => setSelectedLead(lead)} tabIndex={0} onKeyDown={event => {
+                          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelectedLead(lead); }
+                        }}>
+                          <div className="pipeline-card-top">
+                            <div className="pipeline-avatar" aria-hidden="true">{(lead.name || '?').trim().charAt(0).toUpperCase()}</div>
+                            <div className="pipeline-card-identity"><h4>{lead.name || 'Sans nom'}</h4><span>{getLeadTypeLabel(lead.leadType)}</span></div>
+                          </div>
+                          {lead.dateVisite && <div className="pipeline-card-row"><Calendar size={14} aria-hidden="true" /><span>{formatMaybeDate(lead.dateVisite)}</span></div>}
+                          <div className="pipeline-card-footer"><span>{lead.email || '—'}</span><span className="pipeline-contact">{lead.phone || '—'}</span></div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>;
+                })}
+              </div>
             )}
           </div>
 
-          {sortedLeads.length > 0 && (
+          {sortedLeads.length > 0 && viewMode !== 'board' && (
             <div className="pagination">
               <button
                 className="pagination-button"
@@ -708,7 +817,19 @@ const PastPatients = () => {
                     </div>
                     <div className="detail-item">
                       <label>Statut:</label>
-                      <span>{getStatusLabel(selectedLead.status)}</span>
+                      <div className="past-contact-status-control">
+                        <StatusDropdown
+                          value={selectedLead.status}
+                          onChange={(value) => {
+                            if (value === selectedLead.status) return;
+                            setStatusUpdateError('');
+                            setPendingStatus(value as Lead['status']);
+                          }}
+                          options={statusOptions}
+                          ariaLabel="Modifier le statut"
+                        />
+                        <small>Toute modification nécessite une confirmation d’écrasement.</small>
+                      </div>
                     </div>
                     {selectedLead.description && (
                       <div className="detail-item">
@@ -759,6 +880,24 @@ const PastPatients = () => {
             </div>
           </div>
         </>
+        )}
+        {pendingStatus && selectedLead && (
+          <div className="past-status-confirm-overlay" role="presentation">
+            <div className="past-status-confirm" role="alertdialog" aria-modal="true" aria-labelledby="status-override-title">
+              <div className="past-status-confirm-icon"><CheckCircle size={26} /></div>
+              <p className="past-status-eyebrow">ÉCRASEMENT DU STATUT</p>
+              <h3 id="status-override-title">Confirmer cette modification ?</h3>
+              <p>Le statut de <strong>{selectedLead.name}</strong> passera de <strong>{getStatusLabel(selectedLead.status)}</strong> à <strong>{getStatusLabel(pendingStatus)}</strong>.</p>
+              <p className="past-status-warning">Cette action mettra à jour la fiche via le webhook et peut retirer ce contact de cette page.</p>
+              {statusUpdateError && <p className="past-status-error" role="alert">{statusUpdateError}</p>}
+              <div className="past-status-confirm-actions">
+                <button type="button" className="cancel" disabled={isStatusUpdating} onClick={() => { setPendingStatus(null); setStatusUpdateError(''); }}>Conserver le statut</button>
+                <button type="button" className="confirm" disabled={isStatusUpdating} onClick={() => void confirmStatusOverride()}>
+                  {isStatusUpdating ? <><span className="button-spinner" /> Mise à jour…</> : 'Oui, écraser le statut'}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
       )}
